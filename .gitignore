@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit these
+.env
+server/.env
+client/.env
+
+# Build outputs
+client/dist/
+
+# OS & editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
