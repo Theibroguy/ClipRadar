@@ -7,7 +7,7 @@
  * If the key is missing the function gracefully returns empty strings
  * so the rest of the app continues to work.
  */
-import { GoogleGenerativeAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
 let client = null;
 
@@ -15,7 +15,7 @@ function getClient() {
     if (!client) {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return null;
-        client = new GoogleGenerativeAI(apiKey);
+        client = new GoogleGenAI({ apiKey });
     }
     return client;
 }
@@ -52,9 +52,11 @@ Reply strictly in this JSON format (no markdown, no extra keys):
 `.trim();
 
     try {
-        const model = gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text().trim();
+        const response = await gemini.models.generateContent({
+            model: 'gemini-1.5-flash',
+            contents: prompt,
+        });
+        const text = response.text.trim();
         const parsed = JSON.parse(text);
         return {
             aiDescription: parsed.aiDescription || '',
