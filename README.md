@@ -180,6 +180,6 @@ All tests run against demo mode — no real API credentials are required.
 - [x] Phase 5 — Testing (Vitest + Supertest all passing)
 - [ ] Phase 6 — Live YouTube integration (first real platform)
 - [ ] Phase 7 — Pagination / infinite scroll
-- [ ] Phase 8 — Video preview modal with embed support
-- [ ] Phase 9 — User bookmarks (local storage)
+- [x] Phase 8 — Video preview modal with embed support
+- [x] Phase 9 — User bookmarks (local storage) & real-time search bar
 - [ ] Phase 10 — Deploy (e.g., Railway for server, Vercel for client)

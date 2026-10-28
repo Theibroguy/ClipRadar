@@ -2,8 +2,8 @@
  * VideoCard component tests
  * Vitest + @testing-library/react
  */
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import VideoCard from '../src/components/VideoCard/VideoCard.jsx';
 
 const sampleVideo = {
@@ -74,5 +74,35 @@ describe('VideoCard', () => {
     it('renders formatted view count', () => {
         render(<VideoCard video={sampleVideo} />);
         expect(screen.getByText(/500\.0K|500K/)).toBeInTheDocument();
+    });
+
+    it('calls onSelectVideo when clicking preview button or thumbnail', () => {
+        const onSelect = vi.fn();
+        render(<VideoCard video={sampleVideo} onSelectVideo={onSelect} />);
+
+        const previewBtn = screen.getByRole('button', { name: /preview.*modal/i });
+        fireEvent.click(previewBtn);
+        expect(onSelect).toHaveBeenCalledTimes(1);
+        expect(onSelect).toHaveBeenCalledWith(sampleVideo);
+
+        const thumb = screen.getByLabelText(/^preview "a very funny clip"$/i);
+        fireEvent.click(thumb);
+        expect(onSelect).toHaveBeenCalledTimes(2);
+    });
+
+    it('renders bookmark button and calls onToggleBookmark', () => {
+        const onToggle = vi.fn();
+        render(
+            <VideoCard
+                video={sampleVideo}
+                isBookmarked={false}
+                onToggleBookmark={onToggle}
+            />
+        );
+
+        const bookmarkBtn = screen.getByRole('button', { name: /save.*favorites/i });
+        expect(bookmarkBtn).toBeInTheDocument();
+        fireEvent.click(bookmarkBtn);
+        expect(onToggle).toHaveBeenCalledWith(sampleVideo);
     });
 });

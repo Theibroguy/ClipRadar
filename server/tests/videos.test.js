@@ -48,8 +48,21 @@ describe('GET /api/videos', () => {
     it('filters by category', async () => {
         const res = await request(app).get('/api/videos?category=Comedy');
         expect(res.status).toBe(200);
-        // If no Comedy videos exist in demo data, result is empty — not an error
         expect(Array.isArray(res.body.videos)).toBe(true);
+    });
+
+    it('filters by search keyword', async () => {
+        const res = await request(app).get('/api/videos?search=beast');
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.videos)).toBe(true);
+        expect(res.body.videos.length).toBeGreaterThan(0);
+        expect(
+            res.body.videos.some(
+                (v) =>
+                    v.title.toLowerCase().includes('beast') ||
+                    v.creator.name.toLowerCase().includes('beast')
+            )
+        ).toBe(true);
     });
 
     it('respects limit param', async () => {

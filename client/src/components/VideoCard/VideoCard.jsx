@@ -1,3 +1,4 @@
+import { formatCount, formatDuration, formatDate } from '../../utils/formatters.js';
 import './VideoCard.css';
 
 const PLATFORM_LABELS = {
@@ -8,39 +9,21 @@ const PLATFORM_LABELS = {
     demo: 'Demo',
 };
 
-/** Format view count: 1500000 → "1.5M" */
-function formatCount(n) {
-    if (!n) return null;
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-    return String(n);
-}
-
-/** Format seconds: 872 → "14:32" */
-function formatDuration(sec) {
-    if (!sec) return null;
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${String(s).padStart(2, '0')}`;
-}
-
-/** Format ISO date → "May 12, 2024" */
-function formatDate(dateStr) {
-    if (!dateStr) return null;
-    return new Date(dateStr).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
-}
-
 /**
- * VideoCard — displays a single video item.
+ * VideoCard — displays a single video item with preview triggers and favorites.
  *
  * Props:
  *   video {object} — a video document from the API
+ *   onSelectVideo {function} — optional callback when clicking preview
+ *   isBookmarked {boolean} — whether this video is favorited
+ *   onToggleBookmark {function} — callback to toggle favorite
  */
-export default function VideoCard({ video }) {
+export default function VideoCard({
+    video,
+    onSelectVideo,
+    isBookmarked = false,
+    onToggleBookmark,
+}) {
     const {
         platform,
         creator = {},
@@ -57,10 +40,28 @@ export default function VideoCard({ video }) {
     const badgeClass = `video-card__platform-badge badge-${platform || 'demo'}`;
     const platformLabel = PLATFORM_LABELS[platform] || platform;
 
+    function handlePreview() {
+        if (onSelectVideo) {
+            onSelectVideo(video);
+        }
+    }
+
     return (
         <article className="video-card" aria-label={title}>
-            {/* Thumbnail */}
-            <div className="video-card__thumb">
+            {/* Thumbnail with Preview Click */}
+            <div
+                className="video-card__thumb"
+                onClick={handlePreview}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handlePreview();
+                    }
+                }}
+                aria-label={`Preview "${title}"`}
+            >
                 {thumbnailUrl ? (
                     <img src={thumbnailUrl} alt={`Thumbnail for ${title}`} loading="lazy" />
                 ) : (
@@ -72,6 +73,33 @@ export default function VideoCard({ video }) {
                         {formatDuration(durationSeconds)}
                     </span>
                 )}
+
+                {/* Bookmark / Favorite Button */}
+                {onToggleBookmark && (
+                    <button
+                        type="button"
+                        className={`video-card__bookmark-btn ${isBookmarked ? 'active' : ''}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleBookmark(video);
+                        }}
+                        aria-label={
+                            isBookmarked
+                                ? `Remove "${title}" from favorites`
+                                : `Save "${title}" to favorites`
+                        }
+                        aria-pressed={isBookmarked}
+                        title={isBookmarked ? 'Remove from favorites' : 'Save to favorites'}
+                    >
+                        {isBookmarked ? '❤️' : '🤍'}
+                    </button>
+                )}
+
+                {/* Hover Play Overlay */}
+                <div className="video-card__play-overlay" aria-hidden="true">
+                    <span className="video-card__play-icon">▶</span>
+                    <span className="video-card__play-label">Preview</span>
+                </div>
             </div>
 
             {/* Content */}
@@ -102,7 +130,20 @@ export default function VideoCard({ video }) {
                 </div>
 
                 {/* Title */}
-                <h2 className="video-card__title">{title}</h2>
+                <h2
+                    className="video-card__title"
+                    onClick={handlePreview}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handlePreview();
+                        }
+                    }}
+                >
+                    {title}
+                </h2>
 
                 {/* AI Description */}
                 {aiDescription && (
@@ -126,16 +167,26 @@ export default function VideoCard({ video }) {
                     </div>
                 </div>
 
-                {/* CTA */}
-                <a
-                    href={videoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="video-card__cta"
-                    aria-label={`Watch "${title}" on ${platformLabel}`}
-                >
-                    ▶ Watch on {platformLabel}
-                </a>
+                {/* CTA Row */}
+                <div className="video-card__cta-row">
+                    <button
+                        type="button"
+                        className="video-card__preview-btn"
+                        onClick={handlePreview}
+                        aria-label={`Preview "${title}" in modal`}
+                    >
+                        ▶ In-App Preview
+                    </button>
+                    <a
+                        href={videoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="video-card__cta"
+                        aria-label={`Watch "${title}" on ${platformLabel}`}
+                    >
+                        Watch on {platformLabel} ↗
+                    </a>
+                </div>
             </div>
         </article>
     );

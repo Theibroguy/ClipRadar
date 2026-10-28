@@ -10,12 +10,13 @@ const BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 /**
  * Fetch videos with optional filters.
- * @param {{ platform?: string, category?: string, limit?: number, skip?: number }} params
+ * @param {{ platform?: string, category?: string, search?: string, limit?: number, skip?: number }} params
  */
 export async function fetchVideos(params = {}) {
     const query = new URLSearchParams();
     if (params.platform && params.platform !== 'all') query.set('platform', params.platform);
     if (params.category && params.category !== 'all') query.set('category', params.category);
+    if (params.search && params.search.trim()) query.set('search', params.search.trim());
     if (params.limit) query.set('limit', params.limit);
     if (params.skip) query.set('skip', params.skip);
 

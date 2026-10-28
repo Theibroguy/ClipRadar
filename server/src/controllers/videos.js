@@ -25,11 +25,12 @@ const DEFAULT_YT_QUERIES = [
 
 /**
  * GET /api/videos
- * Query params: platform, category, limit (default 20), skip (default 0)
+ * Query params: platform, category, q/search, limit (default 20), skip (default 0)
  */
 export async function getVideos(req, res, next) {
     try {
-        const { platform, category, limit = 20, skip = 0 } = req.query;
+        const { platform, category, q, search, limit = 20, skip = 0 } = req.query;
+        const searchTerm = (q || search || '').trim().toLowerCase();
 
         if (DEMO_MODE) {
             let videos = demoVideos;
@@ -39,6 +40,18 @@ export async function getVideos(req, res, next) {
             }
             if (category && category !== 'all') {
                 videos = videos.filter((v) => v.category === category);
+            }
+            if (searchTerm) {
+                videos = videos.filter(
+                    (v) =>
+                        v.title?.toLowerCase().includes(searchTerm) ||
+                        v.creator?.name?.toLowerCase().includes(searchTerm) ||
+                        v.creator?.handle?.toLowerCase().includes(searchTerm) ||
+                        v.aiDescription?.toLowerCase().includes(searchTerm) ||
+                        v.description?.toLowerCase().includes(searchTerm) ||
+                        (Array.isArray(v.tags) &&
+                            v.tags.some((t) => t.toLowerCase().includes(searchTerm)))
+                );
             }
 
             const paginated = videos.slice(Number(skip), Number(skip) + Number(limit));
@@ -54,6 +67,16 @@ export async function getVideos(req, res, next) {
         const filter = {};
         if (platform && platform !== 'all') filter.platform = platform;
         if (category && category !== 'all') filter.category = category;
+        if (searchTerm) {
+            filter.$or = [
+                { title: { $regex: searchTerm, $options: 'i' } },
+                { 'creator.name': { $regex: searchTerm, $options: 'i' } },
+                { 'creator.handle': { $regex: searchTerm, $options: 'i' } },
+                { aiDescription: { $regex: searchTerm, $options: 'i' } },
+                { description: { $regex: searchTerm, $options: 'i' } },
+                { tags: { $in: [new RegExp(searchTerm, 'i')] } },
+            ];
+        }
 
         const [videos, total] = await Promise.all([
             Video.find(filter)

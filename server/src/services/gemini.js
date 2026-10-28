@@ -51,13 +51,19 @@ Reply strictly in this JSON format (no markdown, no extra keys):
 {"aiDescription": "...", "category": "..."}
 `.trim();
 
+    const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+
     try {
         const response = await gemini.models.generateContent({
-            model: 'gemini-1.5-flash',
+            model,
             contents: prompt,
         });
-        const text = response.text.trim();
-        const parsed = JSON.parse(text);
+        const text = response.text ? response.text.trim() : '';
+        let cleanText = text;
+        if (cleanText.startsWith('```')) {
+            cleanText = cleanText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+        }
+        const parsed = JSON.parse(cleanText);
         return {
             aiDescription: parsed.aiDescription || '',
             category: parsed.category || 'Uncategorized',

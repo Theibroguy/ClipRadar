@@ -3,7 +3,7 @@
     align-items: center;
     gap: var(--space-3);
     flex-wrap: wrap;
-    padding: var(--space-4) var(--space-6);
+    padding: var(--space-3) var(--space-6);
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
     position: sticky;
@@ -24,9 +24,15 @@
 
 .filter-bar__group {
     display: flex;
+    align-items: center;
     gap: var(--space-2);
     flex-wrap: wrap;
-    flex: 1;
+}
+
+.filter-bar__group--favorites {
+    border-right: 1px solid var(--color-border);
+    padding-right: var(--space-3);
+    margin-right: var(--space-1);
 }
 
 .filter-chip {
@@ -60,6 +66,25 @@
     border-color: var(--color-primary);
 }
 
+/* Saved filter chip */
+.filter-chip--saved {
+    border-color: rgba(255, 101, 132, 0.35);
+    color: var(--color-accent);
+}
+
+.filter-chip--saved:hover {
+    border-color: var(--color-accent);
+    background: rgba(255, 101, 132, 0.12);
+    color: #fff;
+}
+
+.filter-chip--saved.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(255, 101, 132, 0.4);
+}
+
 .filter-chip .platform-dot {
     width: 8px;
     height: 8px;
@@ -90,4 +115,13 @@
 
 .dot-all {
     background: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .filter-bar__group--favorites {
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
+        width: 100%;
+    }
 }

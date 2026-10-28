@@ -1,6 +1,6 @@
 /**
  * Demo seed data — used when DEMO_MODE=true.
- * These represent realistic but fictional clips of public figures.
+ * These represent realistic clips of public figures with playable preview embeds.
  * No real video files are hosted here; all videoUrl values link to
  * publicly available official pages.
  */
@@ -22,8 +22,8 @@ export const demoVideos = [
         category: 'Challenge',
         tags: ['survival', 'challenge', 'outdoors', 'viral'],
         thumbnailUrl: 'https://picsum.photos/seed/mb001/640/360',
-        videoUrl: 'https://www.youtube.com/@MrBeast',
-        embedUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=0e3GPea1Tyg',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/0e3GPea1Tyg',
         durationSeconds: 872,
         publishedAt: new Date('2024-05-12T12:00:00Z'),
         viewCount: 48_200_000,
@@ -45,8 +45,8 @@ export const demoVideos = [
         category: 'Tech',
         tags: ['tech', 'smartphones', 'foldable', 'review'],
         thumbnailUrl: 'https://picsum.photos/seed/mkbhd002/640/360',
-        videoUrl: 'https://www.youtube.com/@mkbhd',
-        embedUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=1rQ_s_XgEPo',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/1rQ_s_XgEPo',
         durationSeconds: 1340,
         publishedAt: new Date('2024-06-20T16:00:00Z'),
         viewCount: 7_800_000,
@@ -69,7 +69,7 @@ export const demoVideos = [
         tags: ['comedy', 'reaction', 'lifehacks', 'tiktok'],
         thumbnailUrl: 'https://picsum.photos/seed/khaby001/640/360',
         videoUrl: 'https://www.tiktok.com/@khaby.lame',
-        embedUrl: '',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/t8kC9U21bkg',
         durationSeconds: 45,
         publishedAt: new Date('2024-07-04T09:00:00Z'),
         viewCount: 120_000_000,
@@ -92,7 +92,7 @@ export const demoVideos = [
         tags: ['fashion', 'celebrities', 'metgala', 'behindthescenes'],
         thumbnailUrl: 'https://picsum.photos/seed/zen001/640/360',
         videoUrl: 'https://www.instagram.com/zendaya',
-        embedUrl: '',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/8ZtJzT7x_C0',
         durationSeconds: 60,
         publishedAt: new Date('2024-05-07T18:00:00Z'),
         viewCount: 22_000_000,
@@ -115,7 +115,7 @@ export const demoVideos = [
         tags: ['spacex', 'starship', 'space', 'engineering'],
         thumbnailUrl: 'https://picsum.photos/seed/spacex001/640/360',
         videoUrl: 'https://x.com/elonmusk',
-        embedUrl: '',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/e1r57oXmFqY',
         durationSeconds: 78,
         publishedAt: new Date('2024-06-15T20:30:00Z'),
         viewCount: 35_000_000,
@@ -137,8 +137,8 @@ export const demoVideos = [
         category: 'Lifestyle',
         tags: ['vlog', 'nyc', 'lifestyle', 'dayinmylife'],
         thumbnailUrl: 'https://picsum.photos/seed/emma003/640/360',
-        videoUrl: 'https://www.youtube.com/@emmachamberlain',
-        embedUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=m62Y8iQ3778',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/m62Y8iQ3778',
         durationSeconds: 1080,
         publishedAt: new Date('2024-08-01T14:00:00Z'),
         viewCount: 5_400_000,

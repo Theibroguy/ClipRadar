@@ -1,8 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchVideos } from '../../api/videos.js';
 import VideoCard from '../../components/VideoCard/VideoCard.jsx';
 import FilterBar from '../../components/FilterBar/FilterBar.jsx';
+import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import Spinner from '../../components/Spinner/Spinner.jsx';
+import VideoModal from '../../components/VideoModal/VideoModal.jsx';
+import { useBookmarks } from '../../hooks/useBookmarks.js';
 import './VideoFeed.css';
 
 const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
@@ -12,15 +15,29 @@ export default function VideoFeed() {
     const [total, setTotal] = useState(0);
     const [mode, setMode] = useState(null);
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSavedOnly, setShowSavedOnly] = useState(false);
     const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
     const [errorMsg, setErrorMsg] = useState('');
     const [retryCount, setRetryCount] = useState(0);
+    const [selectedVideo, setSelectedVideo] = useState(null);
+
+    const {
+        bookmarks,
+        bookmarksCount,
+        isBookmarked,
+        toggleBookmark,
+    } = useBookmarks();
 
     const loadVideos = useCallback(async () => {
         setStatus('loading');
         setErrorMsg('');
         try {
-            const data = await fetchVideos({ ...filters, limit: 20 });
+            const data = await fetchVideos({
+                ...filters,
+                search: searchQuery,
+                limit: 50,
+            });
             setVideos(data.videos);
             setTotal(data.total);
             setMode(data.mode);
@@ -30,7 +47,7 @@ export default function VideoFeed() {
             setErrorMsg(err.message || 'Failed to load videos.');
             setStatus('error');
         }
-    }, [filters, retryCount]);
+    }, [filters, searchQuery, retryCount]);
 
     useEffect(() => {
         loadVideos();
@@ -43,6 +60,51 @@ export default function VideoFeed() {
     function handleRetry() {
         setRetryCount((c) => c + 1);
     }
+
+    function handleToggleSaved() {
+        setShowSavedOnly((prev) => !prev);
+    }
+
+    function handleClearSearch() {
+        setSearchQuery('');
+    }
+
+    // Determine clips to display (with client-side search & saved filtering)
+    const displayVideos = useMemo(() => {
+        const sourceList = showSavedOnly ? bookmarks : videos;
+        const q = searchQuery.trim().toLowerCase();
+
+        return sourceList.filter((v) => {
+            // In saved mode, also respect platform & category chips
+            if (showSavedOnly) {
+                if (filters.platform !== 'all' && v.platform !== filters.platform) {
+                    return false;
+                }
+                if (filters.category !== 'all' && v.category !== filters.category) {
+                    return false;
+                }
+            }
+
+            // Real-time client search filter
+            if (q) {
+                const titleMatch = v.title?.toLowerCase().includes(q);
+                const creatorMatch =
+                    v.creator?.name?.toLowerCase().includes(q) ||
+                    v.creator?.handle?.toLowerCase().includes(q);
+                const aiDescMatch = v.aiDescription?.toLowerCase().includes(q);
+                const descMatch = v.description?.toLowerCase().includes(q);
+                const tagsMatch =
+                    Array.isArray(v.tags) &&
+                    v.tags.some((t) => t.toLowerCase().includes(q));
+
+                if (!titleMatch && !creatorMatch && !aiDescMatch && !descMatch && !tagsMatch) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }, [showSavedOnly, bookmarks, videos, filters, searchQuery]);
 
     return (
         <div className="video-feed">
@@ -58,23 +120,66 @@ export default function VideoFeed() {
                 {mode === 'demo' && (
                     <span className="video-feed__mode-badge">⚡ Demo Mode</span>
                 )}
+
+                {/* Search Bar */}
+                <div className="video-feed__search-wrapper">
+                    <SearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        placeholder="Search creators, titles, AI summaries, or tags…"
+                    />
+                </div>
             </header>
 
-            {/* Filters */}
+            {/* Filters & Favorites Bar */}
             <FilterBar
                 platform={filters.platform}
                 category={filters.category}
                 onChange={handleFiltersChange}
+                showSavedOnly={showSavedOnly}
+                savedCount={bookmarksCount}
+                onToggleSaved={handleToggleSaved}
             />
 
-            {/* Results count */}
+            {/* Results count & status bar */}
             {status === 'success' && (
                 <div className="video-feed__results-bar">
                     <span>
-                        {total === 0
+                        {showSavedOnly
+                            ? `Showing ${displayVideos.length} of ${bookmarksCount} saved clip${
+                                  bookmarksCount === 1 ? '' : 's'
+                              }`
+                            : searchQuery
+                            ? `Showing ${displayVideos.length} result${
+                                  displayVideos.length === 1 ? '' : 's'
+                              } for "${searchQuery}"`
+                            : displayVideos.length === 0
                             ? 'No videos found'
-                            : `Showing ${videos.length} of ${total} videos`}
+                            : `Showing ${displayVideos.length} of ${total} videos`}
                     </span>
+                    {(searchQuery || showSavedOnly) && (
+                        <div>
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    className="video-feed__clear-link"
+                                    onClick={handleClearSearch}
+                                >
+                                    Clear search
+                                </button>
+                            )}
+                            {showSavedOnly && (
+                                <button
+                                    type="button"
+                                    className="video-feed__clear-link"
+                                    onClick={() => setShowSavedOnly(false)}
+                                    style={{ marginLeft: '12px' }}
+                                >
+                                    View all clips
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -103,23 +208,70 @@ export default function VideoFeed() {
                     </div>
                 )}
 
-                {/* Empty */}
-                {status === 'success' && videos.length === 0 && (
+                {/* Empty State: Saved tab has no bookmarks */}
+                {status === 'success' && showSavedOnly && bookmarksCount === 0 && (
                     <div className="video-feed__state">
-                        <span className="video-feed__state-icon">🔍</span>
-                        <h2 className="video-feed__state-title">No clips found</h2>
+                        <span className="video-feed__state-icon">❤️</span>
+                        <h2 className="video-feed__state-title">No saved clips yet</h2>
                         <p className="video-feed__state-msg">
-                            Try adjusting your filters, or check back after a refresh.
+                            Click the heart icon on any video card to save your favorite clips here.
                         </p>
+                        <button
+                            type="button"
+                            className="video-feed__action-btn"
+                            onClick={() => setShowSavedOnly(false)}
+                        >
+                            Explore Clips
+                        </button>
                     </div>
                 )}
 
+                {/* Empty State: Search or filters returned 0 */}
+                {status === 'success' &&
+                    displayVideos.length === 0 &&
+                    (!showSavedOnly || bookmarksCount > 0) && (
+                        <div className="video-feed__state">
+                            <span className="video-feed__state-icon">🔍</span>
+                            <h2 className="video-feed__state-title">No clips found</h2>
+                            <p className="video-feed__state-msg">
+                                {searchQuery
+                                    ? `No clips matched "${searchQuery}". Try a different search term or clear the filter.`
+                                    : 'Try adjusting your platform or category filters, or check back after a refresh.'}
+                            </p>
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    className="video-feed__action-btn"
+                                    onClick={handleClearSearch}
+                                >
+                                    Clear search
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                 {/* Videos */}
                 {status === 'success' &&
-                    videos.map((video) => (
-                        <VideoCard key={`${video.platform}-${video.platformVideoId}`} video={video} />
+                    displayVideos.map((video) => (
+                        <VideoCard
+                            key={`${video.platform}-${video.platformVideoId}`}
+                            video={video}
+                            onSelectVideo={setSelectedVideo}
+                            isBookmarked={isBookmarked(video)}
+                            onToggleBookmark={toggleBookmark}
+                        />
                     ))}
             </main>
+
+            {/* Preview Modal */}
+            {selectedVideo && (
+                <VideoModal
+                    video={selectedVideo}
+                    onClose={() => setSelectedVideo(null)}
+                    isBookmarked={isBookmarked(selectedVideo)}
+                    onToggleBookmark={toggleBookmark}
+                />
+            )}
 
             <footer className="video-feed__footer">
                 <p>
