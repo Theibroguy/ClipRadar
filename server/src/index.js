@@ -3,18 +3,26 @@ import app from './app.js';
 import { connectDB } from './config/db.js';
 
 const PORT = process.env.PORT || 3001;
-const DEMO_MODE = process.env.DEMO_MODE === 'true';
 
 async function start() {
-  if (!DEMO_MODE) {
-    await connectDB();
+  const isDemo = process.env.DEMO_MODE === 'true';
+
+  if (!isDemo) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.warn('⚠️ MongoDB Atlas connection error (check IP whitelist):', err.message);
+      console.warn('⚡ Temporarily running in Demo fallback mode so the app is accessible.');
+      process.env.DEMO_MODE = 'true';
+    }
   } else {
     console.log('⚡ Demo mode active — skipping database connection.');
   }
 
   app.listen(PORT, () => {
+    const currentMode = process.env.DEMO_MODE === 'true' ? 'DEMO (fallback)' : 'PRODUCTION';
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`   Mode: ${DEMO_MODE ? 'DEMO (no real APIs)' : 'PRODUCTION'}`);
+    console.log(`   Mode: ${currentMode}`);
   });
 }
 

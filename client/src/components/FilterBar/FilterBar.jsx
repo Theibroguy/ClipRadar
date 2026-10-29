@@ -57,9 +57,8 @@ export default function FilterBar({
                 <div className="filter-bar__group filter-bar__group--favorites">
                     <button
                         type="button"
-                        className={`filter-chip filter-chip--saved ${
-                            showSavedOnly ? 'active' : ''
-                        }`}
+                        className={`filter-chip filter-chip--saved ${showSavedOnly ? 'active' : ''
+                            }`}
                         onClick={onToggleSaved}
                         aria-pressed={showSavedOnly}
                         id="saved-clips-filter"

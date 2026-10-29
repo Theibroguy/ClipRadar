@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { fetchVideos } from '../../api/videos.js';
 import VideoCard from '../../components/VideoCard/VideoCard.jsx';
 import FilterBar from '../../components/FilterBar/FilterBar.jsx';
@@ -9,18 +9,25 @@ import { useBookmarks } from '../../hooks/useBookmarks.js';
 import './VideoFeed.css';
 
 const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
+const PAGE_SIZE = 6;
 
 export default function VideoFeed() {
     const [videos, setVideos] = useState([]);
     const [total, setTotal] = useState(0);
     const [mode, setMode] = useState(null);
+    const [hasMore, setHasMore] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [searchQuery, setSearchQuery] = useState('');
     const [showSavedOnly, setShowSavedOnly] = useState(false);
+    const [visibleSavedCount, setVisibleSavedCount] = useState(PAGE_SIZE);
     const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
     const [errorMsg, setErrorMsg] = useState('');
     const [retryCount, setRetryCount] = useState(0);
     const [selectedVideo, setSelectedVideo] = useState(null);
+    const [showBackToTop, setShowBackToTop] = useState(false);
+
+    const sentinelRef = useRef(null);
 
     const {
         bookmarks,
@@ -29,18 +36,39 @@ export default function VideoFeed() {
         toggleBookmark,
     } = useBookmarks();
 
-    const loadVideos = useCallback(async () => {
+    // Scroll listener for "Back to Top" button
+    useEffect(() => {
+        function handleScroll() {
+            if (window.scrollY > 400) {
+                setShowBackToTop(true);
+            } else {
+                setShowBackToTop(false);
+            }
+        }
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Initial page load
+    const loadInitialVideos = useCallback(async () => {
         setStatus('loading');
         setErrorMsg('');
+        setVisibleSavedCount(PAGE_SIZE);
         try {
             const data = await fetchVideos({
                 ...filters,
                 search: searchQuery,
-                limit: 50,
+                limit: PAGE_SIZE,
+                skip: 0,
             });
-            setVideos(data.videos);
-            setTotal(data.total);
+            setVideos(data.videos || []);
+            setTotal(data.total || 0);
             setMode(data.mode);
+            setHasMore(
+                data.hasMore !== undefined
+                    ? data.hasMore
+                    : (data.videos || []).length < (data.total || 0)
+            );
             setStatus('success');
         } catch (err) {
             console.error('Failed to fetch videos:', err);
@@ -50,8 +78,102 @@ export default function VideoFeed() {
     }, [filters, searchQuery, retryCount]);
 
     useEffect(() => {
-        loadVideos();
-    }, [loadVideos]);
+        loadInitialVideos();
+    }, [loadInitialVideos]);
+
+    // Filter bookmarks for saved mode
+    const filteredBookmarks = useMemo(() => {
+        if (!showSavedOnly) return [];
+        const q = searchQuery.trim().toLowerCase();
+
+        return bookmarks.filter((v) => {
+            if (filters.platform !== 'all' && v.platform !== filters.platform) {
+                return false;
+            }
+            if (filters.category !== 'all' && v.category !== filters.category) {
+                return false;
+            }
+            if (q) {
+                const titleMatch = v.title?.toLowerCase().includes(q);
+                const creatorMatch =
+                    v.creator?.name?.toLowerCase().includes(q) ||
+                    v.creator?.handle?.toLowerCase().includes(q);
+                const aiDescMatch = v.aiDescription?.toLowerCase().includes(q);
+                const descMatch = v.description?.toLowerCase().includes(q);
+                const tagsMatch =
+                    Array.isArray(v.tags) &&
+                    v.tags.some((t) => t.toLowerCase().includes(q));
+
+                if (!titleMatch && !creatorMatch && !aiDescMatch && !descMatch && !tagsMatch) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }, [showSavedOnly, bookmarks, filters, searchQuery]);
+
+    // Clips to display
+    const displayVideos = useMemo(() => {
+        if (showSavedOnly) {
+            return filteredBookmarks.slice(0, visibleSavedCount);
+        }
+        return videos;
+    }, [showSavedOnly, filteredBookmarks, visibleSavedCount, videos]);
+
+    const canLoadMore = showSavedOnly
+        ? filteredBookmarks.length > visibleSavedCount
+        : hasMore && !isLoadingMore;
+
+    // Load next page
+    const handleLoadMore = useCallback(async () => {
+        if (showSavedOnly) {
+            setVisibleSavedCount((prev) => prev + PAGE_SIZE);
+            return;
+        }
+
+        if (isLoadingMore || !hasMore) return;
+        setIsLoadingMore(true);
+
+        try {
+            const nextSkip = videos.length;
+            const data = await fetchVideos({
+                ...filters,
+                search: searchQuery,
+                limit: PAGE_SIZE,
+                skip: nextSkip,
+            });
+
+            setVideos((prev) => [...prev, ...(data.videos || [])]);
+            setTotal(data.total || 0);
+            setHasMore(
+                data.hasMore !== undefined
+                    ? data.hasMore
+                    : nextSkip + (data.videos || []).length < (data.total || 0)
+            );
+        } catch (err) {
+            console.error('Failed to load more clips:', err);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    }, [showSavedOnly, isLoadingMore, hasMore, videos.length, filters, searchQuery]);
+
+    // IntersectionObserver for Infinite Scroll
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        if (!sentinel || !canLoadMore || isLoadingMore || status !== 'success') return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    handleLoadMore();
+                }
+            },
+            { rootMargin: '250px' }
+        );
+
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [canLoadMore, isLoadingMore, status, handleLoadMore]);
 
     function handleFiltersChange(newFilters) {
         setFilters(newFilters);
@@ -69,42 +191,7 @@ export default function VideoFeed() {
         setSearchQuery('');
     }
 
-    // Determine clips to display (with client-side search & saved filtering)
-    const displayVideos = useMemo(() => {
-        const sourceList = showSavedOnly ? bookmarks : videos;
-        const q = searchQuery.trim().toLowerCase();
-
-        return sourceList.filter((v) => {
-            // In saved mode, also respect platform & category chips
-            if (showSavedOnly) {
-                if (filters.platform !== 'all' && v.platform !== filters.platform) {
-                    return false;
-                }
-                if (filters.category !== 'all' && v.category !== filters.category) {
-                    return false;
-                }
-            }
-
-            // Real-time client search filter
-            if (q) {
-                const titleMatch = v.title?.toLowerCase().includes(q);
-                const creatorMatch =
-                    v.creator?.name?.toLowerCase().includes(q) ||
-                    v.creator?.handle?.toLowerCase().includes(q);
-                const aiDescMatch = v.aiDescription?.toLowerCase().includes(q);
-                const descMatch = v.description?.toLowerCase().includes(q);
-                const tagsMatch =
-                    Array.isArray(v.tags) &&
-                    v.tags.some((t) => t.toLowerCase().includes(q));
-
-                if (!titleMatch && !creatorMatch && !aiDescMatch && !descMatch && !tagsMatch) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }, [showSavedOnly, bookmarks, videos, filters, searchQuery]);
+    const currentTotalCount = showSavedOnly ? filteredBookmarks.length : total;
 
     return (
         <div className="video-feed">
@@ -146,12 +233,12 @@ export default function VideoFeed() {
                 <div className="video-feed__results-bar">
                     <span>
                         {showSavedOnly
-                            ? `Showing ${displayVideos.length} of ${bookmarksCount} saved clip${
-                                  bookmarksCount === 1 ? '' : 's'
+                            ? `Showing ${displayVideos.length} of ${filteredBookmarks.length} saved clip${
+                                  filteredBookmarks.length === 1 ? '' : 's'
                               }`
                             : searchQuery
-                            ? `Showing ${displayVideos.length} result${
-                                  displayVideos.length === 1 ? '' : 's'
+                            ? `Showing ${displayVideos.length} of ${total} result${
+                                  total === 1 ? '' : 's'
                               } for "${searchQuery}"`
                             : displayVideos.length === 0
                             ? 'No videos found'
@@ -185,7 +272,7 @@ export default function VideoFeed() {
 
             {/* Main grid */}
             <main className="video-feed__grid" id="video-grid" aria-label="Video results">
-                {/* Loading */}
+                {/* Initial Loading */}
                 {status === 'loading' && (
                     <div className="video-feed__state">
                         <Spinner label="Finding clips…" />
@@ -262,6 +349,60 @@ export default function VideoFeed() {
                         />
                     ))}
             </main>
+
+            {/* Pagination & Infinite Scroll Controls */}
+            {status === 'success' && displayVideos.length > 0 && (
+                <div className="video-feed__pagination">
+                    {/* Loading More Spinner */}
+                    {isLoadingMore && (
+                        <div className="video-feed__loading-more" role="status">
+                            <div className="spinner-ring" />
+                            <span>Loading more clips…</span>
+                        </div>
+                    )}
+
+                    {/* Manual Load More Button & Intersection Sentinel */}
+                    {canLoadMore && !isLoadingMore && (
+                        <>
+                            <button
+                                type="button"
+                                className="video-feed__load-more-btn"
+                                onClick={handleLoadMore}
+                                id="load-more-button"
+                            >
+                                ↓ Load More Clips ({displayVideos.length} of {currentTotalCount})
+                            </button>
+                            <div
+                                ref={sentinelRef}
+                                className="video-feed__sentinel"
+                                aria-hidden="true"
+                            />
+                        </>
+                    )}
+
+                    {/* All Caught Up Indicator */}
+                    {!canLoadMore && (
+                        <div className="video-feed__end-message">
+                            <span>
+                                ✨ You're all caught up! Viewed all {displayVideos.length} clip
+                                {displayVideos.length === 1 ? '' : 's'}.
+                            </span>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Floating Back to Top Button */}
+            {showBackToTop && (
+                <button
+                    type="button"
+                    className="video-feed__back-to-top"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    aria-label="Scroll back to top"
+                >
+                    ↑ Top
+                </button>
+            )}
 
             {/* Preview Modal */}
             {selectedVideo && (

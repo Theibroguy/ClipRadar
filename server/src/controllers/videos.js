@@ -13,7 +13,7 @@ import { fetchInstagramVideos } from '../services/instagram.js';
 import { fetchTikTokVideos } from '../services/tiktok.js';
 import { enrichVideoWithAI } from '../services/gemini.js';
 
-const DEMO_MODE = process.env.DEMO_MODE === 'true';
+const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
 // Default YouTube search queries — these focus on public figures
 const DEFAULT_YT_QUERIES = [
@@ -31,8 +31,10 @@ export async function getVideos(req, res, next) {
     try {
         const { platform, category, q, search, limit = 20, skip = 0 } = req.query;
         const searchTerm = (q || search || '').trim().toLowerCase();
+        const limitNum = Number(limit);
+        const skipNum = Number(skip);
 
-        if (DEMO_MODE) {
+        if (isDemoMode()) {
             let videos = demoVideos;
 
             if (platform && platform !== 'all') {
@@ -54,11 +56,12 @@ export async function getVideos(req, res, next) {
                 );
             }
 
-            const paginated = videos.slice(Number(skip), Number(skip) + Number(limit));
+            const paginated = videos.slice(skipNum, skipNum + limitNum);
 
             return res.json({
                 videos: paginated,
                 total: videos.length,
+                hasMore: skipNum + paginated.length < videos.length,
                 mode: 'demo',
             });
         }
@@ -81,13 +84,18 @@ export async function getVideos(req, res, next) {
         const [videos, total] = await Promise.all([
             Video.find(filter)
                 .sort({ publishedAt: -1 })
-                .skip(Number(skip))
-                .limit(Number(limit))
+                .skip(skipNum)
+                .limit(limitNum)
                 .lean(),
             Video.countDocuments(filter),
         ]);
 
-        return res.json({ videos, total, mode: 'production' });
+        return res.json({
+            videos,
+            total,
+            hasMore: skipNum + videos.length < total,
+            mode: 'production',
+        });
     } catch (err) {
         next(err);
     }
@@ -100,7 +108,7 @@ export async function getVideos(req, res, next) {
  * Not available in demo mode.
  */
 export async function refreshVideos(req, res, next) {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
         return res.status(403).json({
             error: 'Refresh is disabled in demo mode.',
         });
@@ -158,7 +166,7 @@ export async function refreshVideos(req, res, next) {
 export function healthCheck(req, res) {
     res.json({
         status: 'ok',
-        mode: DEMO_MODE ? 'demo' : 'production',
+        mode: isDemoMode() ? 'demo' : 'production',
         timestamp: new Date().toISOString(),
     });
 }
