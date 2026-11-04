@@ -9,6 +9,55 @@ describe('VideoStudio Component', () => {
         global.URL.revokeObjectURL = vi.fn();
         window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue();
         window.HTMLMediaElement.prototype.pause = vi.fn();
+
+        global.fetch = vi.fn().mockImplementation((url) => {
+            if (url.includes('/api/studio/moments')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () =>
+                        Promise.resolve({
+                            success: true,
+                            totalMoments: 3,
+                            moments: [
+                                {
+                                    id: 'moment-1',
+                                    title: 'Explosive Opening Hook',
+                                    startTime: 0,
+                                    endTime: 10,
+                                    duration: 10,
+                                    headline: 'Watch what happened when **beast challenge** began',
+                                    score: 98,
+                                    reason: 'Instant curiosity gap right at the 0s mark.',
+                                    tags: ['Hook', 'Trending'],
+                                },
+                                {
+                                    id: 'moment-2',
+                                    title: 'Unexpected Plot Twist',
+                                    startTime: 12,
+                                    endTime: 25,
+                                    duration: 13,
+                                    headline: 'Nobody anticipated what happened in the **middle**',
+                                    score: 95,
+                                    reason: 'Sudden narrative shift.',
+                                    tags: ['Twist'],
+                                },
+                                {
+                                    id: 'moment-3',
+                                    title: 'Peak Climax & Reaction',
+                                    startTime: 26,
+                                    endTime: 40,
+                                    duration: 14,
+                                    headline: 'The exact moment **everyone** went crazy',
+                                    score: 92,
+                                    reason: 'Emotional peak.',
+                                    tags: ['Climax'],
+                                },
+                            ],
+                        }),
+                });
+            }
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+        });
     });
 
     it('renders the header and main sections', () => {

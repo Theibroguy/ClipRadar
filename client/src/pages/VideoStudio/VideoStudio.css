@@ -224,19 +224,45 @@
 }
 
 .studio-dropzone__thumbnail {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: var(--radius-sm);
     overflow: hidden;
     background: #ffffff;
     flex-shrink: 0;
     border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
 }
 
 .studio-dropzone__thumbnail img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.studio-dropzone__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.studio-dropzone__remove-btn {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.studio-dropzone__remove-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
 }
 
 .studio-dropzone__file-meta {
@@ -714,10 +740,10 @@
 }
 
 .comp-header__avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #0ea5e9;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: #0f172a;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -725,17 +751,93 @@
     font-weight: 800;
     font-size: 1.1rem;
     margin: 0 auto;
-    border: 2px solid #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     position: relative;
+    transition: all var(--transition-fast);
+}
+
+/* When a real logo image is present: clean transparent frame */
+.comp-header__avatar--has-img {
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .comp-header__avatar-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Always preserve full logo aspect ratio without cutoff */
+    display: block;
+}
+
+/* Shape Variants */
+.comp-header__avatar--shape-circle {
     border-radius: 50%;
+}
+
+.comp-header__avatar--shape-circle.comp-header__avatar--has-img {
+    border-radius: 50%;
+}
+
+.comp-header__avatar--shape-circle .comp-header__avatar-img {
+    border-radius: 50%;
+}
+
+.comp-header__avatar--shape-badge {
+    border-radius: 8px;
+    padding: 2px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.comp-header__avatar--shape-badge .comp-header__avatar-img {
+    border-radius: 6px;
+}
+
+.comp-header__avatar--shape-banner {
+    width: 160px;
+    height: 48px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.comp-header__avatar--shape-banner .comp-header__avatar-img {
+    object-fit: contain;
+    border-radius: 0;
+}
+
+/* Size Variants */
+.comp-header__avatar--size-small {
+    width: 36px;
+    height: 36px;
+}
+.comp-header__avatar--shape-banner.comp-header__avatar--size-small {
+    width: 120px;
+    height: 36px;
+}
+
+.comp-header__avatar--size-medium {
+    width: 48px;
+    height: 48px;
+}
+.comp-header__avatar--shape-banner.comp-header__avatar--size-medium {
+    width: 160px;
+    height: 48px;
+}
+
+.comp-header__avatar--size-large {
+    width: 64px;
+    height: 64px;
+}
+.comp-header__avatar--shape-banner.comp-header__avatar--size-large {
+    width: 200px;
+    height: 58px;
 }
 
 .comp-header--align-center .comp-header__meta {
@@ -776,19 +878,8 @@
 }
 
 .comp-header--align-left .comp-header__avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #0ea5e9;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
+    margin: 0;
     flex-shrink: 0;
-    border: 2px solid #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .comp-header--align-left .comp-header__meta {

@@ -28,6 +28,19 @@ function roundRect(ctx, x, y, width, height, radius) {
     ctx.closePath();
 }
 
+// Helper: Draw image with contain aspect ratio
+function drawContainImage(ctx, img, x, y, w, h) {
+    if (!img) return;
+    const nw = img.naturalWidth || img.width || w;
+    const nh = img.naturalHeight || img.height || h;
+    const ratio = Math.min(w / nw, h / nh);
+    const renderW = nw * ratio;
+    const renderH = nh * ratio;
+    const renderX = x + (w - renderW) / 2;
+    const renderY = y + (h - renderH) / 2;
+    ctx.drawImage(img, renderX, renderY, renderW, renderH);
+}
+
 // Helper: Draw headline text with blue **highlights** on Canvas
 function drawHeadlineCanvas(ctx, text, x, y, maxWidth, align = 'center') {
     if (!text) return;
@@ -91,6 +104,8 @@ async function compositeAndDownloadMoment({
     channelName = 'ClipRadar',
     channelHandle = '@clipradar',
     logoUrl = null,
+    logoShape = 'badge',
+    logoSize = 'medium',
     headerPosition = 'top',
     textAlign = 'center',
     video = null,
@@ -111,6 +126,22 @@ async function compositeAndDownloadMoment({
             canvas.width = 720;
             canvas.height = 1280;
             const ctx = canvas.getContext('2d');
+
+            // Pre-load logo image if provided
+            let logoImg = null;
+            if (logoUrl) {
+                try {
+                    logoImg = await new Promise((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => resolve(img);
+                        img.onerror = () => resolve(null);
+                        img.src = logoUrl;
+                    });
+                } catch (e) {
+                    // Ignore logo load failure
+                }
+            }
 
             video.currentTime = startTime;
             await new Promise((resolve) => {
@@ -201,30 +232,86 @@ async function compositeAndDownloadMoment({
                 ctx.fill();
                 ctx.restore();
 
-                // Channel Avatar & Handle
-                const avatarX = textAlign === 'center' ? canvas.width / 2 - 90 : cardMargin + 24;
-                const avatarY = cardY + 22;
-                ctx.fillStyle = '#0f172a';
-                ctx.beginPath();
-                ctx.arc(avatarX + 20, avatarY + 20, 20, 0, Math.PI * 2);
-                ctx.fill();
+                // 4. Logo & Branding Header Row
+                if (logoImg) {
+                    ctx.save();
+                    if (logoShape === 'banner') {
+                        const logoW = logoSize === 'large' ? 240 : logoSize === 'small' ? 140 : 180;
+                        const logoH = logoSize === 'large' ? 66 : logoSize === 'small' ? 42 : 52;
+                        const logoX = textAlign === 'center' ? canvas.width / 2 - logoW / 2 : cardMargin + 24;
+                        const logoY = cardY + 18;
 
-                ctx.fillStyle = '#f87171';
-                ctx.font = 'bold 18px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('⚡', avatarX + 20, avatarY + 26);
+                        drawContainImage(ctx, logoImg, logoX, logoY, logoW, logoH);
 
-                ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.textAlign = 'left';
-                ctx.fillText(channelName || 'CHANNEL', avatarX + 50, avatarY + 16);
+                        ctx.fillStyle = '#64748b';
+                        ctx.font = '16px -apple-system, sans-serif';
+                        ctx.textAlign = textAlign === 'center' ? 'center' : 'left';
+                        ctx.fillText(
+                            channelHandle || '@handle',
+                            textAlign === 'center' ? canvas.width / 2 : cardMargin + 24,
+                            logoY + logoH + 18
+                        );
+                        ctx.restore();
 
-                ctx.fillStyle = '#64748b';
-                ctx.font = '15px sans-serif';
-                ctx.fillText(channelHandle || '@handle', avatarX + 50, avatarY + 36);
+                        // Headline text
+                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, logoY + logoH + 34, cardW - 48, textAlign);
+                    } else {
+                        const logoPx = logoSize === 'large' ? 68 : logoSize === 'small' ? 42 : 54;
+                        const avatarX = textAlign === 'center' ? canvas.width / 2 - 100 : cardMargin + 24;
+                        const avatarY = cardY + 20;
 
-                // Headline text with blue highlights
-                drawHeadlineCanvas(ctx, headline, cardMargin + 24, avatarY + 68, cardW - 48, textAlign);
+                        ctx.save();
+                        if (logoShape === 'circle') {
+                            ctx.beginPath();
+                            ctx.arc(avatarX + logoPx / 2, avatarY + logoPx / 2, logoPx / 2, 0, Math.PI * 2);
+                            ctx.clip();
+                        } else {
+                            roundRect(ctx, avatarX, avatarY, logoPx, logoPx, 10);
+                            ctx.clip();
+                        }
+                        drawContainImage(ctx, logoImg, avatarX, avatarY, logoPx, logoPx);
+                        ctx.restore();
+
+                        ctx.save();
+                        ctx.fillStyle = '#0f172a';
+                        ctx.font = 'bold 22px -apple-system, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(channelName || 'CHANNEL', avatarX + logoPx + 14, avatarY + logoPx / 2 - 3);
+
+                        ctx.fillStyle = '#64748b';
+                        ctx.font = '16px -apple-system, sans-serif';
+                        ctx.fillText(channelHandle || '@handle', avatarX + logoPx + 14, avatarY + logoPx / 2 + 19);
+                        ctx.restore();
+
+                        // Headline text
+                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, avatarY + logoPx + 24, cardW - 48, textAlign);
+                    }
+                } else {
+                    // Default avatar icon when no logo uploaded
+                    const avatarX = textAlign === 'center' ? canvas.width / 2 - 90 : cardMargin + 24;
+                    const avatarY = cardY + 22;
+                    ctx.fillStyle = '#0f172a';
+                    ctx.beginPath();
+                    ctx.arc(avatarX + 20, avatarY + 20, 20, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#f87171';
+                    ctx.font = 'bold 18px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('⚡', avatarX + 20, avatarY + 26);
+
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = 'bold 20px sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(channelName || 'CHANNEL', avatarX + 50, avatarY + 16);
+
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '15px sans-serif';
+                    ctx.fillText(channelHandle || '@handle', avatarX + 50, avatarY + 36);
+
+                    // Headline text
+                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, avatarY + 68, cardW - 48, textAlign);
+                }
 
                 animId = requestAnimationFrame(draw);
             };
@@ -279,6 +366,8 @@ export default function VideoStudio() {
     // Logo & Branding State
     const [logoFile, setLogoFile] = useState(null);
     const [logoUrl, setLogoUrl] = useState(null);
+    const [logoShape, setLogoShape] = useState('badge'); // 'badge' (auto-fit rounded) | 'circle' | 'banner' (wide)
+    const [logoSize, setLogoSize] = useState('medium'); // 'small' | 'medium' | 'large'
     const [templateFile, setTemplateFile] = useState(null);
     const [templateUrl, setTemplateUrl] = useState(null);
     const [channelName, setChannelName] = useState('JACKET SWIPER');
@@ -361,6 +450,13 @@ export default function VideoStudio() {
         const url = typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : '';
         setLogoFile(file);
         setLogoUrl(url);
+    }
+
+    // Handle Removing Logo
+    function handleRemoveLogo() {
+        if (logoUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(logoUrl);
+        setLogoFile(null);
+        setLogoUrl(null);
     }
 
     // Handle Template Frame Upload
@@ -476,6 +572,8 @@ export default function VideoStudio() {
                 channelName,
                 channelHandle,
                 logoUrl,
+                logoShape,
+                logoSize,
                 headerPosition,
                 textAlign,
                 video: videoRef.current,
@@ -501,7 +599,6 @@ export default function VideoStudio() {
             const m = moments[i];
             setBatchStatusText(`Rendering moment ${i + 1} of ${moments.length}: "${m.title}"...`);
             await handleDownloadMoment(m);
-            // Brief pause between downloads to let the browser process download prompts
             await new Promise((r) => setTimeout(r, 600));
         }
 
@@ -530,6 +627,8 @@ export default function VideoStudio() {
             channelName,
             channelHandle,
             logoUrl,
+            logoShape,
+            logoSize,
             headerPosition,
             textAlign,
             video: videoRef.current,
@@ -578,14 +677,14 @@ export default function VideoStudio() {
                     </div>
                     <h1 className="video-studio__title">Transform Clips into Viral Shorts</h1>
                     <p className="video-studio__tagline">
-                        Extract multiple catchy moments with Gemini AI, apply custom templates, and download individual 9:16 shorts for TikTok & Reels.
+                        Extract multiple catchy moments with Gemini AI, apply custom logos & templates, and download individual 9:16 shorts for TikTok & Reels.
                     </p>
 
                     <div className="video-studio__pills">
                         <span className="studio-pill">📱 9:16 Vertical HD</span>
                         <span className="studio-pill">✨ Multi-Moment AI Extraction</span>
+                        <span className="studio-pill">🖼️ Crisp Logo & Branding</span>
                         <span className="studio-pill">⬇️ Download Any / All Moments</span>
-                        <span className="studio-pill">🎨 Custom Template & Branding</span>
                     </div>
                 </div>
             </header>
@@ -655,7 +754,7 @@ export default function VideoStudio() {
                             <span className="studio-card__step">2</span>
                             <div>
                                 <h2 className="studio-card__title">Logo & Branding</h2>
-                                <p className="studio-card__subtitle">Upload your channel logo and customize your header</p>
+                                <p className="studio-card__subtitle">Upload your channel logo, choose layout style, and customize headers</p>
                             </div>
                         </div>
 
@@ -685,25 +784,96 @@ export default function VideoStudio() {
                                             <span className="studio-dropzone__file-name">{logoFile.name}</span>
                                             <span className="studio-dropzone__file-size">Channel Logo Active</span>
                                         </div>
-                                        <button
-                                            type="button"
-                                            className="studio-dropzone__change-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                logoInputRef.current?.click();
-                                            }}
-                                        >
-                                            Change
-                                        </button>
+                                        <div className="studio-dropzone__actions">
+                                            <button
+                                                type="button"
+                                                className="studio-dropzone__change-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    logoInputRef.current?.click();
+                                                }}
+                                            >
+                                                Change
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="studio-dropzone__remove-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveLogo();
+                                                }}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="studio-dropzone__prompt">
                                         <span className="studio-dropzone__icon-small">🖼️</span>
-                                        <p className="studio-dropzone__label-compact">Upload Channel Logo / Avatar (PNG, JPG)</p>
-                                        <span className="studio-dropzone__hint">Displays centered in the middle of the card</span>
+                                        <p className="studio-dropzone__label-compact">Upload Channel Logo / Avatar (PNG, JPG, SVG)</p>
+                                        <span className="studio-dropzone__hint">Supports square icons, circular avatars, or wide brand logos</span>
                                     </div>
                                 )}
                             </div>
+
+                            {/* Logo Style Options (Visible when logo uploaded) */}
+                            {logoUrl && (
+                                <div className="studio-layout-toggles">
+                                    <div className="studio-field">
+                                        <span className="studio-field__label">Logo Shape / Display Style</span>
+                                        <div className="studio-toggle-group">
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${logoShape === 'badge' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setLogoShape('badge')}
+                                            >
+                                                Auto-Fit Badge
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${logoShape === 'circle' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setLogoShape('circle')}
+                                            >
+                                                Circle Avatar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${logoShape === 'banner' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setLogoShape('banner')}
+                                            >
+                                                Wide Brand Banner
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="studio-field">
+                                        <span className="studio-field__label">Logo Size</span>
+                                        <div className="studio-toggle-group">
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${logoSize === 'small' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setLogoSize('small')}
+                                            >
+                                                Compact
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${logoSize === 'medium' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setLogoSize('medium')}
+                                            >
+                                                Standard
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${logoSize === 'large' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setLogoSize('large')}
+                                            >
+                                                Prominent
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="studio-fields-row">
                                 <div className="studio-field">
@@ -1032,23 +1202,37 @@ export default function VideoStudio() {
                             {/* 9:16 Composition Container */}
                             <div className={`comp-container comp-container--pos-${headerPosition}`}>
                                 {/* Top/Middle Header / Hook Card */}
-                                <div className={`comp-header comp-header--align-${textAlign}`}>
+                                <div className={`comp-header comp-header--align-${textAlign} comp-header--logo-${logoShape}`}>
                                     <div className="comp-header__card">
-                                        <div className="comp-header__top-row">
-                                            <div className="comp-header__avatar">
+                                        <div className={`comp-header__top-row comp-header__top-row--${logoShape}`}>
+                                            <div
+                                                className={`comp-header__avatar comp-header__avatar--shape-${logoShape} comp-header__avatar--size-${logoSize} ${
+                                                    logoUrl ? 'comp-header__avatar--has-img' : ''
+                                                }`}
+                                            >
                                                 {logoUrl ? (
-                                                    <img src={logoUrl} alt={channelName} className="comp-header__avatar-img" />
+                                                    <img
+                                                        src={logoUrl}
+                                                        alt={channelName}
+                                                        className="comp-header__avatar-img"
+                                                    />
                                                 ) : (
                                                     <span className="comp-header__avatar-icon">⚡</span>
                                                 )}
                                             </div>
-                                            <div className="comp-header__meta">
-                                                <div className="comp-header__name-line">
-                                                    <span className="comp-header__name">{channelName || 'CHANNEL NAME'}</span>
-                                                    <span className="comp-header__verified" title="Verified">✓</span>
+                                            {logoShape !== 'banner' ? (
+                                                <div className="comp-header__meta">
+                                                    <div className="comp-header__name-line">
+                                                        <span className="comp-header__name">{channelName || 'CHANNEL NAME'}</span>
+                                                        <span className="comp-header__verified" title="Verified">✓</span>
+                                                    </div>
+                                                    <span className="comp-header__handle">{channelHandle || '@handle'}</span>
                                                 </div>
-                                                <span className="comp-header__handle">{channelHandle || '@handle'}</span>
-                                            </div>
+                                            ) : (
+                                                <div className="comp-header__meta comp-header__meta--banner">
+                                                    <span className="comp-header__handle">{channelHandle || '@handle'}</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Headline Hook with Blue Highlights - Always visible */}
@@ -1079,7 +1263,7 @@ export default function VideoStudio() {
                             </div>
                         </div>
 
-                        {/* Phone Footer Bar */}
+                        {/* Phone Mockup Footer */}
                         <div className="phone-mockup__footer">
                             <span className="phone-mockup__badge">1080 × 1920 (9:16)</span>
                             <span className="phone-mockup__badge">60 FPS</span>
