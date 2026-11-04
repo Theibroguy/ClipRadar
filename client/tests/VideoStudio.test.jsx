@@ -227,5 +227,33 @@ describe('VideoStudio Component', () => {
         fireEvent.click(clearBtn);
         expect(textarea.value).not.toContain('**');
     });
+
+    it('provides interactive dual-handle timeline trimmer with quick presets and nudge controls', () => {
+        render(<VideoStudio />);
+
+        // Verify trimmer section and controls
+        expect(screen.getByLabelText(/video trimming timeline/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /play cut range/i })).toBeInTheDocument();
+        expect(screen.getByRole('slider', { name: /trim start time/i })).toBeInTheDocument();
+        expect(screen.getByRole('slider', { name: /trim end time/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /first 15s/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /middle 30s/i })).toBeInTheDocument();
+
+        // Adjust Start Cut slider
+        const startSlider = screen.getByRole('slider', { name: /trim start time/i });
+        fireEvent.change(startSlider, { target: { value: 2 } });
+        expect(screen.getByLabelText(/cut start in seconds/i).value).toBe('2');
+
+        // Adjust End Cut slider
+        const endSlider = screen.getByRole('slider', { name: /trim end time/i });
+        fireEvent.change(endSlider, { target: { value: 12 } });
+        expect(screen.getByLabelText(/cut end in seconds/i).value).toBe('12');
+
+        // Click preset "First 15s"
+        const preset15 = screen.getByRole('button', { name: /first 15s/i });
+        fireEvent.click(preset15);
+        expect(screen.getByLabelText(/cut start in seconds/i).value).toBe('0');
+        expect(screen.getByLabelText(/cut end in seconds/i).value).toBe('15');
+    });
 });
 

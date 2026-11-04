@@ -413,6 +413,8 @@ export default function VideoStudio() {
     const [textAlign, setTextAlign] = useState('center'); // 'center' | 'left'
     const [trimStart, setTrimStart] = useState(0);
     const [trimEnd, setTrimEnd] = useState(6);
+    const [currentPlaybackTime, setCurrentPlaybackTime] = useState(0);
+    const [isPlayingTrimCut, setIsPlayingTrimCut] = useState(false);
     const [hookStyle, setHookStyle] = useState('curiosity'); // 'curiosity' | 'shock' | 'humor' | 'question'
     const [isGeneratingHook, setIsGeneratingHook] = useState(false);
 
@@ -503,9 +505,124 @@ export default function VideoStudio() {
         if (videoRef.current) {
             try {
                 videoRef.current.currentTime = moment.startTime;
+                setCurrentPlaybackTime(moment.startTime);
                 videoRef.current.play().catch(() => {});
             } catch (e) {
                 // Ignore autoplay policies
+            }
+        }
+    }
+
+    // Video time update tracker for timeline scrubber
+    function handleVideoTimeUpdate() {
+        if (!videoRef.current) return;
+        const curr = videoRef.current.currentTime;
+        setCurrentPlaybackTime(curr);
+
+        if (isPlayingTrimCut && curr >= trimEnd) {
+            videoRef.current.pause();
+            videoRef.current.currentTime = trimStart;
+            setIsPlayingTrimCut(false);
+        }
+    }
+
+    // Toggle playing strictly the active cut range [trimStart, trimEnd]
+    function handleTogglePlayCut() {
+        if (!videoRef.current) return;
+        if (isPlayingTrimCut) {
+            videoRef.current.pause();
+            setIsPlayingTrimCut(false);
+        } else {
+            videoRef.current.currentTime = trimStart;
+            videoRef.current.play().then(() => {
+                setIsPlayingTrimCut(true);
+            }).catch(() => {});
+        }
+    }
+
+    // Handle trim start slider or direct input change
+    function handleTrimStartChange(val) {
+        const num = Math.max(0, Math.min(Number(val) || 0, trimEnd - 0.5));
+        const cleanNum = Math.round(num * 10) / 10;
+        setTrimStart(cleanNum);
+        if (videoRef.current) {
+            videoRef.current.currentTime = cleanNum;
+            setCurrentPlaybackTime(cleanNum);
+        }
+    }
+
+    // Handle trim end slider or direct input change
+    function handleTrimEndChange(val) {
+        const maxDur = Math.max(1, videoDuration || 300);
+        const num = Math.min(maxDur, Math.max(Number(val) || 1, trimStart + 0.5));
+        const cleanNum = Math.round(num * 10) / 10;
+        setTrimEnd(cleanNum);
+        if (videoRef.current) {
+            videoRef.current.currentTime = cleanNum;
+            setCurrentPlaybackTime(cleanNum);
+        }
+    }
+
+    // Direct click to scrub on the timeline track
+    function handleTimelineTrackClick(e) {
+        if (!videoRef.current) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const pct = Math.max(0, Math.min(1, clickX / rect.width));
+        const maxDur = Math.max(1, videoDuration || 60);
+        const seekTime = Math.round(pct * maxDur * 10) / 10;
+        videoRef.current.currentTime = seekTime;
+        setCurrentPlaybackTime(seekTime);
+    }
+
+    // Quick range presets
+    function handleApplyTrimPreset(presetType) {
+        const maxDur = Math.max(1, videoDuration || 60);
+        if (presetType === 'first15') {
+            const end = Math.min(15, maxDur);
+            setTrimStart(0);
+            setTrimEnd(end);
+            if (videoRef.current) {
+                videoRef.current.currentTime = 0;
+                setCurrentPlaybackTime(0);
+            }
+        } else if (presetType === 'middle30') {
+            const start = Math.max(0, Math.round(maxDur / 2 - 15));
+            const end = Math.min(maxDur, start + 30);
+            setTrimStart(start);
+            setTrimEnd(end);
+            if (videoRef.current) {
+                videoRef.current.currentTime = start;
+                setCurrentPlaybackTime(start);
+            }
+        } else if (presetType === 'full') {
+            setTrimStart(0);
+            setTrimEnd(maxDur);
+            if (videoRef.current) {
+                videoRef.current.currentTime = 0;
+                setCurrentPlaybackTime(0);
+            }
+        }
+    }
+
+    // Nudge trim handles forward or backward
+    function handleNudgeTrim(type, amount) {
+        const maxDur = Math.max(1, videoDuration || 300);
+        if (type === 'start') {
+            const next = Math.max(0, Math.min(trimStart + amount, trimEnd - 0.5));
+            const clean = Math.round(next * 10) / 10;
+            setTrimStart(clean);
+            if (videoRef.current) {
+                videoRef.current.currentTime = clean;
+                setCurrentPlaybackTime(clean);
+            }
+        } else if (type === 'end') {
+            const next = Math.min(maxDur, Math.max(trimEnd + amount, trimStart + 0.5));
+            const clean = Math.round(next * 10) / 10;
+            setTrimEnd(clean);
+            if (videoRef.current) {
+                videoRef.current.currentTime = clean;
+                setCurrentPlaybackTime(clean);
             }
         }
     }
@@ -1267,39 +1384,183 @@ export default function VideoStudio() {
                             </div>
                         )}
 
-                        {/* Trim Sliders for Active Selection */}
-                        <div className="studio-trim-box">
+                        {/* Interactive Dual-Handle Timeline Scrubber */}
+                        <div className="studio-trim-box" aria-label="Video Trimming Timeline">
                             <div className="studio-trim-header">
-                                <span className="studio-field__label">Fine-Tune Active Trim Range</span>
-                                <span className="studio-trim-display">
-                                    {trimStart}s - {trimEnd}s ({Math.max(0, trimEnd - trimStart)}s total)
-                                </span>
+                                <div className="studio-trim-title-group">
+                                    <span className="studio-field__label">Interactive Timeline Trimmer</span>
+                                    <span className="studio-trim-display">
+                                        ⏱️ {trimStart}s - {trimEnd}s ({Math.max(0, Math.round((trimEnd - trimStart) * 10) / 10)}s short)
+                                    </span>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className={`studio-trim-play-btn ${isPlayingTrimCut ? 'studio-trim-play-btn--playing' : ''}`}
+                                    onClick={handleTogglePlayCut}
+                                    disabled={!videoUrl}
+                                    title="Preview playback strictly between Start and End cut points"
+                                >
+                                    <span>{isPlayingTrimCut ? '⏸️' : '▶️'}</span>
+                                    <span>{isPlayingTrimCut ? 'Pause Cut' : 'Play Cut Range'}</span>
+                                </button>
                             </div>
+
+                            {/* Quick Range Presets */}
+                            <div className="studio-trim-presets">
+                                <span className="studio-trim-presets__label">Presets:</span>
+                                <button
+                                    type="button"
+                                    className="studio-trim-preset-chip"
+                                    onClick={() => handleApplyTrimPreset('first15')}
+                                >
+                                    ⚡ First 15s
+                                </button>
+                                <button
+                                    type="button"
+                                    className="studio-trim-preset-chip"
+                                    onClick={() => handleApplyTrimPreset('middle30')}
+                                >
+                                    🔥 Middle 30s
+                                </button>
+                                <button
+                                    type="button"
+                                    className="studio-trim-preset-chip"
+                                    onClick={() => handleApplyTrimPreset('full')}
+                                >
+                                    ✨ Full ({Math.round(videoDuration || 60)}s)
+                                </button>
+                            </div>
+
+                            {/* Dual-Handle Slider Track */}
+                            <div
+                                className="studio-dual-range"
+                                onClick={handleTimelineTrackClick}
+                                title="Click anywhere on track to scrub playhead"
+                            >
+                                <div className="studio-dual-range__track-bg" />
+                                <div
+                                    className="studio-dual-range__track-highlight"
+                                    style={{
+                                        left: `${Math.min(100, Math.max(0, (trimStart / (videoDuration || 60)) * 100))}%`,
+                                        width: `${Math.min(
+                                            100,
+                                            Math.max(0, ((trimEnd - trimStart) / (videoDuration || 60)) * 100)
+                                        )}%`,
+                                    }}
+                                />
+                                {/* Playhead Indicator */}
+                                <div
+                                    className="studio-dual-range__playhead"
+                                    style={{
+                                        left: `${Math.min(100, Math.max(0, (currentPlaybackTime / (videoDuration || 60)) * 100))}%`,
+                                    }}
+                                    title={`Current: ${Math.round(currentPlaybackTime * 10) / 10}s`}
+                                />
+
+                                {/* Start Handle */}
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={videoDuration || 60}
+                                    step={0.5}
+                                    value={trimStart}
+                                    onChange={(e) => handleTrimStartChange(e.target.value)}
+                                    className="studio-dual-range__input studio-dual-range__input--start"
+                                    aria-label="Trim Start Time"
+                                    title={`Start Cut: ${trimStart}s`}
+                                />
+
+                                {/* End Handle */}
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={videoDuration || 60}
+                                    step={0.5}
+                                    value={trimEnd}
+                                    onChange={(e) => handleTrimEndChange(e.target.value)}
+                                    className="studio-dual-range__input studio-dual-range__input--end"
+                                    aria-label="Trim End Time"
+                                    title={`End Cut: ${trimEnd}s`}
+                                />
+                            </div>
+
+                            {/* Timeline Markers */}
+                            <div className="studio-dual-range__markers">
+                                <span>0:00</span>
+                                <span>{Math.round((videoDuration || 60) / 2)}s</span>
+                                <span>{Math.round(videoDuration || 60)}s</span>
+                            </div>
+
+                            {/* Fine-Tuning Controls with Nudge Buttons */}
                             <div className="studio-trim-controls">
-                                <label className="studio-trim-label">
-                                    Start:
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max={trimEnd}
-                                        value={trimStart}
-                                        onChange={(e) => setTrimStart(Number(e.target.value))}
-                                        className="studio-trim-number"
-                                    />
-                                    s
-                                </label>
-                                <label className="studio-trim-label">
-                                    End:
-                                    <input
-                                        type="number"
-                                        min={trimStart}
-                                        max={videoDuration || 300}
-                                        value={trimEnd}
-                                        onChange={(e) => setTrimEnd(Number(e.target.value))}
-                                        className="studio-trim-number"
-                                    />
-                                    s
-                                </label>
+                                <div className="studio-trim-ctrl-group">
+                                    <span className="studio-trim-label">Cut Start:</span>
+                                    <div className="studio-trim-nudge-box">
+                                        <button
+                                            type="button"
+                                            className="studio-trim-nudge-btn"
+                                            onClick={() => handleNudgeTrim('start', -1)}
+                                            disabled={trimStart <= 0}
+                                            title="Nudge Start -1s"
+                                        >
+                                            -1s
+                                        </button>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max={trimEnd - 0.5}
+                                            step="0.5"
+                                            value={trimStart}
+                                            onChange={(e) => handleTrimStartChange(e.target.value)}
+                                            className="studio-trim-number"
+                                            aria-label="Cut Start in seconds"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="studio-trim-nudge-btn"
+                                            onClick={() => handleNudgeTrim('start', 1)}
+                                            disabled={trimStart >= trimEnd - 1}
+                                            title="Nudge Start +1s"
+                                        >
+                                            +1s
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="studio-trim-ctrl-group">
+                                    <span className="studio-trim-label">Cut End:</span>
+                                    <div className="studio-trim-nudge-box">
+                                        <button
+                                            type="button"
+                                            className="studio-trim-nudge-btn"
+                                            onClick={() => handleNudgeTrim('end', -1)}
+                                            disabled={trimEnd <= trimStart + 1}
+                                            title="Nudge End -1s"
+                                        >
+                                            -1s
+                                        </button>
+                                        <input
+                                            type="number"
+                                            min={trimStart + 0.5}
+                                            max={videoDuration || 300}
+                                            step="0.5"
+                                            value={trimEnd}
+                                            onChange={(e) => handleTrimEndChange(e.target.value)}
+                                            className="studio-trim-number"
+                                            aria-label="Cut End in seconds"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="studio-trim-nudge-btn"
+                                            onClick={() => handleNudgeTrim('end', 1)}
+                                            disabled={trimEnd >= (videoDuration || 300)}
+                                            title="Nudge End +1s"
+                                        >
+                                            +1s
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -1532,6 +1793,8 @@ export default function VideoStudio() {
                                             controls
                                             playsInline
                                             onLoadedMetadata={handleVideoLoadedMetadata}
+                                            onTimeUpdate={handleVideoTimeUpdate}
+                                            onPause={() => setIsPlayingTrimCut(false)}
                                         />
                                     ) : (
                                         <div className="comp-video__placeholder">
