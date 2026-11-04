@@ -2234,18 +2234,512 @@
     color: #ffffff;
 }
 
-/* Responsive Layout */
-@media (max-width: 1024px) {
-    .video-studio__workspace {
-        grid-template-columns: 1fr;
-    }
+/* ---- Studio Subpanel Card Styling (Neat Arrangement) ---- */
+.studio-subpanel {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-md);
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
 
-    .video-studio__preview {
-        position: static;
-        margin-top: var(--space-4);
+.studio-subpanel:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.028);
+}
+
+.studio-subpanel__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 2px;
+}
+
+.studio-subpanel__icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.studio-subpanel__title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.25;
+}
+
+.studio-subpanel__subtitle {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin: 2px 0 0 0;
+    line-height: 1.35;
+}
+
+.studio-theme-palette-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* ---- Mobile / Tablet View Switcher Tab Bar ---- */
+.studio-mobile-tabs {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(13, 15, 20, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 60;
+}
+
+.studio-mobile-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.studio-mobile-tab:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.studio-mobile-tab--active {
+    background: linear-gradient(135deg, var(--color-primary), #4f46e5);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(108, 99, 255, 0.4);
+}
+
+.studio-mobile-tab__badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    background: #10b981;
+    color: #ffffff;
+    padding: 1px 7px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Mobile Quick Preview Floating Pill Button */
+.studio-mobile-floating-preview-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: sticky;
+    bottom: 20px;
+    margin: var(--space-4) auto 0;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-full);
+    box-shadow: 0 8px 24px rgba(108, 99, 255, 0.45);
+    cursor: pointer;
+    z-index: 45;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.studio-mobile-floating-preview-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(108, 99, 255, 0.55);
+}
+
+.studio-mobile-floating-preview-btn__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+}
+
+/* Mobile Preview Back Button Header */
+.studio-preview-mobile-header {
+    display: none;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+}
+
+.studio-preview-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.studio-preview-back-btn:hover {
+    background: var(--color-surface);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+/* =============================================================
+   Comprehensive Responsive Screen Layouts & Media Queries
+   Supports 4K / Ultra-wide, Desktop, Laptop, Tablet, Mobile
+   ============================================================= */
+
+/* 1. Ultra-Wide & 4K Displays (>= 1440px) */
+@media (min-width: 1440px) {
+    .video-studio__workspace {
+        max-width: 1540px;
+        grid-template-columns: minmax(0, 1fr) 440px;
+        gap: var(--space-10);
+        padding: var(--space-8) var(--space-8);
     }
 
     .phone-mockup {
-        max-width: 320px;
+        max-width: 420px;
+    }
+}
+
+/* 2. Standard Desktops & Large Laptops (1025px - 1439px) */
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .video-studio__workspace {
+        max-width: 1360px;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: var(--space-6);
+        padding: var(--space-6) var(--space-5);
+    }
+
+    .phone-mockup {
+        max-width: 370px;
+    }
+}
+
+/* Ensure Desktop Always Shows Both Columns Side-by-Side */
+@media (min-width: 1025px) {
+    .studio-mobile-tabs,
+    .studio-mobile-floating-preview-btn,
+    .studio-preview-mobile-header {
+        display: none !important;
+    }
+
+    .video-studio__controls,
+    .video-studio__preview {
+        display: flex !important;
+    }
+}
+
+/* 3. Tablets & iPads (769px - 1024px) */
+@media (max-width: 1024px) {
+    .studio-mobile-tabs {
+        display: flex;
+    }
+
+    .video-studio__workspace {
+        grid-template-columns: 1fr;
+        padding: var(--space-5) var(--space-4);
+        max-width: 780px;
+    }
+
+    /* Tab Switcher Controls presentation on Tablets & Mobile */
+    .video-studio__workspace--mobile-controls .video-studio__controls {
+        display: flex;
+    }
+
+    .video-studio__workspace--mobile-controls .video-studio__preview {
+        display: none;
+    }
+
+    .video-studio__workspace--mobile-preview .video-studio__controls {
+        display: none;
+    }
+
+    .video-studio__workspace--mobile-preview .video-studio__preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        position: static;
+        margin-top: var(--space-2);
+    }
+
+    .studio-mobile-floating-preview-btn {
+        display: inline-flex;
+    }
+
+    .studio-preview-mobile-header {
+        display: flex;
+    }
+
+    .phone-mockup {
+        max-width: 360px;
+        margin: 0 auto;
+    }
+}
+
+/* 4. Small Tablets & Large Phones (581px - 768px) */
+@media (max-width: 768px) {
+    .video-studio__header {
+        padding: var(--space-6) var(--space-4) var(--space-4);
+    }
+
+    .video-studio__title {
+        font-size: 1.75rem;
+    }
+
+    .video-studio__tagline {
+        font-size: 0.88rem;
+    }
+
+    .studio-card {
+        padding: var(--space-4);
+    }
+
+    .studio-fields-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .studio-layout-toggles {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .studio-hud__steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .studio-success-actions {
+        flex-direction: column;
+    }
+
+    .studio-download-btn,
+    .studio-save-library-btn,
+    .studio-secondary-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .phone-mockup {
+        max-width: 340px;
+    }
+}
+
+/* 5. Standard Phones (401px - 580px) */
+@media (max-width: 580px) {
+    .video-studio__workspace {
+        padding: var(--space-4) var(--space-3);
+    }
+
+    .video-studio__badge {
+        font-size: 0.7rem;
+    }
+
+    .video-studio__title {
+        font-size: 1.45rem;
+        letter-spacing: -0.02em;
+    }
+
+    .video-studio__tagline {
+        font-size: 0.82rem;
+        margin-bottom: var(--space-3);
+    }
+
+    .video-studio__pills {
+        gap: 6px;
+    }
+
+    .studio-pill {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+    }
+
+    .studio-card__header {
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+    }
+
+    .studio-card__step {
+        width: 28px;
+        height: 28px;
+        font-size: 0.78rem;
+    }
+
+    .studio-card__title {
+        font-size: 1.05rem;
+    }
+
+    .studio-card__subtitle {
+        font-size: 0.72rem;
+    }
+
+    .studio-dropzone {
+        padding: var(--space-6) var(--space-3);
+    }
+
+    .studio-dropzone__icon-circle {
+        width: 42px;
+        height: 42px;
+        font-size: 1.3rem;
+    }
+
+    .studio-dropzone__file-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .studio-dropzone__actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* Scrubber fine-tuning controls stack vertically on small phones */
+    .studio-trim-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .studio-trim-ctrl-group {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .studio-trim-nudge-btn {
+        min-width: 38px;
+        min-height: 32px;
+    }
+
+    .studio-trim-number {
+        width: 70px;
+    }
+
+    /* Moment cards actions on small mobile */
+    .studio-moment-card__actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .studio-moment-btn {
+        width: 100%;
+    }
+
+    /* HUD Steps in 2x2 grid */
+    .studio-hud__steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .studio-hud__step {
+        padding: 6px;
+    }
+
+    .studio-hud__step-label {
+        font-size: 0.65rem;
+    }
+
+    /* Phone Mockup Proportions */
+    .phone-mockup {
+        width: min(330px, calc(100vw - 32px));
+        border-width: 8px;
+        border-radius: 36px;
+    }
+
+    .phone-mockup__notch {
+        width: 95px;
+        height: 14px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    /* Floating Toast Placement on Phones */
+    .studio-toast-container {
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        max-width: calc(100vw - 28px);
+        margin: 0 auto;
+    }
+
+    .studio-toast {
+        padding: 9px 12px;
+    }
+
+    .studio-toast__msg {
+        font-size: 0.74rem;
+    }
+}
+
+/* 6. Compact Phones (<= 400px down to 320px) */
+@media (max-width: 400px) {
+    .video-studio__header {
+        padding: var(--space-5) var(--space-3) var(--space-3);
+    }
+
+    .video-studio__title {
+        font-size: 1.3rem;
+    }
+
+    .studio-mobile-tab {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .studio-card {
+        padding: 12px;
+        border-radius: var(--radius-md);
+    }
+
+    .studio-subpanel {
+        padding: 10px;
+    }
+
+    .studio-toggle-group {
+        flex-wrap: wrap;
+    }
+
+    .studio-toggle-btn {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+    }
+
+    .studio-hook-style-pill {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+
+    .studio-reroll-btn {
+        font-size: 0.72rem;
+        padding: 4px 10px;
+    }
+
+    .phone-mockup {
+        width: calc(100vw - 24px);
+        border-width: 6px;
+        border-radius: 28px;
     }
 }

@@ -516,6 +516,9 @@ export default function VideoStudio() {
     // Toast Notification HUD State
     const [toasts, setToasts] = useState([]);
 
+    // Responsive Mobile / Tablet Tab State ('controls' | 'preview')
+    const [mobileTab, setMobileTab] = useState('controls');
+
     function showToast(message, type = 'success', duration = 4000) {
         if (!message) return;
         const id = Date.now() + Math.random().toString(36).substring(2, 6);
@@ -1048,7 +1051,7 @@ export default function VideoStudio() {
         setRenderComplete(true);
         setRenderedVideoUrl(finalUrl || videoUrl);
         setSavedToLibrarySuccess(false);
-        showToast('🎉 9:16 Video generated successfully!', 'success', 5000);
+        showToast('🎉 9:16 Short rendered and ready!', 'success', 5000);
     }
 
     // Download generated video from success card
@@ -1200,8 +1203,37 @@ export default function VideoStudio() {
                 </div>
             </header>
 
+            {/* Responsive Mobile / Tablet View Switcher Tab Bar */}
+            <div className="studio-mobile-tabs" role="tablist" aria-label="Studio View Switcher">
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-controls"
+                    aria-selected={mobileTab === 'controls'}
+                    aria-controls="panel-controls"
+                    className={`studio-mobile-tab ${mobileTab === 'controls' ? 'studio-mobile-tab--active' : ''}`}
+                    onClick={() => setMobileTab('controls')}
+                >
+                    <span className="studio-mobile-tab__icon">🎛️</span>
+                    <span>Studio Controls</span>
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-preview"
+                    aria-selected={mobileTab === 'preview'}
+                    aria-controls="panel-preview"
+                    className={`studio-mobile-tab ${mobileTab === 'preview' ? 'studio-mobile-tab--active' : ''}`}
+                    onClick={() => setMobileTab('preview')}
+                >
+                    <span className="studio-mobile-tab__icon">📱</span>
+                    <span>Live 9:16 Preview</span>
+                    {videoFile && <span className="studio-mobile-tab__badge">Ready</span>}
+                </button>
+            </div>
+
             {/* Studio Workspace Grid */}
-            <div className="video-studio__workspace">
+            <div className={`video-studio__workspace video-studio__workspace--mobile-${mobileTab}`}>
                 {/* Left Column: Editor Controls */}
                 <div className="video-studio__controls">
                     {/* Section 1: Video Footage Upload */}
@@ -1270,257 +1302,301 @@ export default function VideoStudio() {
                         </div>
 
                         <div className="studio-branding-grid">
-                            {/* Logo Dropzone */}
-                            <div
-                                className={`studio-dropzone studio-dropzone--compact ${logoFile ? 'studio-dropzone--has-file' : ''}`}
-                                onClick={() => logoInputRef.current?.click()}
-                                role="button"
-                                tabIndex={0}
-                                aria-label="Upload channel logo or avatar"
-                                onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
-                            >
-                                <input
-                                    ref={logoInputRef}
-                                    type="file"
-                                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                                    style={{ display: 'none' }}
-                                    onChange={handleLogoSelect}
-                                />
-                                {logoFile ? (
-                                    <div className="studio-dropzone__file-info">
-                                        <div className="studio-dropzone__thumbnail">
-                                            <img src={logoUrl} alt="Logo Preview" />
-                                        </div>
-                                        <div className="studio-dropzone__file-meta">
-                                            <span className="studio-dropzone__file-name">{logoFile.name}</span>
-                                            <span className="studio-dropzone__file-size">Channel Logo Active</span>
-                                        </div>
-                                        <div className="studio-dropzone__actions">
-                                            <button
-                                                type="button"
-                                                className="studio-dropzone__change-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    logoInputRef.current?.click();
-                                                }}
-                                            >
-                                                Change
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="studio-dropzone__remove-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemoveLogo();
-                                                }}
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
+                            {/* Subpanel 1: Channel Logo & Graphic */}
+                            <div className="studio-subpanel">
+                                <div className="studio-subpanel__header">
+                                    <span className="studio-subpanel__icon">🖼️</span>
+                                    <div>
+                                        <h3 className="studio-subpanel__title">Channel Logo & Shape</h3>
+                                        <p className="studio-subpanel__subtitle">Add your channel icon, avatar, or banner logo</p>
                                     </div>
-                                ) : (
-                                    <div className="studio-dropzone__prompt">
-                                        <span className="studio-dropzone__icon-small">🖼️</span>
-                                        <p className="studio-dropzone__label-compact">Upload Channel Logo / Avatar (PNG, JPG, SVG)</p>
-                                        <span className="studio-dropzone__hint">Supports square icons, circular avatars, or wide brand logos</span>
+                                </div>
+
+                                {/* Logo Dropzone */}
+                                <div
+                                    className={`studio-dropzone studio-dropzone--compact ${logoFile ? 'studio-dropzone--has-file' : ''}`}
+                                    onClick={() => logoInputRef.current?.click()}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label="Upload channel logo or avatar"
+                                    onKeyDown={(e) => e.key === 'Enter' && logoInputRef.current?.click()}
+                                >
+                                    <input
+                                        ref={logoInputRef}
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                        style={{ display: 'none' }}
+                                        onChange={handleLogoSelect}
+                                    />
+                                    {logoFile ? (
+                                        <div className="studio-dropzone__file-info">
+                                            <div className="studio-dropzone__thumbnail">
+                                                <img src={logoUrl} alt="Logo Preview" />
+                                            </div>
+                                            <div className="studio-dropzone__file-meta">
+                                                <span className="studio-dropzone__file-name">{logoFile.name}</span>
+                                                <span className="studio-dropzone__file-size">Channel Logo Active</span>
+                                            </div>
+                                            <div className="studio-dropzone__actions">
+                                                <button
+                                                    type="button"
+                                                    className="studio-dropzone__change-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        logoInputRef.current?.click();
+                                                    }}
+                                                >
+                                                    Change
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="studio-dropzone__remove-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemoveLogo();
+                                                    }}
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="studio-dropzone__prompt">
+                                            <span className="studio-dropzone__icon-small">🖼️</span>
+                                            <p className="studio-dropzone__label-compact">Upload Channel Logo / Avatar (PNG, JPG, SVG)</p>
+                                            <span className="studio-dropzone__hint">Supports square icons, circular avatars, or wide brand logos</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Logo Size & Style Controls (Visible when logo is loaded) */}
+                                {logoUrl && (
+                                    <div className="studio-layout-toggles">
+                                        <div className="studio-field">
+                                            <span className="studio-field__label">Logo Shape / Display Style</span>
+                                            <div className="studio-toggle-group">
+                                                <button
+                                                    type="button"
+                                                    className={`studio-toggle-btn ${logoShape === 'badge' ? 'studio-toggle-btn--active' : ''}`}
+                                                    onClick={() => setLogoShape('badge')}
+                                                >
+                                                    Auto-Fit Badge
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`studio-toggle-btn ${logoShape === 'circle' ? 'studio-toggle-btn--active' : ''}`}
+                                                    onClick={() => setLogoShape('circle')}
+                                                >
+                                                    Circle Avatar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`studio-toggle-btn ${logoShape === 'banner' ? 'studio-toggle-btn--active' : ''}`}
+                                                    onClick={() => setLogoShape('banner')}
+                                                >
+                                                    Wide Brand Banner
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="studio-field">
+                                            <div className="studio-field__header">
+                                                <span className="studio-field__label">Logo Size</span>
+                                                <span className="studio-field__tip">{logoHeight}px height</span>
+                                            </div>
+                                            <div className="studio-slider-row">
+                                                <span className="studio-slider-label">Compact (50px)</span>
+                                                <input
+                                                    type="range"
+                                                    min="50"
+                                                    max="180"
+                                                    value={logoHeight}
+                                                    onChange={(e) => setLogoHeight(Number(e.target.value))}
+                                                    className="studio-slider"
+                                                />
+                                                <span className="studio-slider-label">Extra Large (180px)</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Logo Size & Style Controls (Visible when logo is loaded) */}
-                            {logoUrl && (
+                            {/* Subpanel 2: Channel Identity */}
+                            <div className="studio-subpanel">
+                                <div className="studio-subpanel__header">
+                                    <span className="studio-subpanel__icon">🏷️</span>
+                                    <div>
+                                        <h3 className="studio-subpanel__title">Channel Identity</h3>
+                                        <p className="studio-subpanel__subtitle">Display name & social media handle (optional)</p>
+                                    </div>
+                                </div>
+                                <div className="studio-fields-row">
+                                    <div className="studio-field">
+                                        <label htmlFor="channel-name" className="studio-field__label">
+                                            Channel Name <span style={{ opacity: 0.6, fontWeight: 400 }}>(Optional)</span>
+                                        </label>
+                                        <input
+                                            id="channel-name"
+                                            type="text"
+                                            className="studio-field__input"
+                                            value={channelName}
+                                            onChange={(e) => setChannelName(e.target.value)}
+                                            placeholder="Leave blank to display logo only"
+                                        />
+                                    </div>
+                                    <div className="studio-field">
+                                        <label htmlFor="channel-handle" className="studio-field__label">
+                                            Handle <span style={{ opacity: 0.6, fontWeight: 400 }}>(Optional)</span>
+                                        </label>
+                                        <input
+                                            id="channel-handle"
+                                            type="text"
+                                            className="studio-field__input"
+                                            value={channelHandle}
+                                            onChange={(e) => setChannelHandle(e.target.value)}
+                                            placeholder="e.g. @yourchannel"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Subpanel 3: Theme & Accent Palette */}
+                            <div className="studio-subpanel">
+                                <div className="studio-subpanel__header">
+                                    <span className="studio-subpanel__icon">🎨</span>
+                                    <div>
+                                        <h3 className="studio-subpanel__title">Theme & Accent Palette</h3>
+                                        <p className="studio-subpanel__subtitle">Hook card background theme & highlighted word color</p>
+                                    </div>
+                                </div>
+
+                                <div className="studio-theme-palette-grid">
+                                    {/* Hook Card Theme */}
+                                    <div className="studio-field">
+                                        <span className="studio-field__label">Hook Card Theme</span>
+                                        <div className="studio-toggle-group" role="group" aria-label="Hook Card Themes">
+                                            {CARD_THEMES.map((theme) => (
+                                                <button
+                                                    key={theme.id}
+                                                    type="button"
+                                                    className={`studio-toggle-btn ${cardTheme === theme.id ? 'studio-toggle-btn--active' : ''}`}
+                                                    onClick={() => setCardTheme(theme.id)}
+                                                >
+                                                    <span>{theme.icon}</span>
+                                                    <span>{theme.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Highlight Accent Color Picker */}
+                                    <div className="studio-field">
+                                        <div className="studio-field__header">
+                                            <span className="studio-field__label">Highlight Accent Color</span>
+                                            <span className="studio-field__tip">{highlightColor.toUpperCase()}</span>
+                                        </div>
+                                        <div className="studio-color-palette" role="group" aria-label="Highlight Accent Colors">
+                                            {HIGHLIGHT_PALETTE.map((swatch) => (
+                                                <button
+                                                    key={swatch.hex}
+                                                    type="button"
+                                                    className={`studio-color-swatch ${highlightColor.toLowerCase() === swatch.hex.toLowerCase() ? 'studio-color-swatch--active' : ''}`}
+                                                    style={{ backgroundColor: swatch.hex }}
+                                                    onClick={() => setHighlightColor(swatch.hex)}
+                                                    title={`Select ${swatch.label} (${swatch.hex})`}
+                                                    aria-label={`Select ${swatch.label}`}
+                                                >
+                                                    {highlightColor.toLowerCase() === swatch.hex.toLowerCase() && (
+                                                        <span className="studio-color-swatch__check">✓</span>
+                                                    )}
+                                                </button>
+                                            ))}
+                                            <div className="studio-color-custom-wrapper" title="Pick custom highlight color">
+                                                <input
+                                                    type="color"
+                                                    value={highlightColor}
+                                                    onChange={(e) => setHighlightColor(e.target.value)}
+                                                    className="studio-color-picker-input"
+                                                    aria-label="Custom Highlight Color"
+                                                />
+                                                <span className="studio-color-custom-btn" style={{ background: highlightColor }}>
+                                                    🎨
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Subpanel 4: Watermark & Alignment */}
+                            <div className="studio-subpanel">
+                                <div className="studio-subpanel__header">
+                                    <span className="studio-subpanel__icon">📐</span>
+                                    <div>
+                                        <h3 className="studio-subpanel__title">Placement & Watermark</h3>
+                                        <p className="studio-subpanel__subtitle">Overlay brand watermark and adjust screen alignment</p>
+                                    </div>
+                                </div>
+
+                                {/* Watermark Attribution Badge Toggle */}
+                                <div className="studio-field">
+                                    <label className="studio-checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={showWatermark}
+                                            onChange={(e) => setShowWatermark(e.target.checked)}
+                                            className="studio-checkbox"
+                                            aria-label="Show Watermark Badge"
+                                        />
+                                        <div className="studio-checkbox-text">
+                                            <span className="studio-checkbox-title">Display Watermark Badge on Video</span>
+                                            <span className="studio-checkbox-hint">
+                                                Overlay subtle brand handle badge ({channelHandle || channelName || 'ClipRadar'}) to safeguard content
+                                            </span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {/* Position & Alignment Toggles */}
                                 <div className="studio-layout-toggles">
                                     <div className="studio-field">
-                                        <span className="studio-field__label">Logo Shape / Display Style</span>
+                                        <span className="studio-field__label">Banner Position</span>
                                         <div className="studio-toggle-group">
                                             <button
                                                 type="button"
-                                                className={`studio-toggle-btn ${logoShape === 'badge' ? 'studio-toggle-btn--active' : ''}`}
-                                                onClick={() => setLogoShape('badge')}
+                                                className={`studio-toggle-btn ${headerPosition === 'top' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setHeaderPosition('top')}
                                             >
-                                                Auto-Fit Badge
+                                                Top
                                             </button>
                                             <button
                                                 type="button"
-                                                className={`studio-toggle-btn ${logoShape === 'circle' ? 'studio-toggle-btn--active' : ''}`}
-                                                onClick={() => setLogoShape('circle')}
+                                                className={`studio-toggle-btn ${headerPosition === 'middle' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setHeaderPosition('middle')}
                                             >
-                                                Circle Avatar
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={`studio-toggle-btn ${logoShape === 'banner' ? 'studio-toggle-btn--active' : ''}`}
-                                                onClick={() => setLogoShape('banner')}
-                                            >
-                                                Wide Brand Banner
+                                                Middle of Screen
                                             </button>
                                         </div>
                                     </div>
 
                                     <div className="studio-field">
-                                        <div className="studio-field__header">
-                                            <span className="studio-field__label">Logo Size</span>
-                                            <span className="studio-field__tip">{logoHeight}px height</span>
+                                        <span className="studio-field__label">Text & Logo Alignment</span>
+                                        <div className="studio-toggle-group">
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${textAlign === 'center' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setTextAlign('center')}
+                                            >
+                                                Centered
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`studio-toggle-btn ${textAlign === 'left' ? 'studio-toggle-btn--active' : ''}`}
+                                                onClick={() => setTextAlign('left')}
+                                            >
+                                                Left
+                                            </button>
                                         </div>
-                                        <div className="studio-slider-row">
-                                            <span className="studio-slider-label">Compact (50px)</span>
-                                            <input
-                                                type="range"
-                                                min="50"
-                                                max="180"
-                                                value={logoHeight}
-                                                onChange={(e) => setLogoHeight(Number(e.target.value))}
-                                                className="studio-slider"
-                                            />
-                                            <span className="studio-slider-label">Extra Large (180px)</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Optional Channel Name & Handle (Leave blank to only show the logo) */}
-                            <div className="studio-fields-row">
-                                <div className="studio-field">
-                                    <label htmlFor="channel-name" className="studio-field__label">
-                                        Channel Name <span style={{ opacity: 0.6, fontWeight: 400 }}>(Optional)</span>
-                                    </label>
-                                    <input
-                                        id="channel-name"
-                                        type="text"
-                                        className="studio-field__input"
-                                        value={channelName}
-                                        onChange={(e) => setChannelName(e.target.value)}
-                                        placeholder="Leave blank to display logo only"
-                                    />
-                                </div>
-                                <div className="studio-field">
-                                    <label htmlFor="channel-handle" className="studio-field__label">
-                                        Handle <span style={{ opacity: 0.6, fontWeight: 400 }}>(Optional)</span>
-                                    </label>
-                                    <input
-                                        id="channel-handle"
-                                        type="text"
-                                        className="studio-field__input"
-                                        value={channelHandle}
-                                        onChange={(e) => setChannelHandle(e.target.value)}
-                                        placeholder="e.g. @yourchannel"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Hook Card Theme */}
-                            <div className="studio-field">
-                                <span className="studio-field__label">Hook Card Theme</span>
-                                <div className="studio-toggle-group" role="group" aria-label="Hook Card Themes">
-                                    {CARD_THEMES.map((theme) => (
-                                        <button
-                                            key={theme.id}
-                                            type="button"
-                                            className={`studio-toggle-btn ${cardTheme === theme.id ? 'studio-toggle-btn--active' : ''}`}
-                                            onClick={() => setCardTheme(theme.id)}
-                                        >
-                                            <span>{theme.icon}</span>
-                                            <span>{theme.label}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Highlight Accent Color Picker */}
-                            <div className="studio-field">
-                                <div className="studio-field__header">
-                                    <span className="studio-field__label">Highlight Accent Color</span>
-                                    <span className="studio-field__tip">{highlightColor.toUpperCase()}</span>
-                                </div>
-                                <div className="studio-color-palette" role="group" aria-label="Highlight Accent Colors">
-                                    {HIGHLIGHT_PALETTE.map((swatch) => (
-                                        <button
-                                            key={swatch.hex}
-                                            type="button"
-                                            className={`studio-color-swatch ${highlightColor.toLowerCase() === swatch.hex.toLowerCase() ? 'studio-color-swatch--active' : ''}`}
-                                            style={{ backgroundColor: swatch.hex }}
-                                            onClick={() => setHighlightColor(swatch.hex)}
-                                            title={`Select ${swatch.label} (${swatch.hex})`}
-                                            aria-label={`Select ${swatch.label}`}
-                                        >
-                                            {highlightColor.toLowerCase() === swatch.hex.toLowerCase() && (
-                                                <span className="studio-color-swatch__check">✓</span>
-                                            )}
-                                        </button>
-                                    ))}
-                                    <div className="studio-color-custom-wrapper" title="Pick custom highlight color">
-                                        <input
-                                            type="color"
-                                            value={highlightColor}
-                                            onChange={(e) => setHighlightColor(e.target.value)}
-                                            className="studio-color-picker-input"
-                                            aria-label="Custom Highlight Color"
-                                        />
-                                        <span className="studio-color-custom-btn" style={{ background: highlightColor }}>
-                                            🎨
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Watermark Attribution Badge Toggle */}
-                            <div className="studio-field">
-                                <label className="studio-checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={showWatermark}
-                                        onChange={(e) => setShowWatermark(e.target.checked)}
-                                        className="studio-checkbox"
-                                        aria-label="Show Watermark Badge"
-                                    />
-                                    <div className="studio-checkbox-text">
-                                        <span className="studio-checkbox-title">Display Watermark Badge on Video</span>
-                                        <span className="studio-checkbox-hint">
-                                            Overlay subtle brand handle badge ({channelHandle || channelName || 'ClipRadar'}) to safeguard content
-                                        </span>
-                                    </div>
-                                </label>
-                            </div>
-
-                            {/* Position & Alignment Toggles */}
-                            <div className="studio-layout-toggles">
-                                <div className="studio-field">
-                                    <span className="studio-field__label">Banner Position</span>
-                                    <div className="studio-toggle-group">
-                                        <button
-                                            type="button"
-                                            className={`studio-toggle-btn ${headerPosition === 'top' ? 'studio-toggle-btn--active' : ''}`}
-                                            onClick={() => setHeaderPosition('top')}
-                                        >
-                                            Top
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`studio-toggle-btn ${headerPosition === 'middle' ? 'studio-toggle-btn--active' : ''}`}
-                                            onClick={() => setHeaderPosition('middle')}
-                                        >
-                                            Middle of Screen
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="studio-field">
-                                    <span className="studio-field__label">Text & Logo Alignment</span>
-                                    <div className="studio-toggle-group">
-                                        <button
-                                            type="button"
-                                            className={`studio-toggle-btn ${textAlign === 'center' ? 'studio-toggle-btn--active' : ''}`}
-                                            onClick={() => setTextAlign('center')}
-                                        >
-                                            Centered
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`studio-toggle-btn ${textAlign === 'left' ? 'studio-toggle-btn--active' : ''}`}
-                                            onClick={() => setTextAlign('left')}
-                                        >
-                                            Left
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -2133,10 +2209,33 @@ export default function VideoStudio() {
                             </div>
                         )}
                     </div>
+
+                    {/* Mobile Floating Quick Preview Pill */}
+                    <button
+                        type="button"
+                        className="studio-mobile-floating-preview-btn"
+                        onClick={() => setMobileTab('preview')}
+                        aria-label="Switch to Mobile Preview"
+                    >
+                        <span className="studio-mobile-floating-preview-btn__icon">📱</span>
+                        <span>Preview 9:16 Short</span>
+                        {videoFile && <span className="studio-mobile-floating-preview-btn__dot" />}
+                    </button>
                 </div>
 
                 {/* Right Column: 9:16 Live Phone Preview Mockup */}
                 <aside className="video-studio__preview" aria-label="Live Video Preview">
+                    {/* Mobile Back Button to return to Controls */}
+                    <div className="studio-preview-mobile-header">
+                        <button
+                            type="button"
+                            className="studio-preview-back-btn"
+                            onClick={() => setMobileTab('controls')}
+                        >
+                            ← Back to Studio Controls
+                        </button>
+                    </div>
+
                     <div
                         className="phone-mockup"
                         style={{ '--studio-highlight-color': highlightColor }}
