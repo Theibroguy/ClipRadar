@@ -3,8 +3,8 @@
     "date": "2026-11-04",
     "formattedDate": "Wednesday, Nov 4, 2026",
     "theme": "Celebrity Reactions & Epic Fails",
-    "nextDropCountdownSeconds": 24669,
-    "total": 4,
+    "nextDropCountdownSeconds": 22944,
+    "total": 8,
     "videos": [
       {
         "platform": "youtube",
@@ -27,8 +27,32 @@
         "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
         "isDailyDrop": true,
         "dropDate": "2026-11-04",
-        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "publishedAt": "2026-11-04T07:30:00.000Z",
         "velocityViewsPerHour": 230449
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1798432198012345678",
+        "creator": {
+          "name": "Elon Musk",
+          "handle": "@elonmusk",
+          "avatarUrl": "https://ui-avatars.com/api/?name=EM&background=000000&color=fff",
+          "profileUrl": "https://x.com/elonmusk"
+        },
+        "title": "SpaceX Starship orbital flight test hot-staging manoeuvre captured from drone",
+        "description": "Dramatic drone tracking view of Starship hot-staging separation in mid-air over the Gulf of Mexico.",
+        "thumbnailUrl": "https://picsum.photos/seed/starship01/640/360",
+        "videoUrl": "https://x.com/elonmusk/status/1798432198012345678",
+        "embedUrl": "",
+        "durationSeconds": 42,
+        "viewCount": 42500000,
+        "likeCount": 1850000,
+        "category": "Science & Tech",
+        "aiDescription": "Elon Musk shares spectacular 4K aerial footage of SpaceX Starship executing its fiery hot-staging booster separation manoeuvre.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T09:15:00.000Z",
+        "velocityViewsPerHour": 885416
       },
       {
         "platform": "youtube",
@@ -51,8 +75,32 @@
         "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
         "isDailyDrop": true,
         "dropDate": "2026-11-04",
-        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "publishedAt": "2026-11-04T07:30:00.000Z",
         "velocityViewsPerHour": 447958
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1799201928374650123",
+        "creator": {
+          "name": "Barstool Sports",
+          "handle": "@barstoolsports",
+          "avatarUrl": "https://ui-avatars.com/api/?name=BS&background=0284c7&color=fff",
+          "profileUrl": "https://x.com/barstoolsports"
+        },
+        "title": "Guy attempts backward basketball shot from arena rooftop... you will not believe the ending 😂",
+        "description": "The celebration alone is worth watching 10 times over.",
+        "thumbnailUrl": "https://picsum.photos/seed/barstool01/640/360",
+        "videoUrl": "https://x.com/barstoolsports/status/1799201928374650123",
+        "embedUrl": "",
+        "durationSeconds": 28,
+        "viewCount": 19800000,
+        "likeCount": 640000,
+        "category": "Comedy",
+        "aiDescription": "A fan attempts an absurd blind basketball heave off an arena roof with an unexpected ricochet into the hoop that sends everyone into pure chaos.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T09:15:00.000Z",
+        "velocityViewsPerHour": 412500
       },
       {
         "platform": "youtube",
@@ -75,8 +123,32 @@
         "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
         "isDailyDrop": true,
         "dropDate": "2026-11-04",
-        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "publishedAt": "2026-11-04T07:30:00.000Z",
         "velocityViewsPerHour": 2046902
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1796543210987654321",
+        "creator": {
+          "name": "Culture Crave 🍿",
+          "handle": "@CultureCrave",
+          "avatarUrl": "https://ui-avatars.com/api/?name=CC&background=9333ea&color=fff",
+          "profileUrl": "https://x.com/CultureCrave"
+        },
+        "title": "Pedro Pascal and Bella Ramsey unable to stop laughing during dramatic scene take on set",
+        "description": "Pure blooper gold from backstage filming.",
+        "thumbnailUrl": "https://picsum.photos/seed/pedro01/640/360",
+        "videoUrl": "https://x.com/CultureCrave/status/1796543210987654321",
+        "embedUrl": "",
+        "durationSeconds": 35,
+        "viewCount": 15400000,
+        "likeCount": 890000,
+        "category": "Entertainment",
+        "aiDescription": "Beloved actors Pedro Pascal and Bella Ramsey suffer an uncontrollable laughing fit during an intense movie take.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T09:15:00.000Z",
+        "velocityViewsPerHour": 320833
       },
       {
         "platform": "youtube",
@@ -99,10 +171,232 @@
         "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
         "isDailyDrop": true,
         "dropDate": "2026-11-04",
-        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "publishedAt": "2026-11-04T07:30:00.000Z",
         "velocityViewsPerHour": 203445
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1795123456789012345",
+        "creator": {
+          "name": "Dexerto",
+          "handle": "@Dexerto",
+          "avatarUrl": "https://ui-avatars.com/api/?name=DX&background=dc2626&color=fff",
+          "profileUrl": "https://x.com/Dexerto"
+        },
+        "title": "IShowSpeed meets Brazilian soccer legend Ronaldo in wildest unscripted fan moment",
+        "description": "Speed Barking at Ronaldo was not on the 2024 bingo card.",
+        "thumbnailUrl": "https://picsum.photos/seed/speed01/640/360",
+        "videoUrl": "https://x.com/Dexerto/status/1795123456789012345",
+        "embedUrl": "",
+        "durationSeconds": 45,
+        "viewCount": 28900000,
+        "likeCount": 1120000,
+        "category": "Entertainment",
+        "aiDescription": "Viral streamer IShowSpeed has an energetic and wildly hilarious first reaction upon unexpectedly meeting football royalty Ronaldo.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T09:15:00.000Z",
+        "velocityViewsPerHour": 602083
       }
     ],
-    "generatedAt": "2026-11-04T16:08:50.578Z"
+    "platforms": {
+      "youtube": [
+        {
+          "platform": "youtube",
+          "platformVideoId": "DgM1YypmL_Q",
+          "creator": {
+            "name": "Snoop.newspaper",
+            "handle": "@snoopnews",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Snoop&background=f59e0b&color=fff",
+            "profileUrl": "https://www.youtube.com/@snoopnews"
+          },
+          "title": "Celebrities' hilarious reactions as they eat spicy wings on 'Hot Ones'",
+          "description": "Watch stars like BLACKPINK's Lisa and Jennie lose their cool over the world's hottest wings.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=DgM1YypmL_Q",
+          "embedUrl": "https://www.youtube.com/embed/DgM1YypmL_Q",
+          "durationSeconds": 61,
+          "viewCount": 16592354,
+          "likeCount": 484558,
+          "category": "Comedy",
+          "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T07:30:00.000Z",
+          "velocityViewsPerHour": 230449
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "tX-6XdbAC7E",
+          "creator": {
+            "name": "America's Funniest Home Videos",
+            "handle": "@afv",
+            "avatarUrl": "https://ui-avatars.com/api/?name=AFV&background=ef4444&color=fff",
+            "profileUrl": "https://www.youtube.com/@afv"
+          },
+          "title": "Why did he do this? 😭 #funny #shorts",
+          "description": "The ultimate classic fail caught on tape.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=tX-6XdbAC7E",
+          "embedUrl": "https://www.youtube.com/embed/tX-6XdbAC7E",
+          "durationSeconds": 14,
+          "viewCount": 32252988,
+          "likeCount": 147259,
+          "category": "Comedy",
+          "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T07:30:00.000Z",
+          "velocityViewsPerHour": 447958
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "8dQ3Kf5u2ys",
+          "creator": {
+            "name": "Strong Mind Set",
+            "handle": "@strongmindset",
+            "avatarUrl": "https://ui-avatars.com/api/?name=SMS&background=10b981&color=fff",
+            "profileUrl": "https://www.youtube.com/@strongmindset"
+          },
+          "title": "Sha'Carri Richardson American Athlete #shorts",
+          "description": "Sha'Carri Richardson explosive 100m performance.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=8dQ3Kf5u2ys",
+          "embedUrl": "https://www.youtube.com/embed/8dQ3Kf5u2ys",
+          "durationSeconds": 14,
+          "viewCount": 147376962,
+          "likeCount": 3381909,
+          "category": "Sports",
+          "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T07:30:00.000Z",
+          "velocityViewsPerHour": 2046902
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "Q9-EEoGQyTE",
+          "creator": {
+            "name": "Nick DiGiovanni",
+            "handle": "@nickdigiovanni",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Nick&background=6366f1&color=fff",
+            "profileUrl": "https://www.youtube.com/@nickdigiovanni"
+          },
+          "title": "Cheese Stacking Challenge with ChefRush",
+          "description": "Massive cheese stack showdown with Bayashi and ChefRush.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=Q9-EEoGQyTE",
+          "embedUrl": "https://www.youtube.com/embed/Q9-EEoGQyTE",
+          "durationSeconds": 15,
+          "viewCount": 14648091,
+          "likeCount": 174677,
+          "category": "Challenge",
+          "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T07:30:00.000Z",
+          "velocityViewsPerHour": 203445
+        }
+      ],
+      "twitter": [
+        {
+          "platform": "twitter",
+          "platformVideoId": "1798432198012345678",
+          "creator": {
+            "name": "Elon Musk",
+            "handle": "@elonmusk",
+            "avatarUrl": "https://ui-avatars.com/api/?name=EM&background=000000&color=fff",
+            "profileUrl": "https://x.com/elonmusk"
+          },
+          "title": "SpaceX Starship orbital flight test hot-staging manoeuvre captured from drone",
+          "description": "Dramatic drone tracking view of Starship hot-staging separation in mid-air over the Gulf of Mexico.",
+          "thumbnailUrl": "https://picsum.photos/seed/starship01/640/360",
+          "videoUrl": "https://x.com/elonmusk/status/1798432198012345678",
+          "embedUrl": "",
+          "durationSeconds": 42,
+          "viewCount": 42500000,
+          "likeCount": 1850000,
+          "category": "Science & Tech",
+          "aiDescription": "Elon Musk shares spectacular 4K aerial footage of SpaceX Starship executing its fiery hot-staging booster separation manoeuvre.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T09:15:00.000Z",
+          "velocityViewsPerHour": 885416
+        },
+        {
+          "platform": "twitter",
+          "platformVideoId": "1799201928374650123",
+          "creator": {
+            "name": "Barstool Sports",
+            "handle": "@barstoolsports",
+            "avatarUrl": "https://ui-avatars.com/api/?name=BS&background=0284c7&color=fff",
+            "profileUrl": "https://x.com/barstoolsports"
+          },
+          "title": "Guy attempts backward basketball shot from arena rooftop... you will not believe the ending 😂",
+          "description": "The celebration alone is worth watching 10 times over.",
+          "thumbnailUrl": "https://picsum.photos/seed/barstool01/640/360",
+          "videoUrl": "https://x.com/barstoolsports/status/1799201928374650123",
+          "embedUrl": "",
+          "durationSeconds": 28,
+          "viewCount": 19800000,
+          "likeCount": 640000,
+          "category": "Comedy",
+          "aiDescription": "A fan attempts an absurd blind basketball heave off an arena roof with an unexpected ricochet into the hoop that sends everyone into pure chaos.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T09:15:00.000Z",
+          "velocityViewsPerHour": 412500
+        },
+        {
+          "platform": "twitter",
+          "platformVideoId": "1796543210987654321",
+          "creator": {
+            "name": "Culture Crave 🍿",
+            "handle": "@CultureCrave",
+            "avatarUrl": "https://ui-avatars.com/api/?name=CC&background=9333ea&color=fff",
+            "profileUrl": "https://x.com/CultureCrave"
+          },
+          "title": "Pedro Pascal and Bella Ramsey unable to stop laughing during dramatic scene take on set",
+          "description": "Pure blooper gold from backstage filming.",
+          "thumbnailUrl": "https://picsum.photos/seed/pedro01/640/360",
+          "videoUrl": "https://x.com/CultureCrave/status/1796543210987654321",
+          "embedUrl": "",
+          "durationSeconds": 35,
+          "viewCount": 15400000,
+          "likeCount": 890000,
+          "category": "Entertainment",
+          "aiDescription": "Beloved actors Pedro Pascal and Bella Ramsey suffer an uncontrollable laughing fit during an intense movie take.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T09:15:00.000Z",
+          "velocityViewsPerHour": 320833
+        },
+        {
+          "platform": "twitter",
+          "platformVideoId": "1795123456789012345",
+          "creator": {
+            "name": "Dexerto",
+            "handle": "@Dexerto",
+            "avatarUrl": "https://ui-avatars.com/api/?name=DX&background=dc2626&color=fff",
+            "profileUrl": "https://x.com/Dexerto"
+          },
+          "title": "IShowSpeed meets Brazilian soccer legend Ronaldo in wildest unscripted fan moment",
+          "description": "Speed Barking at Ronaldo was not on the 2024 bingo card.",
+          "thumbnailUrl": "https://picsum.photos/seed/speed01/640/360",
+          "videoUrl": "https://x.com/Dexerto/status/1795123456789012345",
+          "embedUrl": "",
+          "durationSeconds": 45,
+          "viewCount": 28900000,
+          "likeCount": 1120000,
+          "category": "Entertainment",
+          "aiDescription": "Viral streamer IShowSpeed has an energetic and wildly hilarious first reaction upon unexpectedly meeting football royalty Ronaldo.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-04",
+          "publishedAt": "2026-11-04T09:15:00.000Z",
+          "velocityViewsPerHour": 602083
+        }
+      ]
+    },
+    "generatedAt": "2026-11-04T16:37:35.316Z"
   }
 }

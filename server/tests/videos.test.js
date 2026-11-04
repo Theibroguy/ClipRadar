@@ -155,7 +155,7 @@ describe('POST /api/videos', () => {
 });
 
 describe('Daily Radar Drops API', () => {
-    it('returns today curated viral YouTube drop with countdown and videos', async () => {
+    it('returns today curated viral YouTube and Twitter drop with countdown and videos', async () => {
         const res = await request(app).get('/api/daily-drops');
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('date');
@@ -165,6 +165,21 @@ describe('Daily Radar Drops API', () => {
         expect(Array.isArray(res.body.videos)).toBe(true);
         expect(res.body.videos.length).toBeGreaterThan(0);
         expect(res.body.videos[0].platform).toBe('youtube');
+        expect(res.body.videos.some((v) => v.platform === 'twitter')).toBe(true);
+    });
+
+    it('returns drops filtered by platform=twitter', async () => {
+        const res = await request(app).get('/api/daily-drops?platform=twitter');
+        expect(res.status).toBe(200);
+        expect(res.body.videos.length).toBeGreaterThan(0);
+        expect(res.body.videos.every((v) => v.platform === 'twitter')).toBe(true);
+    });
+
+    it('returns drops filtered by platform=youtube', async () => {
+        const res = await request(app).get('/api/daily-drops?platform=youtube');
+        expect(res.status).toBe(200);
+        expect(res.body.videos.length).toBeGreaterThan(0);
+        expect(res.body.videos.every((v) => v.platform === 'youtube')).toBe(true);
     });
 
     it('supports generating a fresh batch on demand via POST /api/daily-drops/generate', async () => {

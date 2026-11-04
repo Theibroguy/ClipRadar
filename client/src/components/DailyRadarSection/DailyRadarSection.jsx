@@ -31,7 +31,7 @@ function formatViews(views) {
 }
 
 /**
- * DailyRadarSection — Displays the daily curated batch of viral YouTube clips.
+ * DailyRadarSection — Displays the daily curated batch of viral YouTube and X (Twitter) clips.
  *
  * Props:
  *   onPreview {function} - Callback when clicking "Preview" on a video
@@ -40,18 +40,19 @@ export default function DailyRadarSection({ onPreview }) {
     const navigate = useSafeNavigate();
     const [dailyData, setDailyData] = useState(null);
     const [selectedDate, setSelectedDate] = useState('');
+    const [activePlatform, setActivePlatform] = useState('all'); // 'all' | 'youtube' | 'twitter'
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [countdownSec, setCountdownSec] = useState(0);
     const [toastMessage, setToastMessage] = useState('');
 
-    // Load daily drop
+    // Load daily drop (all platforms loaded together for instantaneous client tab switching)
     const loadDrop = useCallback(async (date = null) => {
         setIsLoading(true);
         setErrorMessage('');
         try {
-            const data = await fetchDailyDrop(date);
+            const data = await fetchDailyDrop(date, 'all');
             setDailyData(data);
             setSelectedDate(data.date);
             setCountdownSec(data.nextDropCountdownSeconds || 0);
@@ -80,12 +81,18 @@ export default function DailyRadarSection({ onPreview }) {
     async function handleForceRefresh() {
         setIsRefreshing(true);
         try {
-            const res = await generateFreshDailyDrop();
+            const res = await generateFreshDailyDrop('all');
             if (res.drop) {
                 setDailyData(res.drop);
                 setSelectedDate(res.drop.date);
                 setCountdownSec(res.drop.nextDropCountdownSeconds || 0);
-                setToastMessage('✨ Brand new fresh YouTube batch generated for today!');
+                const platformLabel =
+                    activePlatform === 'twitter'
+                        ? 'X / Twitter'
+                        : activePlatform === 'youtube'
+                        ? 'YouTube'
+                        : 'Radar';
+                setToastMessage(`✨ Brand new fresh ${platformLabel} batch generated for today!`);
                 setTimeout(() => setToastMessage(''), 4000);
             }
         } catch (err) {
@@ -107,7 +114,27 @@ export default function DailyRadarSection({ onPreview }) {
         navigate('/studio', { state: { preloadedVideo: video } });
     }
 
-    const videos = useMemo(() => dailyData?.videos || [], [dailyData]);
+    const allVideos = useMemo(() => dailyData?.videos || [], [dailyData]);
+
+    const visibleVideos = useMemo(() => {
+        if (activePlatform === 'all') return allVideos;
+        return allVideos.filter((v) => v.platform === activePlatform);
+    }, [allVideos, activePlatform]);
+
+    const platformCounts = useMemo(
+        () => ({
+            all: allVideos.length,
+            youtube: allVideos.filter((v) => v.platform === 'youtube').length,
+            twitter: allVideos.filter((v) => v.platform === 'twitter').length,
+        }),
+        [allVideos]
+    );
+
+    const sectionTitle = useMemo(() => {
+        if (activePlatform === 'twitter') return "Today's Viral X / Twitter Clips";
+        if (activePlatform === 'youtube') return "Today's Viral YouTube Shorts";
+        return "Today's Viral Radar Picks";
+    }, [activePlatform]);
 
     if (errorMessage && !dailyData) {
         return (
@@ -149,7 +176,7 @@ export default function DailyRadarSection({ onPreview }) {
                             </span>
                         </div>
                         <h2 className="daily-radar__title">
-                            Today's Viral YouTube Picks
+                            {sectionTitle}
                         </h2>
                         {dailyData?.theme && (
                             <p className="daily-radar__subtitle">
@@ -184,13 +211,56 @@ export default function DailyRadarSection({ onPreview }) {
                             className={`daily-radar__refresh-btn ${isRefreshing ? 'daily-radar__refresh-btn--loading' : ''}`}
                             onClick={handleForceRefresh}
                             disabled={isRefreshing || isLoading}
-                            title="Generate a completely new batch of YouTube videos for today"
-                            aria-label="Generate fresh YouTube video drop"
+                            title="Generate a completely new batch of videos for today"
+                            aria-label="Generate fresh video drop"
                         >
                             <span className="daily-radar__refresh-icon">{isRefreshing ? '⏳' : '⚡'}</span>
                             <span>{isRefreshing ? 'Grabbing New Clips…' : 'Generate New Batch'}</span>
                         </button>
                     </div>
+                </div>
+
+                {/* Platform Filter Tabs */}
+                <div className="daily-radar__platform-tabs" role="tablist" aria-label="Filter daily drops by platform">
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab-all"
+                        aria-selected={activePlatform === 'all'}
+                        className={`daily-radar__tab-btn ${activePlatform === 'all' ? 'active' : ''}`}
+                        onClick={() => setActivePlatform('all')}
+                    >
+                        <span>🔥 All Drops</span>
+                        {platformCounts.all > 0 && (
+                            <span className="daily-radar__tab-count">{platformCounts.all}</span>
+                        )}
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab-youtube"
+                        aria-selected={activePlatform === 'youtube'}
+                        className={`daily-radar__tab-btn ${activePlatform === 'youtube' ? 'active' : ''}`}
+                        onClick={() => setActivePlatform('youtube')}
+                    >
+                        <span>📺 YouTube Shorts</span>
+                        {platformCounts.youtube > 0 && (
+                            <span className="daily-radar__tab-count">{platformCounts.youtube}</span>
+                        )}
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        id="tab-twitter"
+                        aria-selected={activePlatform === 'twitter'}
+                        className={`daily-radar__tab-btn ${activePlatform === 'twitter' ? 'active' : ''}`}
+                        onClick={() => setActivePlatform('twitter')}
+                    >
+                        <span>𝕏 Twitter Clips</span>
+                        {platformCounts.twitter > 0 && (
+                            <span className="daily-radar__tab-count">{platformCounts.twitter}</span>
+                        )}
+                    </button>
                 </div>
 
                 {/* Video Cards Grid */}
@@ -202,107 +272,131 @@ export default function DailyRadarSection({ onPreview }) {
                             ))}
                         </div>
                     </div>
-                ) : videos.length === 0 ? (
+                ) : visibleVideos.length === 0 ? (
                     <div className="daily-radar__empty">
-                        <p>No daily drops available for this date.</p>
+                        <p>No daily {activePlatform === 'all' ? '' : activePlatform} drops available for this date.</p>
                         <button type="button" onClick={() => handleForceRefresh()} className="daily-radar__action-btn">
                             ⚡ Fetch Fresh Batch Now
                         </button>
                     </div>
                 ) : (
                     <div className="daily-radar__grid" role="list">
-                        {videos.map((video) => (
-                            <article
-                                key={video.platformVideoId || video.videoUrl}
-                                className="daily-card"
-                                role="listitem"
-                            >
-                                {/* Thumbnail */}
-                                <div
-                                    className="daily-card__thumb-wrap"
-                                    onClick={() => onPreview && onPreview(video)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => e.key === 'Enter' && onPreview && onPreview(video)}
-                                    aria-label={`Preview video: ${video.title}`}
+                        {visibleVideos.map((video) => {
+                            const isTwitter = video.platform === 'twitter';
+                            return (
+                                <article
+                                    key={video.platformVideoId || video.videoUrl}
+                                    className={`daily-card daily-card--${video.platform || 'youtube'}`}
+                                    role="listitem"
                                 >
-                                    <img
-                                        src={video.thumbnailUrl || 'https://picsum.photos/seed/yt/640/360'}
-                                        alt={video.title}
-                                        loading="lazy"
-                                        className="daily-card__thumb-img"
-                                    />
-                                    <span className="daily-card__platform-badge">YouTube Short</span>
-                                    {video.durationSeconds && (
-                                        <span className="daily-card__duration-badge">
-                                            {Math.floor(video.durationSeconds / 60)}:
-                                            {String(video.durationSeconds % 60).padStart(2, '0')}
+                                    {/* Thumbnail */}
+                                    <div
+                                        className="daily-card__thumb-wrap"
+                                        onClick={() => onPreview && onPreview(video)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => e.key === 'Enter' && onPreview && onPreview(video)}
+                                        aria-label={`Preview video: ${video.title}`}
+                                    >
+                                        <img
+                                            src={video.thumbnailUrl || (isTwitter ? 'https://picsum.photos/seed/tw/640/360' : 'https://picsum.photos/seed/yt/640/360')}
+                                            alt={video.title}
+                                            loading="lazy"
+                                            className="daily-card__thumb-img"
+                                        />
+                                        <span
+                                            className={`daily-card__platform-badge daily-card__platform-badge--${isTwitter ? 'twitter' : 'youtube'}`}
+                                        >
+                                            {isTwitter ? '𝕏 Post' : 'YouTube Short'}
                                         </span>
-                                    )}
-                                    <div className="daily-card__play-overlay">
-                                        <span className="daily-card__play-icon" aria-hidden="true">▶</span>
-                                    </div>
-                                </div>
-
-                                {/* Content */}
-                                <div className="daily-card__content">
-                                    <div className="daily-card__meta-top">
-                                        <span className="daily-card__category">{video.category || 'Viral'}</span>
-                                        {video.velocityViewsPerHour && (
-                                            <span className="daily-card__velocity">
-                                                ⚡ {formatViews(video.velocityViewsPerHour)}/hr
+                                        {video.durationSeconds && (
+                                            <span className="daily-card__duration-badge">
+                                                {Math.floor(video.durationSeconds / 60)}:
+                                                {String(video.durationSeconds % 60).padStart(2, '0')}
                                             </span>
                                         )}
-                                        <span className="daily-card__views">
-                                            👀 {formatViews(video.viewCount)} views
-                                        </span>
+                                        <div className="daily-card__play-overlay">
+                                            <span className="daily-card__play-icon" aria-hidden="true">▶</span>
+                                        </div>
                                     </div>
 
-                                    <h3
-                                        className="daily-card__title"
-                                        onClick={() => onPreview && onPreview(video)}
-                                        title={video.title}
-                                    >
-                                        {video.title}
-                                    </h3>
-
-                                    <p className="daily-card__desc">
-                                        {video.aiDescription || video.description}
-                                    </p>
-
-                                    {/* Creator & Actions */}
-                                    <div className="daily-card__footer">
-                                        <div className="daily-card__creator">
-                                            <div className="daily-card__creator-avatar">
-                                                {video.creator?.name ? video.creator.name.charAt(0) : 'Y'}
-                                            </div>
-                                            <span className="daily-card__creator-name">
-                                                {video.creator?.name || 'YouTube Creator'}
+                                    {/* Content */}
+                                    <div className="daily-card__content">
+                                        <div className="daily-card__meta-top">
+                                            <span className="daily-card__category">{video.category || 'Viral'}</span>
+                                            {video.velocityViewsPerHour && (
+                                                <span className="daily-card__velocity">
+                                                    ⚡ {formatViews(video.velocityViewsPerHour)}/hr
+                                                </span>
+                                            )}
+                                            <span className="daily-card__views">
+                                                👀 {formatViews(video.viewCount)} {isTwitter ? 'impressions' : 'views'}
                                             </span>
                                         </div>
 
-                                        <div className="daily-card__actions">
-                                            <button
-                                                type="button"
-                                                className="daily-card__preview-btn"
-                                                onClick={() => onPreview && onPreview(video)}
-                                                title="Preview full video with embedded player"
-                                            >
-                                                🎬 Preview
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="daily-card__studio-btn"
-                                                onClick={() => handleSendToStudio(video)}
-                                                title="Remix and generate viral short in Video Studio"
-                                            >
-                                                ✂️ Studio
-                                            </button>
+                                        <h3
+                                            className="daily-card__title"
+                                            onClick={() => onPreview && onPreview(video)}
+                                            title={video.title}
+                                        >
+                                            {video.title}
+                                        </h3>
+
+                                        <p className="daily-card__desc">
+                                            {video.aiDescription || video.description}
+                                        </p>
+
+                                        {/* Creator & Actions */}
+                                        <div className="daily-card__footer">
+                                            <div className="daily-card__creator">
+                                                <div
+                                                    className={`daily-card__creator-avatar daily-card__creator-avatar--${isTwitter ? 'twitter' : 'youtube'}`}
+                                                >
+                                                    {video.creator?.avatarUrl ? (
+                                                        <img
+                                                            src={video.creator.avatarUrl}
+                                                            alt=""
+                                                            className="daily-card__creator-img"
+                                                        />
+                                                    ) : (
+                                                        <span>{video.creator?.name ? video.creator.name.charAt(0) : (isTwitter ? '𝕏' : 'Y')}</span>
+                                                    )}
+                                                </div>
+                                                <div className="daily-card__creator-info">
+                                                    <span className="daily-card__creator-name" title={video.creator?.name}>
+                                                        {video.creator?.name || (isTwitter ? 'X Creator' : 'YouTube Creator')}
+                                                    </span>
+                                                    {video.creator?.handle && (
+                                                        <span className="daily-card__creator-handle" title={video.creator.handle}>
+                                                            {video.creator.handle}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="daily-card__actions">
+                                                <button
+                                                    type="button"
+                                                    className="daily-card__preview-btn"
+                                                    onClick={() => onPreview && onPreview(video)}
+                                                    title="Preview full video with embedded player"
+                                                >
+                                                    🎬 Preview
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="daily-card__studio-btn"
+                                                    onClick={() => handleSendToStudio(video)}
+                                                    title="Remix and generate viral short in Video Studio"
+                                                >
+                                                    ✂️ Studio
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </article>
-                        ))}
+                                </article>
+                            );
+                        })}
                     </div>
                 )}
             </div>

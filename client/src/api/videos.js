@@ -35,22 +35,32 @@ export async function fetchVideos(params = {}) {
 /**
  * Fetch today's curated Daily Radar Drop (or a specific historical date)
  * @param {string} [date] - Optional date in YYYY-MM-DD
+ * @param {string} [platform='all'] - 'all' | 'youtube' | 'twitter'
  */
-export async function fetchDailyDrop(date = null) {
-    const url = `${BASE}/api/daily-drops${date ? `?date=${encodeURIComponent(date)}` : ''}`;
+export async function fetchDailyDrop(date = null, platform = 'all') {
+    const params = new URLSearchParams();
+    if (date) params.set('date', date);
+    if (platform && platform !== 'all') params.set('platform', platform);
+    const query = params.toString();
+    const url = `${BASE}/api/daily-drops${query ? `?${query}` : ''}`;
     const res = await fetch(url);
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `HTTP ${res.status}`);
     }
-    return res.json(); // { date, formattedDate, theme, nextDropCountdownSeconds, total, videos, history }
+    return res.json(); // { date, formattedDate, theme, nextDropCountdownSeconds, total, videos, history, platforms }
 }
 
 /**
- * Force generate a fresh batch of YouTube videos for today
+ * Force generate a fresh batch of videos for today
+ * @param {string} [platform='all'] - 'all' | 'youtube' | 'twitter'
  */
-export async function generateFreshDailyDrop() {
-    const res = await fetch(`${BASE}/api/daily-drops/generate`, {
+export async function generateFreshDailyDrop(platform = 'all') {
+    const params = new URLSearchParams();
+    if (platform && platform !== 'all') params.set('platform', platform);
+    const query = params.toString();
+    const url = `${BASE}/api/daily-drops/generate${query ? `?${query}` : ''}`;
+    const res = await fetch(url, {
         method: 'POST',
     });
     if (!res.ok) {

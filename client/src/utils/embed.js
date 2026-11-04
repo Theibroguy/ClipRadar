@@ -45,4 +45,3 @@ export function getEmbedInfo(video) {
 
     return { type: 'none', url: null };
 }
-

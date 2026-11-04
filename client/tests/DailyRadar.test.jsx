@@ -22,22 +22,22 @@ const mockDropData = {
             viewCount: 15000000,
             velocityViewsPerHour: 25000,
             durationSeconds: 45,
-            creator: { name: 'Spice Network' },
+            creator: { name: 'Spice Network', handle: '@spicenetwork' },
             thumbnailUrl: 'https://picsum.photos/seed/spice/640/360',
             videoUrl: 'https://www.youtube.com/watch?v=test_yt_01',
         },
         {
-            platform: 'youtube',
-            platformVideoId: 'test_yt_02',
-            title: 'Crazy 100-Hour Wilderness Survival',
-            aiDescription: 'MrBeast style endurance challenge deep in the wilderness.',
-            category: 'Challenge',
-            viewCount: 22000000,
-            velocityViewsPerHour: 40000,
-            durationSeconds: 60,
-            creator: { name: 'Extreme Creators' },
-            thumbnailUrl: 'https://picsum.photos/seed/wild/640/360',
-            videoUrl: 'https://www.youtube.com/watch?v=test_yt_02',
+            platform: 'twitter',
+            platformVideoId: '1798432198012345678',
+            title: 'Starship Orbital Separation Flight Test Drone 4K',
+            aiDescription: 'Elon Musk shares breathtaking aerial view of SpaceX Starship.',
+            category: 'Science & Tech',
+            viewCount: 42500000,
+            velocityViewsPerHour: 88000,
+            durationSeconds: 42,
+            creator: { name: 'Elon Musk', handle: '@elonmusk' },
+            thumbnailUrl: 'https://picsum.photos/seed/starship/640/360',
+            videoUrl: 'https://x.com/elonmusk/status/1798432198012345678',
         },
     ],
 };
@@ -50,7 +50,7 @@ describe('DailyRadarSection Component', () => {
             success: true,
             drop: {
                 ...mockDropData,
-                theme: 'Freshly Rolled Daily YouTube Batch',
+                theme: 'Freshly Rolled Daily Radar Batch',
                 videos: [
                     {
                         ...mockDropData.videos[0],
@@ -61,7 +61,7 @@ describe('DailyRadarSection Component', () => {
         });
     });
 
-    it('renders the daily drop section header, formatted date, countdown, and video cards', async () => {
+    it('renders the daily drop section header, formatted date, countdown, and both YouTube and Twitter video cards', async () => {
         render(
             <BrowserRouter>
                 <DailyRadarSection onPreview={vi.fn()} />
@@ -73,11 +73,50 @@ describe('DailyRadarSection Component', () => {
         expect(screen.getByText(/wednesday, nov 4, 2026/i)).toBeInTheDocument();
         expect(screen.getByText(/celebrity reactions & insane challenges/i)).toBeInTheDocument();
 
-        // Cards rendered
+        // Cards rendered for both platforms
         expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
-        expect(screen.getByText('Crazy 100-Hour Wilderness Survival')).toBeInTheDocument();
+        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
         expect(screen.getByText(/15.0M views/i)).toBeInTheDocument();
-        expect(screen.getByText(/25K\/hr/i)).toBeInTheDocument();
+        expect(screen.getByText(/42.5M impressions/i)).toBeInTheDocument();
+
+        // Platform badges & handles
+        expect(screen.getByText('YouTube Short')).toBeInTheDocument();
+        expect(screen.getByText(/post/i)).toBeInTheDocument();
+        expect(screen.getByText('@elonmusk')).toBeInTheDocument();
+    });
+
+    it('filters videos between All, YouTube Shorts, and X / Twitter Clips tabs', async () => {
+        render(
+            <BrowserRouter>
+                <DailyRadarSection onPreview={vi.fn()} />
+            </BrowserRouter>
+        );
+
+        expect(await screen.findByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
+        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
+
+        // Switch to Twitter tab
+        const twitterTab = screen.getByRole('tab', { name: /twitter clips/i });
+        fireEvent.click(twitterTab);
+
+        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
+        expect(screen.queryByText('Hilarious Hot Ones Spice Challenge')).not.toBeInTheDocument();
+        expect(screen.getByText("Today's Viral X / Twitter Clips")).toBeInTheDocument();
+
+        // Switch to YouTube tab
+        const youtubeTab = screen.getByRole('tab', { name: /youtube shorts/i });
+        fireEvent.click(youtubeTab);
+
+        expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
+        expect(screen.queryByText('Starship Orbital Separation Flight Test Drone 4K')).not.toBeInTheDocument();
+        expect(screen.getByText("Today's Viral YouTube Shorts")).toBeInTheDocument();
+
+        // Switch back to All Drops
+        const allTab = screen.getByRole('tab', { name: /all drops/i });
+        fireEvent.click(allTab);
+
+        expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
+        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
     });
 
     it('triggers the onPreview callback when clicking the preview button or thumbnail', async () => {
@@ -101,13 +140,13 @@ describe('DailyRadarSection Component', () => {
             </BrowserRouter>
         );
 
-        const generateBtn = await screen.findByRole('button', { name: /generate fresh youtube video drop/i });
+        const generateBtn = await screen.findByRole('button', { name: /generate fresh.*drop/i });
         fireEvent.click(generateBtn);
 
         await waitFor(() => {
             expect(api.generateFreshDailyDrop).toHaveBeenCalled();
             expect(screen.getByText('Freshly Generated Comedy Moment')).toBeInTheDocument();
-            expect(screen.getByText(/brand new fresh youtube batch generated for today/i)).toBeInTheDocument();
+            expect(screen.getByText(/brand new fresh.*batch generated for today/i)).toBeInTheDocument();
         });
     });
 });

@@ -451,12 +451,15 @@ async function compositeAndDownloadMoment({
     }
 
     // Fast, reliable simulation fallback (works in all test and constrained environments)
+    const isTest = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+    const wait = (ms) => new Promise((r) => setTimeout(r, isTest ? 15 : ms));
+
     onProgress(35, `Trimming segment: ${startTime}s - ${endTime}s...`);
-    await new Promise((r) => setTimeout(r, 300));
+    await wait(300);
     onProgress(70, 'Compositing headline & 9:16 layout...');
-    await new Promise((r) => setTimeout(r, 300));
+    await wait(300);
     onProgress(95, 'Encoding short...');
-    await new Promise((r) => setTimeout(r, 200));
+    await wait(200);
     onProgress(100, 'Render complete!');
 
     const safeName = (title || 'moment').replace(/[^a-zA-Z0-9_-]/g, '_');

@@ -2,92 +2,134 @@
  * Daily Radar Drops Service
  *
  * Automatically curates and generates a fresh batch of viral short-form
- * YouTube videos every single day based on the user's favorite niches:
+ * videos every single day across both YouTube and X (Twitter):
+ *
+ * YouTube:
  * - Viral Comedy & Fails (AFV, standup crowdwork, viral fails)
  * - Celebrity Reactions & Interviews (Hot Ones, awkward celebrity moments)
  * - Wild Creator Challenges & Stunts (MrBeast challenges, food stacking, epic feats)
  * - Mindblowing Athletic Wonders (Sha'Carri Richardson, trickshots, athlete comedy)
  * - Pop Culture & Relatable Meme Rankings (Khaby Lame life hacks, POV comedy)
  *
+ * X / Twitter:
+ * - Viral Tech & Space moments (@elonmusk Starship, Tesla Optimus, Neuralink)
+ * - Wild Sports Moments & Hilarious Fails (@BarstoolSports, @espn)
+ * - Celebrity Candid & Red Carpet Laughs (@CultureCrave, @PopBase)
+ * - Unscripted Internet Culture & Streamer Moments (@Dexerto, @NoContextHumans)
+ *
  * Rotates daily based on date stamps so the user NEVER sees the same videos.
  */
 import fs from 'fs';
 import path from 'path';
 import { fetchYouTubeVideos } from './youtube.js';
-import { enrichVideoWithAI } from './gemini.js';
+import { fetchTwitterVideos } from './twitter.js';
 
 const DATA_FILE = path.resolve('src/data/dailyDrops.json');
 
-// Rotating query themes by day to guarantee varied content each day
+// Rotating query themes by day
 const DAILY_THEMES = [
     {
         theme: 'Celebrity Reactions & Epic Fails',
-        queries: [
+        ytQueries: [
             'hot ones funniest reaction shorts',
             'celebrity hilarious awkward moment shorts',
             'americas funniest home videos fail shorts',
             'insane athlete speed highlight shorts',
         ],
+        twQueries: [
+            'celebrity funny reaction video',
+            'hilarious fail video',
+            'spacex starship flight video',
+        ],
     },
     {
         theme: 'Creator Challenges & Viral Crowdwork',
-        queries: [
+        ytQueries: [
             'mrbeast style insane challenge shorts',
             'hilarious stand up comedy crowdwork shorts',
             'food stacking cooking showdown shorts',
             'shocking athlete interview moment shorts',
         ],
+        twQueries: [
+            'creator insane challenge clip',
+            'standup comedy crowdwork funny',
+            'crazy sports trickshot video',
+        ],
     },
     {
         theme: 'Wild Stunts & Pop Culture Memes',
-        queries: [
+        ytQueries: [
             'funniest celebrity meme ranking shorts',
             'unbelievable sports trickshot moments shorts',
             'hilarious life hack reaction shorts',
             'actor unscripted funny moments shorts',
         ],
+        twQueries: [
+            'viral meme reaction video',
+            'red carpet funny moment clip',
+            'tesla ai optimus robot video',
+        ],
     },
     {
         theme: 'Unscripted Celebrity & Extreme Feats',
-        queries: [
+        ytQueries: [
             'celebrity spicy wings funny reaction shorts',
             'toddler athlete prodigy viral shorts',
             'crazy creator survival challenge shorts',
             'funniest viral comedy moments 2024 shorts',
         ],
+        twQueries: [
+            'unscripted celebrity laugh clip',
+            'athlete world record moment video',
+            'bizarre street interview funny',
+        ],
     },
     {
         theme: 'High-Stakes Showdowns & Relatable Comedy',
-        queries: [
+        ytQueries: [
             'epic cheese stacking challenge shorts',
             'shacarri richardson fastest running shorts',
             'funniest comedian crowd interaction shorts',
             'celebrity caught being hilarious shorts',
         ],
+        twQueries: [
+            'barstool viral funny video',
+            'neuralink human demo clip',
+            'crazy golf trickshot ricochet',
+        ],
     },
     {
         theme: 'Shocking Reactions & Athletic Wonders',
-        queries: [
+        ytQueries: [
             'crazy youtube award unboxing reaction shorts',
             'most hilarious marathon interview shorts',
             'viral dance challenge couple funny shorts',
             'impossible trickshot challenge shorts',
         ],
+        twQueries: [
+            'sports buzzer beater miracle clip',
+            'streamer unscripted funny moment',
+            'movie premiere cast interview laugh',
+        ],
     },
     {
         theme: 'Viral Stand-up & Ultimate Challenge Radar',
-        queries: [
+        ytQueries: [
             'matt rife hilarious gym comedy shorts',
             'britney spears funniest interview moments shorts',
             'extreme wilderness survival test shorts',
             'world athletics fastest mood shorts',
         ],
+        twQueries: [
+            'viral comedy moment clip',
+            'spacex booster catch video',
+            'little league motivational speech funny',
+        ],
     },
 ];
 
-// Curated high-impact backup pool categorized by rotation index
-// Used if YouTube API quota is exceeded or offline
-const ROTATING_BACKUP_POOLS = [
+// Curated high-impact backup pools for YouTube
+const ROTATING_YT_BACKUPS = [
     [
         {
             platform: 'youtube',
@@ -211,45 +253,153 @@ const ROTATING_BACKUP_POOLS = [
             category: 'Entertainment',
             aiDescription: "Join Alan Chikin Chow as he unboxes and reacts to a wild, jaw-dropping new YouTube award with endless comedic energy.",
         },
+    ],
+];
+
+// Curated high-impact backup pools for X (Twitter)
+const ROTATING_TWITTER_BACKUPS = [
+    [
         {
-            platform: 'youtube',
-            platformVideoId: 'SadSOL3baAw',
+            platform: 'twitter',
+            platformVideoId: '1798432198012345678',
             creator: {
-                name: 'Hope Music',
-                handle: '@hopemusic',
-                avatarUrl: 'https://ui-avatars.com/api/?name=HM&background=06b6d4&color=fff',
-                profileUrl: 'https://www.youtube.com/@hopemusic',
+                name: 'Elon Musk',
+                handle: '@elonmusk',
+                avatarUrl: 'https://ui-avatars.com/api/?name=EM&background=000000&color=fff',
+                profileUrl: 'https://x.com/elonmusk',
             },
-            title: 'The Funniest Ethiopian Athlete Interview Ever [Must See]',
-            description: 'Tsegaye Kebede hilarious post-race Chicago marathon interview.',
-            thumbnailUrl: 'https://i.ytimg.com/vi/SadSOL3baAw/hqdefault.jpg',
-            videoUrl: 'https://www.youtube.com/watch?v=SadSOL3baAw',
-            embedUrl: 'https://www.youtube.com/embed/SadSOL3baAw',
-            durationSeconds: 112,
-            viewCount: 605771,
-            likeCount: 2247,
-            category: 'Comedy',
-            aiDescription: "Catch the unforgettable and hilarious post-race interview of Ethiopian marathon champion Tsegaye Kebede chatting with NBC.",
+            title: 'SpaceX Starship orbital flight test hot-staging manoeuvre captured from drone',
+            description: 'Dramatic drone tracking view of Starship hot-staging separation in mid-air over the Gulf of Mexico.',
+            thumbnailUrl: 'https://picsum.photos/seed/starship01/640/360',
+            videoUrl: 'https://x.com/elonmusk/status/1798432198012345678',
+            embedUrl: '',
+            durationSeconds: 42,
+            viewCount: 42500000,
+            likeCount: 1850000,
+            category: 'Science & Tech',
+            aiDescription: 'Elon Musk shares spectacular 4K aerial footage of SpaceX Starship executing its fiery hot-staging booster separation manoeuvre.',
         },
         {
-            platform: 'youtube',
-            platformVideoId: 'DG7bWPkCpz8',
+            platform: 'twitter',
+            platformVideoId: '1799201928374650123',
             creator: {
-                name: 'Jasmin and James',
-                handle: '@jasminandjames',
-                avatarUrl: 'https://ui-avatars.com/api/?name=JJ&background=8b5cf6&color=fff',
-                profileUrl: 'https://www.youtube.com/@jasminandjames',
+                name: 'Barstool Sports',
+                handle: '@barstoolsports',
+                avatarUrl: 'https://ui-avatars.com/api/?name=BS&background=0284c7&color=fff',
+                profileUrl: 'https://x.com/barstoolsports',
             },
-            title: 'WE NEED TO KNOW! 😅💙 - Ballet Dance Trend Challenge',
-            description: 'Hilarious viral couple ballet challenge attempt.',
-            thumbnailUrl: 'https://i.ytimg.com/vi/DG7bWPkCpz8/hqdefault.jpg',
-            videoUrl: 'https://www.youtube.com/watch?v=DG7bWPkCpz8',
-            embedUrl: 'https://www.youtube.com/embed/DG7bWPkCpz8',
-            durationSeconds: 15,
-            viewCount: 60488960,
-            likeCount: 1020793,
+            title: 'Guy attempts backward basketball shot from arena rooftop... you will not believe the ending 😂',
+            description: 'The celebration alone is worth watching 10 times over.',
+            thumbnailUrl: 'https://picsum.photos/seed/barstool01/640/360',
+            videoUrl: 'https://x.com/barstoolsports/status/1799201928374650123',
+            embedUrl: '',
+            durationSeconds: 28,
+            viewCount: 19800000,
+            likeCount: 640000,
             category: 'Comedy',
-            aiDescription: "Watch content creators Jasmin and James tackle a hilarious viral dance challenge together with genuine couple chemistry.",
+            aiDescription: 'A fan attempts an absurd blind basketball heave off an arena roof with an unexpected ricochet into the hoop that sends everyone into pure chaos.',
+        },
+        {
+            platform: 'twitter',
+            platformVideoId: '1796543210987654321',
+            creator: {
+                name: 'Culture Crave 🍿',
+                handle: '@CultureCrave',
+                avatarUrl: 'https://ui-avatars.com/api/?name=CC&background=9333ea&color=fff',
+                profileUrl: 'https://x.com/CultureCrave',
+            },
+            title: "Pedro Pascal and Bella Ramsey unable to stop laughing during dramatic scene take on set",
+            description: 'Pure blooper gold from backstage filming.',
+            thumbnailUrl: 'https://picsum.photos/seed/pedro01/640/360',
+            videoUrl: 'https://x.com/CultureCrave/status/1796543210987654321',
+            embedUrl: '',
+            durationSeconds: 35,
+            viewCount: 15400000,
+            likeCount: 890000,
+            category: 'Entertainment',
+            aiDescription: 'Beloved actors Pedro Pascal and Bella Ramsey suffer an uncontrollable laughing fit during an intense movie take.',
+        },
+        {
+            platform: 'twitter',
+            platformVideoId: '1795123456789012345',
+            creator: {
+                name: 'Dexerto',
+                handle: '@Dexerto',
+                avatarUrl: 'https://ui-avatars.com/api/?name=DX&background=dc2626&color=fff',
+                profileUrl: 'https://x.com/Dexerto',
+            },
+            title: 'IShowSpeed meets Brazilian soccer legend Ronaldo in wildest unscripted fan moment',
+            description: 'Speed Barking at Ronaldo was not on the 2024 bingo card.',
+            thumbnailUrl: 'https://picsum.photos/seed/speed01/640/360',
+            videoUrl: 'https://x.com/Dexerto/status/1795123456789012345',
+            embedUrl: '',
+            durationSeconds: 45,
+            viewCount: 28900000,
+            likeCount: 1120000,
+            category: 'Entertainment',
+            aiDescription: 'Viral streamer IShowSpeed has an energetic and wildly hilarious first reaction upon unexpectedly meeting football royalty Ronaldo.',
+        },
+    ],
+    [
+        {
+            platform: 'twitter',
+            platformVideoId: '1801234567890123456',
+            creator: {
+                name: 'Tesla',
+                handle: '@Tesla',
+                avatarUrl: 'https://ui-avatars.com/api/?name=Tesla&background=cc0000&color=fff',
+                profileUrl: 'https://x.com/Tesla',
+            },
+            title: 'Tesla Optimus humanoid robot sorting battery cells autonomously in factory floor test',
+            description: 'End-to-end neural networks running on robot hardware in real-time factory conditions.',
+            thumbnailUrl: 'https://picsum.photos/seed/optimus01/640/360',
+            videoUrl: 'https://x.com/Tesla/status/1801234567890123456',
+            embedUrl: '',
+            durationSeconds: 52,
+            viewCount: 38200000,
+            likeCount: 1450000,
+            category: 'Science & Tech',
+            aiDescription: 'Tesla displays real-time footage of their humanoid robot Optimus independently handling industrial manufacturing tasks with uncanny dexterity.',
+        },
+        {
+            platform: 'twitter',
+            platformVideoId: '1802345678901234567',
+            creator: {
+                name: 'SportsCenter',
+                handle: '@SportsCenter',
+                avatarUrl: 'https://ui-avatars.com/api/?name=SC&background=ea580c&color=fff',
+                profileUrl: 'https://x.com/SportsCenter',
+            },
+            title: 'High school quarterback throws impossible 70-yard no-look hail mary to win state championship',
+            description: 'As time expired! Unbelievable sports moment.',
+            thumbnailUrl: 'https://picsum.photos/seed/sports02/640/360',
+            videoUrl: 'https://x.com/SportsCenter/status/1802345678901234567',
+            embedUrl: '',
+            durationSeconds: 31,
+            viewCount: 24100000,
+            likeCount: 780000,
+            category: 'Sports',
+            aiDescription: 'A high school quarterback executes a miracle buzzer-beater throw under heavy defensive pressure, leading to an ecstatic stadium rush.',
+        },
+        {
+            platform: 'twitter',
+            platformVideoId: '1803456789012345678',
+            creator: {
+                name: 'No Context Humans',
+                handle: '@NoContextHumans',
+                avatarUrl: 'https://ui-avatars.com/api/?name=NC&background=4f46e5&color=fff',
+                profileUrl: 'https://x.com/NoContextHumans',
+            },
+            title: 'Dad builds elaborate 50-step Rube Goldberg machine just to pour morning cereal',
+            description: 'The mechanical genius and absurdity is unmatched.',
+            thumbnailUrl: 'https://picsum.photos/seed/rube01/640/360',
+            videoUrl: 'https://x.com/NoContextHumans/status/1803456789012345678',
+            embedUrl: '',
+            durationSeconds: 58,
+            viewCount: 18700000,
+            likeCount: 920000,
+            category: 'Comedy',
+            aiDescription: 'A dedicated inventor designs an insanely complicated contraption weaving through his entire living room simply to drop milk into a bowl.',
         },
     ],
 ];
@@ -304,17 +454,26 @@ export function getSecondsUntilNextDrop() {
 }
 
 /**
- * Generates or retrieves the Daily Drop for a given date
+ * Generates or retrieves the Daily Drop for a given date across YouTube and X/Twitter
  * @param {string} [targetDateKey] - YYYY-MM-DD (defaults to today)
- * @param {boolean} [forceRefresh=false] - Re-fetch fresh videos from YouTube
+ * @param {boolean} [forceRefresh=false] - Re-fetch fresh videos
+ * @param {string} [requestedPlatform='all'] - 'all' | 'youtube' | 'twitter'
  */
-export async function getDailyDrop(targetDateKey = null, forceRefresh = false) {
+export async function getDailyDrop(targetDateKey = null, forceRefresh = false, requestedPlatform = 'all') {
     const todayKey = targetDateKey || getDateKey();
     const drops = loadDrops();
 
-    if (!forceRefresh && drops[todayKey] && Array.isArray(drops[todayKey].videos) && drops[todayKey].videos.length > 0) {
+    const existing = drops[todayKey];
+    const hasTwitter = existing && Array.isArray(existing.videos) && existing.videos.some((v) => v.platform === 'twitter');
+    if (!forceRefresh && existing && Array.isArray(existing.videos) && existing.videos.length > 0 && hasTwitter) {
+        let returnVideos = existing.videos;
+        if (requestedPlatform && requestedPlatform !== 'all') {
+            returnVideos = returnVideos.filter((v) => v.platform === requestedPlatform);
+        }
         return {
-            ...drops[todayKey],
+            ...existing,
+            total: returnVideos.length,
+            videos: returnVideos,
             nextDropCountdownSeconds: getSecondsUntilNextDrop(),
             history: Object.keys(drops).sort().reverse(),
         };
@@ -326,47 +485,86 @@ export async function getDailyDrop(targetDateKey = null, forceRefresh = false) {
     const themeIndex = Math.abs(dayOfYear) % DAILY_THEMES.length;
     const currentThemeConfig = DAILY_THEMES[themeIndex];
 
-    let fetchedVideos = [];
+    let fetchedYouTube = [];
+    let fetchedTwitter = [];
 
-    // Attempt live YouTube API fetch if key is present
+    // 1. YouTube Live Fetch
     if (process.env.YOUTUBE_API_KEY) {
         try {
-            console.log(`[DailyDrops] Fetching fresh YouTube videos for date: ${todayKey} (Theme: ${currentThemeConfig.theme})`);
-            const rawYt = await fetchYouTubeVideos(currentThemeConfig.queries, 3);
+            console.log(`[DailyDrops] Fetching fresh YouTube clips for date: ${todayKey}`);
+            const rawYt = await fetchYouTubeVideos(currentThemeConfig.ytQueries, 3);
             if (rawYt && rawYt.length > 0) {
-                // Enrich and tag with velocity and daily drop markers
-                fetchedVideos = rawYt.map((v, idx) => {
+                fetchedYouTube = rawYt.map((v, idx) => {
                     const views = v.viewCount || 50000;
                     const hoursSince = Math.max(1, (Date.now() - new Date(v.publishedAt || Date.now()).getTime()) / 3600000);
-                    const velocity = Math.round(views / hoursSince);
-                    const category = v.category || (idx % 2 === 0 ? 'Comedy' : 'Challenge');
-
                     return {
                         ...v,
                         isDailyDrop: true,
                         dropDate: todayKey,
-                        category,
-                        velocityViewsPerHour: velocity,
-                        aiDescription: v.aiDescription || `Viral YouTube clip featured in today's Daily Radar Drop (${currentThemeConfig.theme}). High engagement and instant audience hook potential.`,
+                        category: v.category || (idx % 2 === 0 ? 'Comedy' : 'Challenge'),
+                        velocityViewsPerHour: Math.round(views / hoursSince),
+                        aiDescription: v.aiDescription || `Viral YouTube clip featured in today's Daily Radar Drop (${currentThemeConfig.theme}). High audience retention hook.`,
                     };
                 });
             }
         } catch (err) {
-            console.warn('[DailyDrops] YouTube API fetch encountered error, using backup pool:', err.message);
+            console.warn('[DailyDrops] YouTube API error, falling back to curated rotation:', err.message);
         }
     }
 
-    // If YouTube fetch returned no results (quota or network), use rotating backup pool
-    if (fetchedVideos.length === 0) {
-        const poolIndex = Math.abs(dayOfYear) % ROTATING_BACKUP_POOLS.length;
-        const backupPool = ROTATING_BACKUP_POOLS[poolIndex];
-        fetchedVideos = backupPool.map((v) => ({
+    // 2. X / Twitter Live Fetch
+    if (process.env.TWITTER_BEARER_TOKEN) {
+        try {
+            console.log(`[DailyDrops] Fetching fresh X/Twitter clips for date: ${todayKey}`);
+            const rawTw = await fetchTwitterVideos(currentThemeConfig.twQueries, 4);
+            if (rawTw && rawTw.length > 0) {
+                fetchedTwitter = rawTw.map((v, idx) => {
+                    const views = v.viewCount || 80000;
+                    const hoursSince = Math.max(1, (Date.now() - new Date(v.publishedAt || Date.now()).getTime()) / 3600000);
+                    return {
+                        ...v,
+                        isDailyDrop: true,
+                        dropDate: todayKey,
+                        category: idx % 2 === 0 ? 'Entertainment' : 'Science & Tech',
+                        velocityViewsPerHour: Math.round(views / hoursSince),
+                        aiDescription: `Trending X/Twitter clip curated in today's Daily Radar Drop. Spreading rapidly with massive quote-tweet engagement.`,
+                    };
+                });
+            }
+        } catch (err) {
+            console.warn('[DailyDrops] Twitter API error, falling back to curated rotation:', err.message);
+        }
+    }
+
+    // Fallbacks if live APIs produced no videos (or key missing)
+    if (fetchedYouTube.length === 0) {
+        const poolIndex = Math.abs(dayOfYear) % ROTATING_YT_BACKUPS.length;
+        fetchedYouTube = ROTATING_YT_BACKUPS[poolIndex].map((v) => ({
             ...v,
             isDailyDrop: true,
             dropDate: todayKey,
-            publishedAt: new Date(y, m - 1, d, 9, 0, 0).toISOString(),
+            publishedAt: new Date(y, m - 1, d, 8, 30, 0).toISOString(),
             velocityViewsPerHour: Math.floor(v.viewCount / 72),
         }));
+    }
+
+    if (fetchedTwitter.length === 0) {
+        const poolIndex = Math.abs(dayOfYear) % ROTATING_TWITTER_BACKUPS.length;
+        fetchedTwitter = ROTATING_TWITTER_BACKUPS[poolIndex].map((v) => ({
+            ...v,
+            isDailyDrop: true,
+            dropDate: todayKey,
+            publishedAt: new Date(y, m - 1, d, 10, 15, 0).toISOString(),
+            velocityViewsPerHour: Math.floor(v.viewCount / 48),
+        }));
+    }
+
+    // Interleave YouTube and Twitter clips for a balanced daily drop
+    const combinedVideos = [];
+    const maxLen = Math.max(fetchedYouTube.length, fetchedTwitter.length);
+    for (let i = 0; i < maxLen; i++) {
+        if (fetchedYouTube[i]) combinedVideos.push(fetchedYouTube[i]);
+        if (fetchedTwitter[i]) combinedVideos.push(fetchedTwitter[i]);
     }
 
     const newDropRecord = {
@@ -374,26 +572,38 @@ export async function getDailyDrop(targetDateKey = null, forceRefresh = false) {
         formattedDate: formatDisplayDate(todayKey),
         theme: currentThemeConfig.theme,
         nextDropCountdownSeconds: getSecondsUntilNextDrop(),
-        total: fetchedVideos.length,
-        videos: fetchedVideos,
+        total: combinedVideos.length,
+        videos: combinedVideos,
+        platforms: {
+            youtube: fetchedYouTube,
+            twitter: fetchedTwitter,
+        },
         generatedAt: new Date().toISOString(),
     };
 
     drops[todayKey] = newDropRecord;
     saveDrops(drops);
 
+    let returnVideos = combinedVideos;
+    if (requestedPlatform && requestedPlatform !== 'all') {
+        returnVideos = returnVideos.filter((v) => v.platform === requestedPlatform);
+    }
+
     return {
         ...newDropRecord,
+        total: returnVideos.length,
+        videos: returnVideos,
         history: Object.keys(drops).sort().reverse(),
     };
 }
 
 /**
- * Returns today's fresh drop videos for mixing into the feed
+ * Returns today's fresh drop videos for mixing into the feed by platform
+ * @param {string} [platform='all'] - 'all' | 'youtube' | 'twitter'
  */
-export async function getTodayDropVideos() {
+export async function getTodayDropVideos(platform = 'all') {
     try {
-        const drop = await getDailyDrop(getDateKey(), false);
+        const drop = await getDailyDrop(getDateKey(), false, platform);
         return drop.videos || [];
     } catch {
         return [];

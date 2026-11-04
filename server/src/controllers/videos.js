@@ -155,12 +155,12 @@ export async function getVideos(req, res, next) {
 
 /**
  * GET /api/daily-drops
- * Returns today's fresh curated YouTube drop (or specified date)
+ * Returns today's fresh curated drops across YouTube and X/Twitter (or specified date)
  */
 export async function getDailyDropsController(req, res, next) {
     try {
-        const { date, force } = req.query;
-        const drop = await getDailyDrop(date || null, force === 'true');
+        const { date, force, platform } = req.query;
+        const drop = await getDailyDrop(date || null, force === 'true', platform || 'all');
         return res.json(drop);
     } catch (err) {
         next(err);
@@ -169,11 +169,12 @@ export async function getDailyDropsController(req, res, next) {
 
 /**
  * POST /api/daily-drops/generate
- * Force generates a brand new fresh batch of YouTube videos for today
+ * Force generates a brand new fresh batch of videos for today
  */
 export async function generateDailyDropController(req, res, next) {
     try {
-        const drop = await getDailyDrop(null, true);
+        const { platform } = req.query;
+        const drop = await getDailyDrop(null, true, platform || 'all');
         return res.json({
             success: true,
             message: 'Fresh daily drop generated successfully',
