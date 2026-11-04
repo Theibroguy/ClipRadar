@@ -238,12 +238,12 @@ async function compositeAndDownloadMoment({
                     const targetLogoH = Math.min(220, Math.round((logoHeight || 115) * 1.5));
                     const targetLogoW = Math.min(cardW - 48, Math.round(targetLogoH * 3.5));
                     const logoX = textAlign === 'center' ? canvas.width / 2 - targetLogoW / 2 : cardMargin + 24;
-                    const logoY = cardY + 20;
+                    const logoY = cardY + 12;
 
                     // Draw logo directly on plain white canvas card without extra background or border
                     drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
 
-                    let nextY = logoY + targetLogoH + 16;
+                    let nextY = logoY + targetLogoH + 4;
 
                     // Only draw channel name/handle if provided
                     if (channelName || channelHandle) {
@@ -254,18 +254,18 @@ async function compositeAndDownloadMoment({
 
                         if (channelName) {
                             ctx.fillText(channelName, textX, nextY);
-                            nextY += 28;
+                            nextY += 26;
                         }
                         if (channelHandle) {
                             ctx.fillStyle = '#64748b';
                             ctx.font = '16px -apple-system, sans-serif';
                             ctx.fillText(channelHandle, textX, nextY);
-                            nextY += 24;
+                            nextY += 22;
                         }
                     }
 
-                    // Headline text
-                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 8, cardW - 48, textAlign);
+                    // Headline text - positioned higher and close under the logo
+                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 2, cardW - 48, textAlign);
                     ctx.restore();
                 } else {
                     // Default avatar icon when no logo uploaded

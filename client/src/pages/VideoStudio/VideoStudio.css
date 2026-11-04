@@ -703,10 +703,10 @@
 /* Header / Hook Card (Centered Logo & Text by Default) */
 .comp-header {
     background: #ffffff;
-    padding: 20px 16px 16px;
+    padding: 10px 14px 10px;
     border-bottom: 1px solid #e2e8f0;
     flex-shrink: 0;
-    min-height: 28%;
+    min-height: 25%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -727,7 +727,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: 8px;
+    gap: 2px;
 }
 
 /* Centered Top Row (Logo on top or centered with text) */
@@ -736,7 +736,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 2px;
 }
 
 .comp-header__avatar {
@@ -772,7 +772,7 @@
     align-items: center !important;
     justify-content: center !important;
     overflow: visible !important;
-    margin: 0 auto 8px !important;
+    margin: 0 auto 0 !important;
 }
 
 .comp-header__avatar--has-img .comp-header__avatar-img {
@@ -829,20 +829,23 @@
     font-size: 0.84rem;
     font-weight: 800;
     color: #0f172a;
-    line-height: 1.35;
+    line-height: 1.25;
     letter-spacing: -0.01em;
+    margin: 0;
+    margin-top: -2px;
 }
 
 /* Left-aligned variant */
 .comp-header--align-left .comp-header__card {
     align-items: flex-start;
     text-align: left;
+    gap: 2px;
 }
 
 .comp-header--align-left .comp-header__top-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .comp-header--align-left .comp-header__avatar {
@@ -868,8 +871,10 @@
     font-size: 0.82rem;
     font-weight: 800;
     color: #0f172a;
-    line-height: 1.35;
+    line-height: 1.25;
     letter-spacing: -0.01em;
+    margin: 0;
+    margin-top: -2px;
 }
 
 .studio-preview__highlight {
