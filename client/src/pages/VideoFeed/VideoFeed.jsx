@@ -6,6 +6,7 @@ import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import Spinner from '../../components/Spinner/Spinner.jsx';
 import VideoModal from '../../components/VideoModal/VideoModal.jsx';
 import { useBookmarks } from '../../hooks/useBookmarks.js';
+import { useSettings } from '../../context/SettingsContext.jsx';
 import './VideoFeed.css';
 
 const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
@@ -35,6 +36,8 @@ export default function VideoFeed() {
         isBookmarked,
         toggleBookmark,
     } = useBookmarks();
+
+    const { settings } = useSettings();
 
     // Scroll listener for "Back to Top" button
     useEffect(() => {
@@ -114,11 +117,12 @@ export default function VideoFeed() {
 
     // Clips to display
     const displayVideos = useMemo(() => {
-        if (showSavedOnly) {
-            return filteredBookmarks.slice(0, visibleSavedCount);
+        const base = showSavedOnly ? filteredBookmarks.slice(0, visibleSavedCount) : videos;
+        if (settings?.velocityThreshold > 0) {
+            return base.filter((v) => (v.metrics?.viewVelocity || 0) >= settings.velocityThreshold);
         }
-        return videos;
-    }, [showSavedOnly, filteredBookmarks, visibleSavedCount, videos]);
+        return base;
+    }, [showSavedOnly, filteredBookmarks, visibleSavedCount, videos, settings?.velocityThreshold]);
 
     const canLoadMore = showSavedOnly
         ? filteredBookmarks.length > visibleSavedCount
@@ -277,7 +281,11 @@ export default function VideoFeed() {
             )}
 
             {/* Main grid */}
-            <main className="video-feed__grid" id="video-grid" aria-label="Video results">
+            <main
+                className={`video-feed__grid ${settings?.feedDensity === 'cinematic' ? 'video-feed__grid--cinematic' : ''}`}
+                id="video-grid"
+                aria-label="Video results"
+            >
                 {/* Initial Loading */}
                 {status === 'loading' && (
                     <div className="video-feed__state">

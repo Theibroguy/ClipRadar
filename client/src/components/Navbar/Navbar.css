@@ -53,6 +53,13 @@
     background-clip: text;
 }
 
+/* Navbar Actions Group */
+.navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
 /* Nav Tabs */
 .navbar__nav {
     display: flex;
@@ -62,6 +69,43 @@
     border: 1px solid var(--color-border);
     padding: 4px;
     border-radius: var(--radius-full);
+}
+
+/* Settings Button */
+.navbar__settings-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.navbar__settings-btn:hover {
+    color: var(--color-text);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: var(--color-surface-2);
+    transform: translateY(-1px);
+}
+
+.navbar__settings-icon {
+    font-size: 0.95rem;
+}
+
+@media (max-width: 580px) {
+    .navbar__settings-text {
+        display: none;
+    }
+
+    .navbar__settings-btn {
+        padding: 6px 10px;
+    }
 }
 
 .navbar__tab {

@@ -94,6 +94,11 @@
     margin: 0 auto;
 }
 
+.video-feed__grid--cinematic {
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: var(--space-8);
+}
+
 /* ---- States ---- */
 .video-feed__state {
     grid-column: 1 / -1;

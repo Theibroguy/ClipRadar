@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { extractCatchyMoments, generateHeadlineHook, saveVideoToLibrary } from '../../api/videos.js';
 import { useBookmarks } from '../../hooks/useBookmarks.js';
+import { useSettings } from '../../context/SettingsContext.jsx';
 import './VideoStudio.css';
 
 // Helper: Download a blob or object URL
@@ -112,11 +113,14 @@ async function compositeAndDownloadMoment({
     cardTheme = 'white',
     highlightColor = '#1d4ed8',
     showWatermark = true,
+    aspectRatio = '9:16',
+    renderFps = 60,
+    muteAudio = false,
     video = null,
     videoUrl = null,
     onProgress = () => {},
 }) {
-    onProgress(15, 'Preparing 9:16 layout...');
+    onProgress(15, `Preparing ${aspectRatio} layout...`);
 
     const canUseCanvas =
         typeof HTMLCanvasElement !== 'undefined' &&
@@ -127,8 +131,16 @@ async function compositeAndDownloadMoment({
     if (canUseCanvas && video && videoUrl) {
         try {
             const canvas = document.createElement('canvas');
-            canvas.width = 720;
-            canvas.height = 1280;
+            if (aspectRatio === '1:1') {
+                canvas.width = 1080;
+                canvas.height = 1080;
+            } else if (aspectRatio === '16:9') {
+                canvas.width = 1920;
+                canvas.height = 1080;
+            } else {
+                canvas.width = 720;
+                canvas.height = 1280;
+            }
             const ctx = canvas.getContext('2d');
 
             // Pre-load logo image if provided
@@ -159,13 +171,15 @@ async function compositeAndDownloadMoment({
 
             onProgress(35, `Recording segment: ${startTime}s - ${endTime}s...`);
 
-            const stream = canvas.captureStream(30);
+            const stream = canvas.captureStream(renderFps || 60);
             try {
-                const captureMethod = video.captureStream || video.mozCaptureStream;
-                if (typeof captureMethod === 'function') {
-                    const videoStream = captureMethod.call(video);
-                    const audioTracks = videoStream.getAudioTracks();
-                    audioTracks.forEach((t) => stream.addTrack(t));
+                if (!muteAudio) {
+                    const captureMethod = video.captureStream || video.mozCaptureStream;
+                    if (typeof captureMethod === 'function') {
+                        const videoStream = captureMethod.call(video);
+                        const audioTracks = videoStream.getAudioTracks();
+                        audioTracks.forEach((t) => stream.addTrack(t));
+                    }
                 }
             } catch (e) {
                 // Video captureStream audio optional
@@ -519,6 +533,77 @@ export default function VideoStudio() {
     // Responsive Mobile / Tablet Tab State ('controls' | 'preview')
     const [mobileTab, setMobileTab] = useState('controls');
 
+    const { settings } = useSettings();
+
+    // Studio Engine & Export Settings State
+    const [aspectRatio, setAspectRatio] = useState(settings?.defaultStudioAspect || '9:16');
+    const [renderFps, setRenderFps] = useState(settings?.defaultStudioFps || 60);
+    const [audioBoost, setAudioBoost] = useState(1);
+    const [muteOriginalAudio, setMuteOriginalAudio] = useState(false);
+    const [momentsDensity, setMomentsDensity] = useState(3);
+    const [hasBrandKit, setHasBrandKit] = useState(false);
+
+    // Auto-load Brand Kit from localStorage on initial render
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem('clipradar_brand_kit');
+            if (raw) {
+                const kit = JSON.parse(raw);
+                if (kit.channelName) setChannelName(kit.channelName);
+                if (kit.channelHandle) setChannelHandle(kit.channelHandle);
+                if (kit.logoUrl) setLogoUrl(kit.logoUrl);
+                if (kit.logoShape) setLogoShape(kit.logoShape);
+                if (kit.logoHeight) setLogoHeight(kit.logoHeight);
+                if (kit.cardTheme) setCardTheme(kit.cardTheme);
+                if (kit.highlightColor) setHighlightColor(kit.highlightColor);
+                if (kit.showWatermark !== undefined) setShowWatermark(kit.showWatermark);
+                setHasBrandKit(true);
+            }
+        } catch (e) {
+            console.error('Failed to load Brand Kit', e);
+        }
+    }, []);
+
+    function handleSaveBrandKit() {
+        try {
+            const kit = {
+                channelName,
+                channelHandle,
+                logoUrl,
+                logoShape,
+                logoHeight,
+                cardTheme,
+                highlightColor,
+                showWatermark,
+                savedAt: new Date().toISOString(),
+            };
+            localStorage.setItem('clipradar_brand_kit', JSON.stringify(kit));
+            setHasBrandKit(true);
+            showToast('💾 Brand Kit saved as default! Your channel assets will load automatically.', 'success', 4000);
+        } catch (e) {
+            showToast('⚠️ Could not save Brand Kit', 'error');
+        }
+    }
+
+    function handleResetBrandKit() {
+        try {
+            localStorage.removeItem('clipradar_brand_kit');
+            setHasBrandKit(false);
+            setChannelName('');
+            setChannelHandle('');
+            setLogoFile(null);
+            setLogoUrl(null);
+            setLogoShape('badge');
+            setLogoHeight(115);
+            setCardTheme('white');
+            setHighlightColor('#1d4ed8');
+            setShowWatermark(true);
+            showToast('🔄 Brand Kit reset to factory defaults.', 'info', 3000);
+        } catch (e) {
+            console.error('Failed to reset Brand Kit', e);
+        }
+    }
+
     function showToast(message, type = 'success', duration = 4000) {
         if (!message) return;
         const id = Date.now() + Math.random().toString(36).substring(2, 6);
@@ -741,6 +826,7 @@ export default function VideoStudio() {
                 title: videoTitle || videoFile?.name || 'Viral Clip',
                 description: videoContext || '',
                 duration: videoDuration || 30,
+                limit: momentsDensity || 3,
             });
 
             if (res?.moments && res.moments.length > 0) {
@@ -981,6 +1067,9 @@ export default function VideoStudio() {
                 cardTheme,
                 highlightColor,
                 showWatermark,
+                aspectRatio,
+                renderFps,
+                muteAudio: muteOriginalAudio,
                 video: videoRef.current,
                 videoUrl,
                 onProgress: (pct) => {
@@ -1039,6 +1128,9 @@ export default function VideoStudio() {
             cardTheme,
             highlightColor,
             showWatermark,
+            aspectRatio,
+            renderFps,
+            muteAudio: muteOriginalAudio,
             video: videoRef.current,
             videoUrl,
             onProgress: (pct, msg) => {
@@ -1051,7 +1143,7 @@ export default function VideoStudio() {
         setRenderComplete(true);
         setRenderedVideoUrl(finalUrl || videoUrl);
         setSavedToLibrarySuccess(false);
-        showToast('🎉 9:16 Short rendered and ready!', 'success', 5000);
+        showToast(`🎉 ${aspectRatio} Short rendered and ready!`, 'success', 5000);
     }
 
     // Download generated video from success card
@@ -1456,6 +1548,36 @@ export default function VideoStudio() {
                                             onChange={(e) => setChannelHandle(e.target.value)}
                                             placeholder="e.g. @yourchannel"
                                         />
+                                    </div>
+                                </div>
+
+                                {/* Brand Kit Quick Action */}
+                                <div className="studio-brand-kit-bar">
+                                    <div className="studio-brand-kit-info">
+                                        <span className="studio-brand-kit-label">Default Brand Kit:</span>
+                                        <span className={`studio-brand-kit-status ${hasBrandKit ? 'studio-brand-kit-status--active' : ''}`}>
+                                            {hasBrandKit ? '✨ Saved & Active' : '⚪ Not Saved Yet'}
+                                        </span>
+                                    </div>
+                                    <div className="studio-brand-kit-actions">
+                                        <button
+                                            type="button"
+                                            className="studio-brand-kit-btn studio-brand-kit-btn--save"
+                                            onClick={handleSaveBrandKit}
+                                            title="Save current channel name, handle, logo, and colors as your default Brand Kit"
+                                        >
+                                            💾 Save as Default
+                                        </button>
+                                        {hasBrandKit && (
+                                            <button
+                                                type="button"
+                                                className="studio-brand-kit-btn studio-brand-kit-btn--reset"
+                                                onClick={handleResetBrandKit}
+                                                title="Reset saved Brand Kit to factory defaults"
+                                            >
+                                                🔄 Reset
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -2059,6 +2181,138 @@ export default function VideoStudio() {
                         </div>
                     </div>
 
+                    {/* Studio Engine & Export Settings Card */}
+                    <div className="studio-card">
+                        <div className="studio-card__header">
+                            <span className="studio-card__step">⚙️</span>
+                            <div>
+                                <h2 className="studio-card__title">Studio Engine & Export Settings</h2>
+                                <p className="studio-card__subtitle">
+                                    Configure aspect ratio, 60 FPS encoding, audio boost, and extraction density
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="studio-settings-grid">
+                            {/* Aspect Ratio Selector */}
+                            <div className="studio-field">
+                                <span className="studio-field__label">Target Aspect Ratio & Format</span>
+                                <div className="studio-toggle-group" role="group" aria-label="Aspect Ratio">
+                                    <button
+                                        type="button"
+                                        className={`studio-toggle-btn ${aspectRatio === '9:16' ? 'studio-toggle-btn--active' : ''}`}
+                                        onClick={() => setAspectRatio('9:16')}
+                                    >
+                                        <span>📱 9:16 Vertical (Shorts/Reels)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`studio-toggle-btn ${aspectRatio === '1:1' ? 'studio-toggle-btn--active' : ''}`}
+                                        onClick={() => setAspectRatio('1:1')}
+                                    >
+                                        <span>🔲 1:1 Square (Instagram Post)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`studio-toggle-btn ${aspectRatio === '16:9' ? 'studio-toggle-btn--active' : ''}`}
+                                        onClick={() => setAspectRatio('16:9')}
+                                    >
+                                        <span>🖥️ 16:9 Widescreen (YouTube)</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* FPS & Audio Controls Row */}
+                            <div className="studio-fields-row">
+                                <div className="studio-field">
+                                    <span className="studio-field__label">Render Frame Rate</span>
+                                    <div className="studio-toggle-group" role="group" aria-label="Render FPS">
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${renderFps === 60 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setRenderFps(60)}
+                                        >
+                                            ⚡ 60 FPS (Ultra Smooth)
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${renderFps === 30 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setRenderFps(30)}
+                                        >
+                                            🎬 30 FPS (Compact File)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="studio-field">
+                                    <span className="studio-field__label">Audio Output Level</span>
+                                    <div className="studio-toggle-group" role="group" aria-label="Audio Output Level">
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${audioBoost === 1 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setAudioBoost(1)}
+                                        >
+                                            100% Normal
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${audioBoost === 1.5 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setAudioBoost(1.5)}
+                                        >
+                                            150% Boosted
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${audioBoost === 2 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setAudioBoost(2)}
+                                        >
+                                            200% Max
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Audio Mute & Moments Density Toggles */}
+                            <div className="studio-layout-toggles">
+                                <div className="studio-field">
+                                    <label className="studio-checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={muteOriginalAudio}
+                                            onChange={(e) => setMuteOriginalAudio(e.target.checked)}
+                                            className="studio-checkbox"
+                                            aria-label="Mute Original Video Audio"
+                                        />
+                                        <div className="studio-checkbox-text">
+                                            <span className="studio-checkbox-title">Mute Original Audio Track</span>
+                                            <span className="studio-checkbox-hint">Strip video sound (ideal when adding music later)</span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div className="studio-field">
+                                    <span className="studio-field__label">AI Moment Extraction Count</span>
+                                    <div className="studio-toggle-group" role="group" aria-label="AI Moment Extraction Count">
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${momentsDensity === 3 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setMomentsDensity(3)}
+                                        >
+                                            Top 3 Moments (Fast)
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`studio-toggle-btn ${momentsDensity === 6 ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setMomentsDensity(6)}
+                                        >
+                                            Top 6 Extended Moments
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Section 4: Render / Export Active Edit */}
                     <div className="studio-actions-card">
                         {!renderComplete ? (
@@ -2237,11 +2491,16 @@ export default function VideoStudio() {
                     </div>
 
                     <div
-                        className="phone-mockup"
+                        className={`phone-mockup phone-mockup--aspect-${aspectRatio.replace(':', '-')}`}
                         style={{ '--studio-highlight-color': highlightColor }}
                     >
-                        <div className="phone-mockup__notch" />
-                        <div className="phone-mockup__screen">
+                        {aspectRatio === '9:16' && <div className="phone-mockup__notch" />}
+                        <div
+                            className="phone-mockup__screen"
+                            style={{
+                                aspectRatio: aspectRatio === '1:1' ? '1 / 1' : aspectRatio === '16:9' ? '16 / 9' : '9 / 16',
+                            }}
+                        >
                             {/* 9:16 Composition Container */}
                             <div className={`comp-container comp-container--pos-${headerPosition}`}>
                                 {/* Top/Middle Header / Hook Card */}
@@ -2340,8 +2599,14 @@ export default function VideoStudio() {
 
                         {/* Phone Mockup Footer */}
                         <div className="phone-mockup__footer">
-                            <span className="phone-mockup__badge">1080 × 1920 (9:16)</span>
-                            <span className="phone-mockup__badge">60 FPS</span>
+                            <span className="phone-mockup__badge">
+                                {aspectRatio === '1:1'
+                                    ? '1080 × 1080 (1:1)'
+                                    : aspectRatio === '16:9'
+                                    ? '1920 × 1080 (16:9)'
+                                    : '1080 × 1920 (9:16)'}
+                            </span>
+                            <span className="phone-mockup__badge">{renderFps} FPS</span>
                         </div>
                     </div>
                 </aside>

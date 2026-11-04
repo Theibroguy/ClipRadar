@@ -1,8 +1,11 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import { useSettings } from '../../context/SettingsContext.jsx';
 import './Navbar.css';
 
 export default function Navbar() {
+    const { openSettings } = useSettings();
+
     return (
         <header className="navbar" role="banner">
             <div className="navbar__container">
@@ -13,29 +16,42 @@ export default function Navbar() {
                     </span>
                 </Link>
 
-                <nav className="navbar__nav" aria-label="Primary Navigation">
-                    <NavLink
-                        to="/"
-                        end
-                        className={({ isActive }) =>
-                            `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
-                        }
-                    >
-                        <span className="navbar__tab-icon">📡</span>
-                        <span className="navbar__tab-label">Radar Feed</span>
-                    </NavLink>
+                <div className="navbar__actions">
+                    <nav className="navbar__nav" aria-label="Primary Navigation">
+                        <NavLink
+                            to="/"
+                            end
+                            className={({ isActive }) =>
+                                `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
+                            }
+                        >
+                            <span className="navbar__tab-icon">📡</span>
+                            <span className="navbar__tab-label">Radar Feed</span>
+                        </NavLink>
 
-                    <NavLink
-                        to="/studio"
-                        className={({ isActive }) =>
-                            `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
-                        }
+                        <NavLink
+                            to="/studio"
+                            className={({ isActive }) =>
+                                `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
+                            }
+                        >
+                            <span className="navbar__tab-icon">✂️</span>
+                            <span className="navbar__tab-label">Video Studio</span>
+                            <span className="navbar__tab-badge">New</span>
+                        </NavLink>
+                    </nav>
+
+                    <button
+                        type="button"
+                        className="navbar__settings-btn"
+                        onClick={openSettings}
+                        aria-label="Open Settings"
+                        title="Preferences & Settings"
                     >
-                        <span className="navbar__tab-icon">✂️</span>
-                        <span className="navbar__tab-label">Video Studio</span>
-                        <span className="navbar__tab-badge">New</span>
-                    </NavLink>
-                </nav>
+                        <span className="navbar__settings-icon">⚙️</span>
+                        <span className="navbar__settings-text">Settings</span>
+                    </button>
+                </div>
             </div>
         </header>
     );

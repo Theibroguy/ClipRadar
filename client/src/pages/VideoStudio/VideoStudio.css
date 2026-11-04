@@ -2286,6 +2286,103 @@
     gap: var(--space-3);
 }
 
+/* ---- Brand Kit Persistence Bar ---- */
+.studio-brand-kit-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    background: rgba(108, 99, 255, 0.08);
+    border: 1px dashed rgba(108, 99, 255, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    margin-top: var(--space-1);
+}
+
+.studio-brand-kit-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.studio-brand-kit-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.studio-brand-kit-status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.studio-brand-kit-status--active {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.studio-brand-kit-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.studio-brand-kit-btn {
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.studio-brand-kit-btn--save {
+    background: rgba(108, 99, 255, 0.2);
+    border: 1px solid rgba(108, 99, 255, 0.45);
+    color: #c4b5fd;
+}
+
+.studio-brand-kit-btn--save:hover {
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(108, 99, 255, 0.4);
+}
+
+.studio-brand-kit-btn--reset {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+}
+
+.studio-brand-kit-btn--reset:hover {
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ---- Studio Settings & Engine Grid ---- */
+.studio-settings-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* Phone Mockup Aspect Ratio Variations */
+.phone-mockup--aspect-1-1 {
+    max-width: 380px;
+    border-radius: 32px;
+}
+
+.phone-mockup--aspect-16-9 {
+    max-width: 440px;
+    border-radius: 24px;
+}
+
 /* ---- Mobile / Tablet View Switcher Tab Bar ---- */
 .studio-mobile-tabs {
     display: none;
