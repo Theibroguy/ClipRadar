@@ -150,15 +150,16 @@ async function compositeAndDownloadMoment({
                     resolve();
                 };
                 video.addEventListener('seeked', handler, { once: true });
-                setTimeout(resolve, 350);
+                setTimeout(resolve, 400);
             });
 
             onProgress(35, `Recording segment: ${startTime}s - ${endTime}s...`);
 
             const stream = canvas.captureStream(30);
             try {
-                if (typeof video.captureStream === 'function') {
-                    const videoStream = video.captureStream();
+                const captureMethod = video.captureStream || video.mozCaptureStream;
+                if (typeof captureMethod === 'function') {
+                    const videoStream = captureMethod.call(video);
                     const audioTracks = videoStream.getAudioTracks();
                     audioTracks.forEach((t) => stream.addTrack(t));
                 }
@@ -166,11 +167,23 @@ async function compositeAndDownloadMoment({
                 // Video captureStream audio optional
             }
 
-            const mimeType =
-                window.MediaRecorder.isTypeSupported &&
-                window.MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-                    ? 'video/webm;codecs=vp9'
-                    : 'video/webm';
+            let mimeType = 'video/webm';
+            let fileExt = 'webm';
+            if (window.MediaRecorder && typeof window.MediaRecorder.isTypeSupported === 'function') {
+                if (window.MediaRecorder.isTypeSupported('video/mp4;codecs=avc1.42E01E,mp4a.40.2') || window.MediaRecorder.isTypeSupported('video/mp4')) {
+                    mimeType = 'video/mp4';
+                    fileExt = 'mp4';
+                } else if (window.MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
+                    mimeType = 'video/webm;codecs=vp9,opus';
+                    fileExt = 'webm';
+                } else if (window.MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                    mimeType = 'video/webm;codecs=vp9';
+                    fileExt = 'webm';
+                } else if (window.MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+                    mimeType = 'video/webm;codecs=vp8,opus';
+                    fileExt = 'webm';
+                }
+            }
 
             const recorder = new window.MediaRecorder(stream, { mimeType });
             const chunks = [];
@@ -195,107 +208,136 @@ async function compositeAndDownloadMoment({
             }
 
             const duration = Math.max(1, endTime - startTime);
+            let isRunning = true;
             let animId;
 
             const draw = () => {
-                if (video.currentTime >= endTime || video.ended || video.paused) {
+                if (!isRunning) return;
+
+                if (video.currentTime >= endTime || video.ended) {
                     return;
                 }
-                const elapsed = Math.max(0, video.currentTime - startTime);
-                const progressPct = Math.min(92, Math.round(35 + (elapsed / duration) * 55));
-                onProgress(progressPct, `Rendering 9:16 frame (${Math.round(elapsed)}s / ${Math.round(duration)}s)...`);
 
-                // 1. Background
-                ctx.fillStyle = '#0a0d14';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Render frame when video data is available
+                if (!video.paused && video.readyState >= 2) {
+                    const elapsed = Math.max(0, video.currentTime - startTime);
+                    const progressPct = Math.min(92, Math.round(35 + (elapsed / duration) * 55));
+                    onProgress(progressPct, `Rendering 9:16 frame (${Math.round(elapsed)}s / ${Math.round(duration)}s)...`);
 
-                // 2. Video frame
-                const vw = video.videoWidth || 720;
-                const vh = video.videoHeight || 1280;
-                const targetW = canvas.width;
-                const targetH = (canvas.width * vh) / vw;
-                const videoY = headerPosition === 'top' ? 440 : 160;
-                ctx.drawImage(video, 0, videoY, targetW, Math.min(targetH, canvas.height - videoY));
+                    // 1. Background
+                    ctx.fillStyle = '#0a0d14';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // 3. Header Card
-                const cardY = headerPosition === 'top' ? 60 : 420;
-                const cardMargin = 32;
-                const cardW = canvas.width - cardMargin * 2;
-                const cardH = 320;
+                    // 2. Video frame scaled with object-fit: cover
+                    const vw = video.videoWidth || 720;
+                    const vh = video.videoHeight || 1280;
 
-                ctx.save();
-                ctx.fillStyle = '#ffffff';
-                ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 20;
-                ctx.shadowOffsetY = 8;
-                roundRect(ctx, cardMargin, cardY, cardW, cardH, 20);
-                ctx.fill();
-                ctx.restore();
+                    if (headerPosition === 'middle') {
+                        // Full screen video behind middle floating card
+                        const scale = Math.max(canvas.width / vw, canvas.height / vh);
+                        const drawW = vw * scale;
+                        const drawH = vh * scale;
+                        const drawX = (canvas.width - drawW) / 2;
+                        const drawY = (canvas.height - drawH) / 2;
+                        ctx.drawImage(video, drawX, drawY, drawW, drawH);
+                    } else {
+                        // Top header: Video fills remaining lower slot cleanly
+                        const videoSlotY = 350;
+                        const videoSlotH = canvas.height - videoSlotY;
+                        const scale = Math.max(canvas.width / vw, videoSlotH / vh);
+                        const drawW = vw * scale;
+                        const drawH = vh * scale;
+                        const drawX = (canvas.width - drawW) / 2;
+                        const drawY = videoSlotY + (videoSlotH - drawH) / 2;
 
-                // 4. Logo & Branding Header Row
-                if (logoImg) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(0, videoSlotY, canvas.width, videoSlotH);
+                        ctx.clip();
+                        ctx.drawImage(video, drawX, drawY, drawW, drawH);
+                        ctx.restore();
+                    }
+
+                    // 3. Header Card
+                    const cardY = headerPosition === 'top' ? 24 : 420;
+                    const cardMargin = 28;
+                    const cardW = canvas.width - cardMargin * 2;
+                    const cardH = 300;
+
                     ctx.save();
-                    const targetLogoH = Math.min(220, Math.round((logoHeight || 115) * 1.5));
-                    const targetLogoW = Math.min(cardW - 48, Math.round(targetLogoH * 3.5));
-                    const logoX = textAlign === 'center' ? canvas.width / 2 - targetLogoW / 2 : cardMargin + 24;
-                    const logoY = cardY + 12;
-
-                    // Draw logo directly on plain white canvas card without extra background or border
-                    drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
-
-                    let nextY = logoY + targetLogoH + 4;
-
-                    // Only draw channel name/handle if provided
-                    if (channelName || channelHandle) {
-                        ctx.fillStyle = '#0f172a';
-                        ctx.font = 'bold 22px -apple-system, sans-serif';
-                        ctx.textAlign = textAlign === 'center' ? 'center' : 'left';
-                        const textX = textAlign === 'center' ? canvas.width / 2 : cardMargin + 24;
-
-                        if (channelName) {
-                            ctx.fillText(channelName, textX, nextY);
-                            nextY += 26;
-                        }
-                        if (channelHandle) {
-                            ctx.fillStyle = '#64748b';
-                            ctx.font = '16px -apple-system, sans-serif';
-                            ctx.fillText(channelHandle, textX, nextY);
-                            nextY += 22;
-                        }
-                    }
-
-                    // Headline text - positioned higher and close under the logo
-                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 2, cardW - 48, textAlign);
-                    ctx.restore();
-                } else {
-                    // Default avatar icon when no logo uploaded
-                    const avatarX = textAlign === 'center' ? canvas.width / 2 - 90 : cardMargin + 24;
-                    const avatarY = cardY + 22;
-                    ctx.fillStyle = '#0f172a';
-                    ctx.beginPath();
-                    ctx.arc(avatarX + 20, avatarY + 20, 20, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+                    ctx.shadowBlur = 18;
+                    ctx.shadowOffsetY = 6;
+                    roundRect(ctx, cardMargin, cardY, cardW, cardH, 20);
                     ctx.fill();
+                    ctx.restore();
 
-                    ctx.fillStyle = '#f87171';
-                    ctx.font = 'bold 18px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('⚡', avatarX + 20, avatarY + 26);
+                    // 4. Logo & Branding Header Row
+                    if (logoImg) {
+                        ctx.save();
+                        const targetLogoH = Math.min(220, Math.round((logoHeight || 115) * 1.5));
+                        const targetLogoW = Math.min(cardW - 48, Math.round(targetLogoH * 3.5));
+                        const logoX = textAlign === 'center' ? canvas.width / 2 - targetLogoW / 2 : cardMargin + 24;
+                        const logoY = cardY + 12;
 
-                    let nextY = avatarY + 68;
+                        // Draw logo directly on plain white canvas card without extra background or border
+                        drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
 
-                    if (channelName || channelHandle) {
+                        let nextY = logoY + targetLogoH + 4;
+
+                        // Only draw channel name/handle if provided
+                        if (channelName || channelHandle) {
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = 'bold 22px -apple-system, sans-serif';
+                            ctx.textAlign = textAlign === 'center' ? 'center' : 'left';
+                            const textX = textAlign === 'center' ? canvas.width / 2 : cardMargin + 24;
+
+                            if (channelName) {
+                                ctx.fillText(channelName, textX, nextY);
+                                nextY += 26;
+                            }
+                            if (channelHandle) {
+                                ctx.fillStyle = '#64748b';
+                                ctx.font = '16px -apple-system, sans-serif';
+                                ctx.fillText(channelHandle, textX, nextY);
+                                nextY += 22;
+                            }
+                        }
+
+                        // Headline text - positioned higher and close under the logo
+                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 2, cardW - 48, textAlign);
+                        ctx.restore();
+                    } else {
+                        // Default avatar icon when no logo uploaded
+                        const avatarX = textAlign === 'center' ? canvas.width / 2 - 90 : cardMargin + 24;
+                        const avatarY = cardY + 22;
                         ctx.fillStyle = '#0f172a';
-                        ctx.font = 'bold 20px sans-serif';
-                        ctx.textAlign = 'left';
-                        if (channelName) ctx.fillText(channelName, avatarX + 50, avatarY + 16);
+                        ctx.beginPath();
+                        ctx.arc(avatarX + 20, avatarY + 20, 20, 0, Math.PI * 2);
+                        ctx.fill();
 
-                        ctx.fillStyle = '#64748b';
-                        ctx.font = '15px sans-serif';
-                        if (channelHandle) ctx.fillText(channelHandle, avatarX + 50, avatarY + 36);
+                        ctx.fillStyle = '#f87171';
+                        ctx.font = 'bold 18px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('⚡', avatarX + 20, avatarY + 26);
+
+                        let nextY = avatarY + 68;
+
+                        if (channelName || channelHandle) {
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = 'bold 20px sans-serif';
+                            ctx.textAlign = 'left';
+                            if (channelName) ctx.fillText(channelName, avatarX + 50, avatarY + 16);
+
+                            ctx.fillStyle = '#64748b';
+                            ctx.font = '15px sans-serif';
+                            if (channelHandle) ctx.fillText(channelHandle, avatarX + 50, avatarY + 36);
+                        }
+
+                        // Headline text
+                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY, cardW - 48, textAlign);
                     }
-
-                    // Headline text
-                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY, cardW - 48, textAlign);
                 }
 
                 animId = requestAnimationFrame(draw);
@@ -304,22 +346,29 @@ async function compositeAndDownloadMoment({
             draw();
 
             await new Promise((resolve) => {
+                const startTimeMs = Date.now();
+                const timeoutMs = (duration + 6) * 1000;
+
                 const interval = setInterval(() => {
-                    if (video.currentTime >= endTime || video.ended) {
+                    const elapsedMs = Date.now() - startTimeMs;
+                    if (video.currentTime >= endTime || video.ended || elapsedMs >= timeoutMs) {
                         clearInterval(interval);
+                        isRunning = false;
                         cancelAnimationFrame(animId);
                         video.pause();
-                        recorder.stop();
+                        if (recorder.state !== 'inactive') {
+                            recorder.stop();
+                        }
                         resolve();
                     }
-                }, 100);
+                }, 80);
             });
 
             onProgress(95, 'Finalizing download blob...');
             const finalUrl = await recordingPromise;
             onProgress(100, 'Render complete!');
             const safeName = (title || 'moment').replace(/[^a-zA-Z0-9_-]/g, '_');
-            downloadBlobUrl(finalUrl, `${channelName || 'Clip'}-${safeName}.webm`);
+            downloadBlobUrl(finalUrl, `${channelName || 'Clip'}-${safeName}.${fileExt}`);
             return finalUrl;
         } catch (err) {
             console.warn('Canvas rendering fallback triggered:', err);
