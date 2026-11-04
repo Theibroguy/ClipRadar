@@ -758,62 +758,34 @@
     transition: all var(--transition-fast);
 }
 
-/* Real Logo Framing & Sizing */
+/* Seamless Logo: Lies directly on the plain white card background */
 .comp-header__avatar--has-img {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    width: auto;
-    min-width: 60px;
-    max-width: 290px;
-    height: var(--logo-custom-height, 85px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 340px !important;
+    height: var(--logo-custom-height, 115px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+    margin: 0 auto 8px !important;
 }
 
-.comp-header__avatar-img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain; /* Always preserve full logo aspect ratio without cutoff */
-    display: block;
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
-}
-
-/* Shape Variants for uploaded logo */
-.comp-header__avatar--shape-circle.comp-header__avatar--has-img {
-    width: var(--logo-custom-height, 85px);
-    height: var(--logo-custom-height, 85px);
-    border-radius: 50%;
-    overflow: hidden;
-}
-
-.comp-header__avatar--shape-circle .comp-header__avatar-img {
-    border-radius: 50%;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.comp-header__avatar--shape-badge.comp-header__avatar--has-img {
-    border-radius: 12px;
-    padding: 6px 14px;
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.comp-header__avatar--shape-banner.comp-header__avatar--has-img {
-    width: 100%;
-    max-width: 320px;
-    height: var(--logo-custom-height, 90px);
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+.comp-header__avatar--has-img .comp-header__avatar-img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: 100% !important;
+    object-fit: contain !important; /* Preserves full natural aspect ratio */
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
 }
 
 /* Slider Controls */

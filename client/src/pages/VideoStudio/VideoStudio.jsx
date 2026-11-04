@@ -235,30 +235,13 @@ async function compositeAndDownloadMoment({
                 // 4. Logo & Branding Header Row
                 if (logoImg) {
                     ctx.save();
-                    const targetLogoH = Math.min(180, Math.round((logoHeight || 85) * 1.5));
-                    const targetLogoW = Math.min(cardW - 48, Math.round(targetLogoH * 3.2));
+                    const targetLogoH = Math.min(220, Math.round((logoHeight || 115) * 1.5));
+                    const targetLogoW = Math.min(cardW - 48, Math.round(targetLogoH * 3.5));
                     const logoX = textAlign === 'center' ? canvas.width / 2 - targetLogoW / 2 : cardMargin + 24;
                     const logoY = cardY + 20;
 
-                    if (logoShape === 'circle') {
-                        const circleSize = targetLogoH;
-                        const circleX = textAlign === 'center' ? canvas.width / 2 - circleSize / 2 : cardMargin + 24;
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.arc(circleX + circleSize / 2, logoY + circleSize / 2, circleSize / 2, 0, Math.PI * 2);
-                        ctx.clip();
-                        drawContainImage(ctx, logoImg, circleX, logoY, circleSize, circleSize);
-                        ctx.restore();
-                    } else if (logoShape === 'badge') {
-                        ctx.save();
-                        roundRect(ctx, logoX, logoY, targetLogoW, targetLogoH, 16);
-                        ctx.clip();
-                        drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
-                        ctx.restore();
-                    } else {
-                        // Banner / Unconstrained
-                        drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
-                    }
+                    // Draw logo directly on plain white canvas card without extra background or border
+                    drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
 
                     let nextY = logoY + targetLogoH + 16;
 
@@ -368,8 +351,8 @@ export default function VideoStudio() {
     // Logo & Branding State
     const [logoFile, setLogoFile] = useState(null);
     const [logoUrl, setLogoUrl] = useState(null);
-    const [logoShape, setLogoShape] = useState('badge'); // 'badge' (auto-fit) | 'circle' | 'banner'
-    const [logoHeight, setLogoHeight] = useState(85); // Prominent size by default (85px)
+    const [logoShape, setLogoShape] = useState('badge'); // 'badge' | 'circle' | 'banner'
+    const [logoHeight, setLogoHeight] = useState(115); // Large & prominent default (115px)
     const [channelName, setChannelName] = useState('');
     const [channelHandle, setChannelHandle] = useState('');
 
@@ -839,16 +822,16 @@ export default function VideoStudio() {
                                             <span className="studio-field__tip">{logoHeight}px height</span>
                                         </div>
                                         <div className="studio-slider-row">
-                                            <span className="studio-slider-label">Small (45px)</span>
+                                            <span className="studio-slider-label">Compact (50px)</span>
                                             <input
                                                 type="range"
-                                                min="45"
-                                                max="130"
+                                                min="50"
+                                                max="180"
                                                 value={logoHeight}
                                                 onChange={(e) => setLogoHeight(Number(e.target.value))}
                                                 className="studio-slider"
                                             />
-                                            <span className="studio-slider-label">Extra Large (130px)</span>
+                                            <span className="studio-slider-label">Extra Large (180px)</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1190,7 +1173,7 @@ export default function VideoStudio() {
                                     <div className="comp-header__card">
                                         <div className={`comp-header__top-row comp-header__top-row--${logoShape}`}>
                                             <div
-                                                className={`comp-header__avatar comp-header__avatar--shape-${logoShape} ${
+                                                className={`comp-header__avatar ${
                                                     logoUrl ? 'comp-header__avatar--has-img' : ''
                                                 }`}
                                                 style={
