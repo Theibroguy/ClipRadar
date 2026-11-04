@@ -1,4 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useInRouterContext, useLocation } from 'react-router-dom';
+
+function useSafeLocation() {
+    const inRouter = useInRouterContext();
+    const location = inRouter ? useLocation() : null;
+    return location || { state: null };
+}
 import { extractCatchyMoments, generateHeadlineHook, saveVideoToLibrary } from '../../api/videos.js';
 import { useBookmarks } from '../../hooks/useBookmarks.js';
 import { useSettings } from '../../context/SettingsContext.jsx';
@@ -472,6 +479,8 @@ const CARD_THEMES = [
 ];
 
 export default function VideoStudio() {
+    const location = useSafeLocation();
+
     // Video State
     const [videoFile, setVideoFile] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
@@ -563,6 +572,24 @@ export default function VideoStudio() {
             console.error('Failed to load Brand Kit', e);
         }
     }, []);
+
+    // Load preloaded video passed via navigation state (e.g. from Daily Radar Drops)
+    useEffect(() => {
+        const preloaded = location.state?.preloadedVideo;
+        if (preloaded) {
+            if (preloaded.title) setVideoTitle(preloaded.title);
+            if (preloaded.aiDescription || preloaded.description) {
+                setVideoContext(preloaded.aiDescription || preloaded.description);
+            }
+            if (preloaded.creator?.name) setChannelName(preloaded.creator.name);
+            if (preloaded.creator?.handle) setChannelHandle(preloaded.creator.handle);
+            if (preloaded.durationSeconds) {
+                const dur = Number(preloaded.durationSeconds);
+                setVideoDuration(dur);
+                setTrimEnd(Math.min(15, dur));
+            }
+        }
+    }, [location.state]);
 
     function handleSaveBrandKit() {
         try {

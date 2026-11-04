@@ -1,0 +1,108 @@
+{
+  "2026-11-04": {
+    "date": "2026-11-04",
+    "formattedDate": "Wednesday, Nov 4, 2026",
+    "theme": "Celebrity Reactions & Epic Fails",
+    "nextDropCountdownSeconds": 24669,
+    "total": 4,
+    "videos": [
+      {
+        "platform": "youtube",
+        "platformVideoId": "DgM1YypmL_Q",
+        "creator": {
+          "name": "Snoop.newspaper",
+          "handle": "@snoopnews",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Snoop&background=f59e0b&color=fff",
+          "profileUrl": "https://www.youtube.com/@snoopnews"
+        },
+        "title": "Celebrities' hilarious reactions as they eat spicy wings on 'Hot Ones'",
+        "description": "Watch stars like BLACKPINK's Lisa and Jennie lose their cool over the world's hottest wings.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=DgM1YypmL_Q",
+        "embedUrl": "https://www.youtube.com/embed/DgM1YypmL_Q",
+        "durationSeconds": 61,
+        "viewCount": 16592354,
+        "likeCount": 484558,
+        "category": "Comedy",
+        "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "velocityViewsPerHour": 230449
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "tX-6XdbAC7E",
+        "creator": {
+          "name": "America's Funniest Home Videos",
+          "handle": "@afv",
+          "avatarUrl": "https://ui-avatars.com/api/?name=AFV&background=ef4444&color=fff",
+          "profileUrl": "https://www.youtube.com/@afv"
+        },
+        "title": "Why did he do this? 😭 #funny #shorts",
+        "description": "The ultimate classic fail caught on tape.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=tX-6XdbAC7E",
+        "embedUrl": "https://www.youtube.com/embed/tX-6XdbAC7E",
+        "durationSeconds": 14,
+        "viewCount": 32252988,
+        "likeCount": 147259,
+        "category": "Comedy",
+        "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "velocityViewsPerHour": 447958
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "8dQ3Kf5u2ys",
+        "creator": {
+          "name": "Strong Mind Set",
+          "handle": "@strongmindset",
+          "avatarUrl": "https://ui-avatars.com/api/?name=SMS&background=10b981&color=fff",
+          "profileUrl": "https://www.youtube.com/@strongmindset"
+        },
+        "title": "Sha'Carri Richardson American Athlete #shorts",
+        "description": "Sha'Carri Richardson explosive 100m performance.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=8dQ3Kf5u2ys",
+        "embedUrl": "https://www.youtube.com/embed/8dQ3Kf5u2ys",
+        "durationSeconds": 14,
+        "viewCount": 147376962,
+        "likeCount": 3381909,
+        "category": "Sports",
+        "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "velocityViewsPerHour": 2046902
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "Q9-EEoGQyTE",
+        "creator": {
+          "name": "Nick DiGiovanni",
+          "handle": "@nickdigiovanni",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Nick&background=6366f1&color=fff",
+          "profileUrl": "https://www.youtube.com/@nickdigiovanni"
+        },
+        "title": "Cheese Stacking Challenge with ChefRush",
+        "description": "Massive cheese stack showdown with Bayashi and ChefRush.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=Q9-EEoGQyTE",
+        "embedUrl": "https://www.youtube.com/embed/Q9-EEoGQyTE",
+        "durationSeconds": 15,
+        "viewCount": 14648091,
+        "likeCount": 174677,
+        "category": "Challenge",
+        "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-04",
+        "publishedAt": "2026-11-04T08:00:00.000Z",
+        "velocityViewsPerHour": 203445
+      }
+    ],
+    "generatedAt": "2026-11-04T16:08:50.578Z"
+  }
+}

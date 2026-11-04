@@ -2,6 +2,7 @@ import './FilterBar.css';
 
 const PLATFORMS = [
     { value: 'all', label: 'All Platforms', dot: 'dot-all' },
+    { value: 'daily', label: '🔥 Daily Drops', dot: 'dot-daily' },
     { value: 'studio', label: 'AI Studio', dot: 'dot-studio' },
     { value: 'youtube', label: 'YouTube', dot: 'dot-youtube' },
     { value: 'twitter', label: 'X / Twitter', dot: 'dot-twitter' },

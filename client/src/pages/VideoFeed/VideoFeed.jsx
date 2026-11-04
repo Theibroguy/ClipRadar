@@ -5,6 +5,7 @@ import FilterBar from '../../components/FilterBar/FilterBar.jsx';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import Spinner from '../../components/Spinner/Spinner.jsx';
 import VideoModal from '../../components/VideoModal/VideoModal.jsx';
+import DailyRadarSection from '../../components/DailyRadarSection/DailyRadarSection.jsx';
 import { useBookmarks } from '../../hooks/useBookmarks.js';
 import { useSettings } from '../../context/SettingsContext.jsx';
 import './VideoFeed.css';
@@ -60,6 +61,8 @@ export default function VideoFeed() {
         try {
             const data = await fetchVideos({
                 ...filters,
+                platform: filters.platform === 'daily' ? 'all' : filters.platform,
+                dailyOnly: filters.platform === 'daily',
                 search: searchQuery,
                 limit: PAGE_SIZE,
                 skip: 0,
@@ -142,6 +145,8 @@ export default function VideoFeed() {
             const nextSkip = videos.length;
             const data = await fetchVideos({
                 ...filters,
+                platform: filters.platform === 'daily' ? 'all' : filters.platform,
+                dailyOnly: filters.platform === 'daily',
                 search: searchQuery,
                 limit: PAGE_SIZE,
                 skip: nextSkip,
@@ -227,6 +232,13 @@ export default function VideoFeed() {
                     />
                 </div>
             </header>
+
+            {/* Daily Radar Drops Section */}
+            {!showSavedOnly && !searchQuery && (
+                <DailyRadarSection
+                    onPreview={(video) => setSelectedVideo(video)}
+                />
+            )}
 
             {/* Filters & Favorites Bar */}
             <FilterBar

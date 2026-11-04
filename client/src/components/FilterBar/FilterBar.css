@@ -93,6 +93,11 @@
 }
 
 /* Dot colours per platform */
+.dot-daily {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    box-shadow: 0 0 6px rgba(255, 65, 108, 0.6);
+}
+
 .dot-studio {
     background: linear-gradient(135deg, #a855f7, #ec4899);
     box-shadow: 0 0 6px rgba(168, 85, 247, 0.5);

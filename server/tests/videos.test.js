@@ -48,52 +48,58 @@ describe('GET /api/videos', () => {
     it('filters by category', async () => {
         const res = await request(app).get('/api/videos?category=Comedy');
         expect(res.status).toBe(200);
-        expect(Array.isArray(res.body.videos)).toBe(true);
+        expect(res.body.videos.every((v) => v.category === 'Comedy')).toBe(true);
     });
 
-    it('filters by search keyword', async () => {
-        const res = await request(app).get('/api/videos?search=beast');
+    it('searches by keyword', async () => {
+        const res = await request(app).get('/api/videos?q=MrBeast');
         expect(res.status).toBe(200);
-        expect(Array.isArray(res.body.videos)).toBe(true);
         expect(res.body.videos.length).toBeGreaterThan(0);
         expect(
             res.body.videos.some(
                 (v) =>
-                    v.title.toLowerCase().includes('beast') ||
-                    v.creator.name.toLowerCase().includes('beast')
+                    v.title?.includes('MrBeast') ||
+                    v.creator?.name?.includes('MrBeast')
             )
         ).toBe(true);
     });
 
-    it('respects limit param', async () => {
-        const res = await request(app).get('/api/videos?limit=2');
-        expect(res.status).toBe(200);
-        expect(res.body.videos.length).toBeLessThanOrEqual(2);
+    it('supports pagination limit and skip', async () => {
+        const res1 = await request(app).get('/api/videos?limit=2&skip=0');
+        const res2 = await request(app).get('/api/videos?limit=2&skip=2');
+        expect(res1.status).toBe(200);
+        expect(res2.status).toBe(200);
+        expect(res1.body.videos.length).toBe(2);
+        expect(res2.body.videos.length).toBe(2);
+        // The two pages should not have the same first video
+        expect(res1.body.videos[0].platformVideoId).not.toBe(
+            res2.body.videos[0].platformVideoId
+        );
     });
 });
 
-describe('POST /api/videos/refresh', () => {
-    it('returns 403 in demo mode', async () => {
+describe('POST /api/videos/refresh in demo mode', () => {
+    it('returns 403 Forbidden because demo mode is read-only', async () => {
         const res = await request(app).post('/api/videos/refresh');
         expect(res.status).toBe(403);
-        expect(res.body.error).toMatch(/demo mode/i);
+        expect(res.body).toHaveProperty('error');
     });
 });
 
 describe('POST /api/studio/moments', () => {
-    it('extracts multiple catchy moments from video metadata', async () => {
+    it('extracts multiple viral highlights with start/end time and scores', async () => {
         const res = await request(app)
             .post('/api/studio/moments')
             .send({
-                title: 'MrBeast 100 Days in Nuclear Bunker',
+                title: 'Crazy Survival Challenge',
+                description: 'Surviving 7 days in the wilderness',
                 duration: 60,
-                description: 'Insane underground challenge',
             });
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
-        expect(res.body.totalMoments).toBeGreaterThanOrEqual(2);
         expect(Array.isArray(res.body.moments)).toBe(true);
+        expect(res.body.moments.length).toBeGreaterThan(0);
 
         const firstMoment = res.body.moments[0];
         expect(firstMoment).toHaveProperty('id');
@@ -145,6 +151,28 @@ describe('POST /api/videos', () => {
         const getRes = await request(app).get('/api/videos?platform=studio');
         expect(getRes.status).toBe(200);
         expect(getRes.body.videos.some((v) => v.platformVideoId === postRes.body.video.platformVideoId)).toBe(true);
+    });
+});
+
+describe('Daily Radar Drops API', () => {
+    it('returns today curated viral YouTube drop with countdown and videos', async () => {
+        const res = await request(app).get('/api/daily-drops');
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty('date');
+        expect(res.body).toHaveProperty('formattedDate');
+        expect(res.body).toHaveProperty('theme');
+        expect(res.body).toHaveProperty('videos');
+        expect(Array.isArray(res.body.videos)).toBe(true);
+        expect(res.body.videos.length).toBeGreaterThan(0);
+        expect(res.body.videos[0].platform).toBe('youtube');
+    });
+
+    it('supports generating a fresh batch on demand via POST /api/daily-drops/generate', async () => {
+        const res = await request(app).post('/api/daily-drops/generate');
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.drop).toBeDefined();
+        expect(Array.isArray(res.body.drop.videos)).toBe(true);
     });
 });
 

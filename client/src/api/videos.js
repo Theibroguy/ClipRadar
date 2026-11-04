@@ -10,7 +10,7 @@ const BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 /**
  * Fetch videos with optional filters.
- * @param {{ platform?: string, category?: string, search?: string, limit?: number, skip?: number }} params
+ * @param {{ platform?: string, category?: string, search?: string, limit?: number, skip?: number, dailyOnly?: boolean }} params
  */
 export async function fetchVideos(params = {}) {
     const query = new URLSearchParams();
@@ -19,6 +19,7 @@ export async function fetchVideos(params = {}) {
     if (params.search && params.search.trim()) query.set('search', params.search.trim());
     if (params.limit) query.set('limit', params.limit);
     if (params.skip) query.set('skip', params.skip);
+    if (params.dailyOnly) query.set('dailyOnly', 'true');
 
     const url = `${BASE}/api/videos${query.toString() ? `?${query}` : ''}`;
     const res = await fetch(url);
@@ -29,6 +30,34 @@ export async function fetchVideos(params = {}) {
     }
 
     return res.json(); // { videos, total, mode }
+}
+
+/**
+ * Fetch today's curated Daily Radar Drop (or a specific historical date)
+ * @param {string} [date] - Optional date in YYYY-MM-DD
+ */
+export async function fetchDailyDrop(date = null) {
+    const url = `${BASE}/api/daily-drops${date ? `?date=${encodeURIComponent(date)}` : ''}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { date, formattedDate, theme, nextDropCountdownSeconds, total, videos, history }
+}
+
+/**
+ * Force generate a fresh batch of YouTube videos for today
+ */
+export async function generateFreshDailyDrop() {
+    const res = await fetch(`${BASE}/api/daily-drops/generate`, {
+        method: 'POST',
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, message, drop }
 }
 
 /**
@@ -93,4 +122,3 @@ export async function saveVideoToLibrary(videoData = {}) {
     }
     return res.json(); // { success, message, video }
 }
-

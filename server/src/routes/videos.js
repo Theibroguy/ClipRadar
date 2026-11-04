@@ -6,6 +6,8 @@ import {
     healthCheck,
     extractMoments,
     generateHook,
+    getDailyDropsController,
+    generateDailyDropController,
 } from '../controllers/videos.js';
 
 const router = Router();
@@ -17,5 +19,9 @@ router.post('/videos/refresh', refreshVideos);
 router.post('/studio/moments', extractMoments);
 router.post('/studio/hook', generateHook);
 router.post('/studio/save', createStudioVideo);
+
+// Daily Radar Drops Routes
+router.get('/daily-drops', getDailyDropsController);
+router.post('/daily-drops/generate', generateDailyDropController);
 
 export default router;

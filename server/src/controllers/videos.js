@@ -3,7 +3,7 @@
  *
  * Handles incoming HTTP requests for the /api/videos routes.
  * In DEMO_MODE or when MongoDB is unreachable, it serves
- * live-cached YouTube videos or demo seeds.
+ * live-cached YouTube videos, Daily Radar Drops, or demo seeds.
  * In production mode it queries MongoDB Atlas and can trigger a refresh.
  */
 import fs from 'fs';
@@ -15,14 +15,15 @@ import { fetchTwitterVideos } from '../services/twitter.js';
 import { fetchInstagramVideos } from '../services/instagram.js';
 import { fetchTikTokVideos } from '../services/tiktok.js';
 import { enrichVideoWithAI, extractMomentsWithAI, generateHookWithAI } from '../services/gemini.js';
+import { getDailyDrop, getTodayDropVideos } from '../services/dailyDrops.js';
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
 // In-memory store for user-created Studio videos
 export const studioVideosStore = [];
 
-// Load live-cached YouTube clips if available, else demoVideos
-function getFallbackVideos() {
+// Load live-cached YouTube clips + Daily Drops if available, else demoVideos
+async function getFallbackVideos() {
     let base = demoVideos;
     if (process.env.NODE_ENV !== 'test') {
         try {
@@ -38,7 +39,28 @@ function getFallbackVideos() {
             // ignore and fallback
         }
     }
-    return { videos: [...studioVideosStore, ...base], mode: isDemoMode() ? 'demo' : 'live' };
+
+    let dailyVideos = [];
+    if (process.env.NODE_ENV !== 'test') {
+        try {
+            dailyVideos = await getTodayDropVideos();
+        } catch {
+            // ignore
+        }
+    }
+
+    // Combine with deduplication
+    const seen = new Set();
+    const combined = [];
+    for (const v of [...studioVideosStore, ...dailyVideos, ...base]) {
+        const id = v.platformVideoId || v.videoUrl || v.title;
+        if (!seen.has(id)) {
+            seen.add(id);
+            combined.push(v);
+        }
+    }
+
+    return { videos: combined, mode: isDemoMode() ? 'demo' : 'live' };
 }
 
 // Default YouTube search queries
@@ -51,19 +73,22 @@ const DEFAULT_YT_QUERIES = [
 
 /**
  * GET /api/videos
- * Query params: platform, category, q/search, limit (default 20), skip (default 0)
+ * Query params: platform, category, q/search, limit (default 20), skip (default 0), dailyOnly
  */
 export async function getVideos(req, res, next) {
     try {
-        const { platform, category, q, search, limit = 20, skip = 0 } = req.query;
+        const { platform, category, q, search, limit = 20, skip = 0, dailyOnly } = req.query;
         const searchTerm = (q || search || '').trim().toLowerCase();
         const limitNum = Number(limit);
         const skipNum = Number(skip);
 
         if (isDemoMode()) {
-            const fallback = getFallbackVideos();
+            const fallback = await getFallbackVideos();
             let list = [...fallback.videos];
 
+            if (dailyOnly === 'true') {
+                list = list.filter((v) => v.isDailyDrop);
+            }
             if (platform && platform !== 'all') {
                 list = list.filter((v) => v.platform === platform);
             }
@@ -122,6 +147,37 @@ export async function getVideos(req, res, next) {
             total,
             hasMore: skipNum + videos.length < total,
             mode: 'production',
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * GET /api/daily-drops
+ * Returns today's fresh curated YouTube drop (or specified date)
+ */
+export async function getDailyDropsController(req, res, next) {
+    try {
+        const { date, force } = req.query;
+        const drop = await getDailyDrop(date || null, force === 'true');
+        return res.json(drop);
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * POST /api/daily-drops/generate
+ * Force generates a brand new fresh batch of YouTube videos for today
+ */
+export async function generateDailyDropController(req, res, next) {
+    try {
+        const drop = await getDailyDrop(null, true);
+        return res.json({
+            success: true,
+            message: 'Fresh daily drop generated successfully',
+            drop,
         });
     } catch (err) {
         next(err);
@@ -306,4 +362,3 @@ export async function createStudioVideo(req, res, next) {
         next(err);
     }
 }
-
