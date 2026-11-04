@@ -107,6 +107,24 @@ describe('POST /api/studio/moments', () => {
     });
 });
 
+describe('POST /api/studio/hook', () => {
+    it('generates a viral headline hook based on requested style', async () => {
+        const res = await request(app)
+            .post('/api/studio/hook')
+            .send({
+                title: 'MrBeast Island Challenge',
+                context: '100 people fighting for 1 million dollars',
+                style: 'shock',
+            });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.style).toBe('shock');
+        expect(typeof res.body.headline).toBe('string');
+        expect(res.body.headline.length).toBeGreaterThan(10);
+    });
+});
+
 describe('Unknown route', () => {
     it('returns 404', async () => {
         const res = await request(app).get('/api/does-not-exist');

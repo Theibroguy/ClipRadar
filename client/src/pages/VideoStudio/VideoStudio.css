@@ -1207,6 +1207,103 @@
     transition: width 0.2s ease;
 }
 
+/* AI Hook Tone & Re-Roll Toolbar */
+.studio-hook-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.studio-hook-styles {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.studio-hook-styles__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    margin-right: 2px;
+}
+
+.studio-hook-style-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.studio-hook-style-pill:hover:not(:disabled) {
+    color: #ffffff;
+    border-color: var(--color-accent);
+    background: rgba(108, 99, 255, 0.12);
+}
+
+.studio-hook-style-pill--active {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.25), rgba(59, 130, 246, 0.25));
+    border-color: var(--color-accent);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(108, 99, 255, 0.3);
+}
+
+.studio-reroll-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+    border: none;
+    border-radius: var(--radius-full);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
+.studio-reroll-btn:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.45);
+}
+
+.studio-reroll-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.studio-reroll-btn__spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
 /* Responsive Layout */
 @media (max-width: 1024px) {
     .video-studio__workspace {

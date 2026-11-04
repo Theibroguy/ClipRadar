@@ -232,3 +232,103 @@ Respond ONLY with valid JSON in this exact structure (no markdown fences, no ext
         return generateFallbackMoments({ title, duration: totalDuration });
     }
 }
+
+/**
+ * Generate a single viral headline hook with Gemini AI based on style and video context.
+ *
+ * @param {object} params
+ * @param {string} [params.title]
+ * @param {string} [params.context]
+ * @param {string} [params.momentTitle]
+ * @param {'curiosity'|'shock'|'humor'|'question'} [params.style]
+ * @returns {Promise<{headline: string, style: string}>}
+ */
+export async function generateHookWithAI({
+    title = '',
+    context = '',
+    momentTitle = '',
+    style = 'curiosity',
+} = {}) {
+    const cleanTitle = (title || 'Viral Video').replace(/\.[^/.]+$/, '').trim();
+    const styleDescriptions = {
+        curiosity: 'curiosity gap, suspense, creating an irresistible urge to keep watching till the end',
+        shock: 'extreme surprise, high stakes drama, unbelievable or shocking turn of events',
+        humor: 'witty humor, funny exaggeration, meme commentary that gets laughs and shares',
+        question: 'a thought-provoking, provocative, or debate-sparking direct question to viewers',
+    };
+
+    const chosenStyleDesc = styleDescriptions[style] || styleDescriptions.curiosity;
+
+    // Fallback generator in case of API failure or missing keys
+    const fallbackTemplates = {
+        curiosity: [
+            `Wait until you see what happened when **${cleanTitle}** took this **unexpected turn**`,
+            `The secret behind **${cleanTitle}** that **nobody noticed** until now`,
+            `Watch closely what happened right in the **middle of ${cleanTitle}**`,
+        ],
+        shock: [
+            `Nobody was ready for this **shocking moment** during **${cleanTitle}**`,
+            `This **unbelievable scene** in **${cleanTitle}** stunned the **entire internet**`,
+            `The most **insane twist** ever captured in **${cleanTitle}**`,
+        ],
+        humor: [
+            `This has to be the **most chaotic moment** in **${cleanTitle}** history`,
+            `When **${cleanTitle}** went completely **off the rails** in 5 seconds`,
+            `There is no way **${cleanTitle}** actually thought **this would work**`,
+        ],
+        question: [
+            `Did they really just do this during **${cleanTitle}** or is this **staged**?`,
+            `Would you have survived what happened in this **${cleanTitle}** scene?`,
+            `Is this the **craziest thing** that has ever happened in **${cleanTitle}**?`,
+        ],
+    };
+
+    const fallbacks = fallbackTemplates[style] || fallbackTemplates.curiosity;
+    const fallbackHeadline = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+
+    const gemini = getClient();
+    if (!gemini) {
+        return { headline: fallbackHeadline, style };
+    }
+
+    const prompt = `
+You are an elite short-form video copywriter (TikTok, YouTube Shorts, Instagram Reels).
+Write a single, irresistible 1-sentence viral headline hook for a 9:16 short.
+
+Video Title / Topic: ${cleanTitle}
+Additional Context: ${context || 'None'}
+Specific Moment: ${momentTitle || 'Key Highlight'}
+Required Tone / Style: ${chosenStyleDesc}
+
+Guidelines:
+1. Max 16 words. Punchy, viral, natural, not robotic.
+2. Wrap 2 to 4 key words, emotional triggers, or names in **double asterisks** for bold highlight formatting (e.g., "Wait until you see what **MrBeast** gave away in the **last 5 seconds**").
+3. Make it tailor-fit to the ${style.toUpperCase()} style.
+4. Reply ONLY with JSON in this format: {"headline": "..."}
+`.trim();
+
+    const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+
+    try {
+        const response = await gemini.models.generateContent({
+            model,
+            contents: prompt,
+        });
+
+        const raw = response.text ? response.text.trim() : '';
+        let cleanText = raw;
+        if (cleanText.startsWith('```')) {
+            cleanText = cleanText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+        }
+
+        const parsed = JSON.parse(cleanText);
+        if (parsed?.headline && typeof parsed.headline === 'string') {
+            return { headline: parsed.headline.trim(), style };
+        }
+        return { headline: fallbackHeadline, style };
+    } catch (err) {
+        console.warn('Gemini hook generation error, using fallback:', err.message);
+        return { headline: fallbackHeadline, style };
+    }
+}
+

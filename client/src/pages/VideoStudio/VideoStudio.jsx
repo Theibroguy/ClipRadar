@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { extractCatchyMoments } from '../../api/videos.js';
+import { extractCatchyMoments, generateHeadlineHook } from '../../api/videos.js';
 import './VideoStudio.css';
 
 // Helper: Download a blob or object URL
@@ -413,6 +413,8 @@ export default function VideoStudio() {
     const [textAlign, setTextAlign] = useState('center'); // 'center' | 'left'
     const [trimStart, setTrimStart] = useState(0);
     const [trimEnd, setTrimEnd] = useState(6);
+    const [hookStyle, setHookStyle] = useState('curiosity'); // 'curiosity' | 'shock' | 'humor' | 'question'
+    const [isGeneratingHook, setIsGeneratingHook] = useState(false);
 
     // AI Multi-Moments State
     const [moments, setMoments] = useState([]);
@@ -572,6 +574,44 @@ export default function VideoStudio() {
             setMomentsNotification(`Extracted ${fallback.length} catchy moments ready to preview or download.`);
         } finally {
             setIsAnalyzing(false);
+        }
+    }
+
+    // Re-generate or change the active headline hook with Gemini AI
+    async function handleGenerateHook(targetStyle) {
+        const styleToUse = targetStyle || hookStyle;
+        setHookStyle(styleToUse);
+        setIsGeneratingHook(true);
+
+        const activeMoment = moments.find((m) => m.id === selectedMomentId);
+
+        try {
+            const res = await generateHeadlineHook({
+                title: videoTitle || videoFile?.name || 'Viral Video',
+                context: videoContext || '',
+                momentTitle: activeMoment?.title || '',
+                style: styleToUse,
+            });
+
+            if (res?.headline) {
+                setHeadlineText(res.headline);
+                setMomentsNotification(`✨ Generated new ${styleToUse.toUpperCase()} hook!`);
+                setTimeout(() => setMomentsNotification(''), 4000);
+            }
+        } catch (err) {
+            console.warn('AI hook generation failed, falling back:', err);
+            const cleanTitle = (videoTitle || 'Viral Video').replace(/\.[^/.]+$/, '').trim();
+            const fallbacks = {
+                curiosity: `Wait until you see what happened when **${cleanTitle}** took this **unexpected turn**`,
+                shock: `Nobody was ready for this **shocking moment** during **${cleanTitle}**`,
+                humor: `This has to be the **most chaotic moment** in **${cleanTitle}** history`,
+                question: `Did they really just do this during **${cleanTitle}** or is this **staged**?`,
+            };
+            setHeadlineText(fallbacks[styleToUse] || fallbacks.curiosity);
+            setMomentsNotification(`✨ Generated fallback ${styleToUse.toUpperCase()} hook.`);
+            setTimeout(() => setMomentsNotification(''), 4000);
+        } finally {
+            setIsGeneratingHook(false);
         }
     }
 
@@ -1145,6 +1185,45 @@ export default function VideoStudio() {
                                 </label>
                                 <span className="studio-field__tip">Tip: Wrap words in **double asterisks** to highlight in blue</span>
                             </div>
+
+                            {/* AI Hook Tone & Re-Roll Toolbar */}
+                            <div className="studio-hook-toolbar">
+                                <div className="studio-hook-styles" role="group" aria-label="Headline Hook Styles">
+                                    <span className="studio-hook-styles__label">Tone:</span>
+                                    {[
+                                        { id: 'curiosity', label: 'Curiosity', icon: '🧠' },
+                                        { id: 'shock', label: 'Shock & Drama', icon: '⚡' },
+                                        { id: 'humor', label: 'Humorous', icon: '😂' },
+                                        { id: 'question', label: 'Question', icon: '❓' },
+                                    ].map((style) => (
+                                        <button
+                                            key={style.id}
+                                            type="button"
+                                            className={`studio-hook-style-pill ${hookStyle === style.id ? 'studio-hook-style-pill--active' : ''}`}
+                                            onClick={() => handleGenerateHook(style.id)}
+                                            disabled={isGeneratingHook}
+                                            title={`Generate ${style.label} hook with Gemini AI`}
+                                        >
+                                            <span>{style.icon}</span>
+                                            <span>{style.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="studio-reroll-btn"
+                                    disabled={isGeneratingHook}
+                                    onClick={() => handleGenerateHook(hookStyle)}
+                                    title="Generate another variation in this tone"
+                                >
+                                    <span className={isGeneratingHook ? 'studio-reroll-btn__spin' : ''}>
+                                        {isGeneratingHook ? '⏳' : '✨'}
+                                    </span>
+                                    <span>{isGeneratingHook ? 'Generating...' : 'Re-Roll Hook'}</span>
+                                </button>
+                            </div>
+
                             <textarea
                                 id="headline-text"
                                 rows={3}

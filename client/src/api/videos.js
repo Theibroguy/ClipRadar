@@ -59,3 +59,21 @@ export async function extractCatchyMoments(params = {}) {
     }
     return res.json(); // { success, totalMoments, duration, moments }
 }
+
+/**
+ * Generate a viral headline hook with Gemini AI based on style.
+ * @param {{ title?: string, context?: string, momentTitle?: string, style?: string }} params
+ */
+export async function generateHeadlineHook(params = {}) {
+    const res = await fetch(`${BASE}/api/studio/hook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, headline, style }
+}
+

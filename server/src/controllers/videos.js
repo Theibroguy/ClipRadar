@@ -14,7 +14,7 @@ import { fetchYouTubeVideos } from '../services/youtube.js';
 import { fetchTwitterVideos } from '../services/twitter.js';
 import { fetchInstagramVideos } from '../services/instagram.js';
 import { fetchTikTokVideos } from '../services/tiktok.js';
-import { enrichVideoWithAI, extractMomentsWithAI } from '../services/gemini.js';
+import { enrichVideoWithAI, extractMomentsWithAI, generateHookWithAI } from '../services/gemini.js';
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
@@ -220,3 +220,28 @@ export async function extractMoments(req, res, next) {
         next(err);
     }
 }
+
+/**
+ * POST /api/studio/hook
+ * Generates a tailored viral headline hook with Gemini AI.
+ */
+export async function generateHook(req, res, next) {
+    try {
+        const { title, context, momentTitle, style } = req.body || {};
+        const result = await generateHookWithAI({
+            title: title || 'Viral Video',
+            context: context || '',
+            momentTitle: momentTitle || '',
+            style: style || 'curiosity',
+        });
+
+        return res.json({
+            success: true,
+            headline: result.headline,
+            style: result.style,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+

@@ -10,7 +10,7 @@ describe('VideoStudio Component', () => {
         window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue();
         window.HTMLMediaElement.prototype.pause = vi.fn();
 
-        global.fetch = vi.fn().mockImplementation((url) => {
+        global.fetch = vi.fn().mockImplementation((url, opts) => {
             if (url.includes('/api/studio/moments')) {
                 return Promise.resolve({
                     ok: true,
@@ -53,6 +53,18 @@ describe('VideoStudio Component', () => {
                                     tags: ['Climax'],
                                 },
                             ],
+                        }),
+                });
+            }
+            if (url.includes('/api/studio/hook')) {
+                const body = opts?.body ? JSON.parse(opts.body) : {};
+                return Promise.resolve({
+                    ok: true,
+                    json: () =>
+                        Promise.resolve({
+                            success: true,
+                            style: body.style || 'curiosity',
+                            headline: `AI Generated **${body.style || 'curiosity'}** Hook for **${body.title || 'Video'}**`,
                         }),
                 });
             }
@@ -165,4 +177,34 @@ describe('VideoStudio Component', () => {
             expect(global.URL.createObjectURL).toHaveBeenCalled();
         });
     });
+
+    it('generates hook styles and re-rolls hooks with Gemini AI', async () => {
+        render(<VideoStudio />);
+
+        // Verify hook tone pills exist
+        expect(screen.getByRole('button', { name: /curiosity/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /shock & drama/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /humorous/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /question/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /re-roll hook/i })).toBeInTheDocument();
+
+        // Click on "Shock & Drama" tone pill
+        const shockBtn = screen.getByRole('button', { name: /shock & drama/i });
+        fireEvent.click(shockBtn);
+
+        // Verify headline textarea was updated with shock hook
+        await waitFor(() => {
+            const textarea = screen.getByLabelText(/headline \/ hook text/i);
+            expect(textarea.value).toContain('shock');
+        });
+
+        // Click "Re-Roll Hook" button
+        const rerollBtn = screen.getByRole('button', { name: /re-roll hook/i });
+        fireEvent.click(rerollBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText(/generated new shock hook/i)).toBeInTheDocument();
+        });
+    });
 });
+
