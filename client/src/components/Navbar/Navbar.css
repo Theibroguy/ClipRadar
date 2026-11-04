@@ -1,0 +1,131 @@
+/* =============================================================
+   Navbar Component Styles
+   ============================================================= */
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13, 15, 20, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--color-border);
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.navbar__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+/* Brand / Logo */
+.navbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: -0.03em;
+    transition: opacity var(--transition), transform var(--transition);
+}
+
+.navbar__brand:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.navbar__brand-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 10px rgba(108, 99, 255, 0.6));
+}
+
+.navbar__brand-text span {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Nav Tabs */
+.navbar__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 4px;
+    border-radius: var(--radius-full);
+}
+
+.navbar__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: all var(--transition);
+    position: relative;
+    user-select: none;
+}
+
+.navbar__tab:hover {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.navbar__tab--active {
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.35) 0%, rgba(255, 101, 132, 0.2) 100%);
+    border: 1px solid rgba(108, 99, 255, 0.5);
+    box-shadow: 0 0 16px rgba(108, 99, 255, 0.25);
+}
+
+.navbar__tab--active:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.45) 0%, rgba(255, 101, 132, 0.3) 100%);
+}
+
+.navbar__tab-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.navbar__tab-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-accent), #f43f5e);
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 101, 132, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .navbar__container {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .navbar__brand-text {
+        display: none;
+    }
+
+    .navbar__tab {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-xs);
+    }
+}
+

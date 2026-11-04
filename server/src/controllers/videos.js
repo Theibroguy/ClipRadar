@@ -2,9 +2,12 @@
  * Videos Controller
  *
  * Handles incoming HTTP requests for the /api/videos routes.
- * In DEMO_MODE it returns local seed data; in production it
- * queries MongoDB and can trigger a platform refresh.
+ * In DEMO_MODE or when MongoDB is unreachable, it serves
+ * live-cached YouTube videos or demo seeds.
+ * In production mode it queries MongoDB Atlas and can trigger a refresh.
  */
+import fs from 'fs';
+import path from 'path';
 import { demoVideos } from '../data/demoVideos.js';
 import { Video } from '../models/Video.js';
 import { fetchYouTubeVideos } from '../services/youtube.js';
@@ -15,7 +18,27 @@ import { enrichVideoWithAI } from '../services/gemini.js';
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
-// Default YouTube search queries — these focus on public figures
+// Load live-cached YouTube clips if available, else demoVideos
+function getFallbackVideos() {
+    if (process.env.NODE_ENV === 'test') {
+        return { videos: demoVideos, mode: 'demo' };
+    }
+    try {
+        const cachePath = path.resolve('src/data/liveCache.json');
+        if (fs.existsSync(cachePath)) {
+            const data = fs.readFileSync(cachePath, 'utf8');
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return { videos: parsed, mode: 'live' };
+            }
+        }
+    } catch {
+        // ignore and fallback
+    }
+    return { videos: demoVideos, mode: 'demo' };
+}
+
+// Default YouTube search queries
 const DEFAULT_YT_QUERIES = [
     'celebrity funny moment 2024',
     'influencer unexpected reaction',
@@ -35,16 +58,17 @@ export async function getVideos(req, res, next) {
         const skipNum = Number(skip);
 
         if (isDemoMode()) {
-            let videos = demoVideos;
+            const fallback = getFallbackVideos();
+            let list = [...fallback.videos];
 
             if (platform && platform !== 'all') {
-                videos = videos.filter((v) => v.platform === platform);
+                list = list.filter((v) => v.platform === platform);
             }
             if (category && category !== 'all') {
-                videos = videos.filter((v) => v.category === category);
+                list = list.filter((v) => v.category === category);
             }
             if (searchTerm) {
-                videos = videos.filter(
+                list = list.filter(
                     (v) =>
                         v.title?.toLowerCase().includes(searchTerm) ||
                         v.creator?.name?.toLowerCase().includes(searchTerm) ||
@@ -56,13 +80,13 @@ export async function getVideos(req, res, next) {
                 );
             }
 
-            const paginated = videos.slice(skipNum, skipNum + limitNum);
+            const paginated = list.slice(skipNum, skipNum + limitNum);
 
             return res.json({
                 videos: paginated,
-                total: videos.length,
-                hasMore: skipNum + paginated.length < videos.length,
-                mode: 'demo',
+                total: list.length,
+                hasMore: skipNum + paginated.length < list.length,
+                mode: fallback.mode,
             });
         }
 
@@ -105,12 +129,11 @@ export async function getVideos(req, res, next) {
  * POST /api/videos/refresh
  * Fetches new videos from all configured platforms, enriches with AI,
  * and upserts into MongoDB.
- * Not available in demo mode.
  */
 export async function refreshVideos(req, res, next) {
     if (isDemoMode()) {
         return res.status(403).json({
-            error: 'Refresh is disabled in demo mode.',
+            error: 'Refresh is disabled in demo mode (MongoDB is not connected).',
         });
     }
 

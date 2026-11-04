@@ -207,6 +207,12 @@ export default function VideoFeed() {
                 {mode === 'demo' && (
                     <span className="video-feed__mode-badge">⚡ Demo Mode</span>
                 )}
+                {mode === 'live' && (
+                    <span className="video-feed__mode-badge video-feed__mode-badge--live">🔴 Live YouTube Feed</span>
+                )}
+                {mode === 'production' && (
+                    <span className="video-feed__mode-badge video-feed__mode-badge--live">🟢 MongoDB Live</span>
+                )}
 
                 {/* Search Bar */}
                 <div className="video-feed__search-wrapper">
