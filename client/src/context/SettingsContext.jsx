@@ -13,6 +13,23 @@ export const DEFAULT_SETTINGS = {
     defaultStudioAspect: '9:16', // '9:16' | '1:1' | '16:9'
     defaultStudioFps: 60, // 60 | 30
     customGeminiApiKey: '',
+    trackedTwitterCreators: [
+        '@elonmusk',
+        '@BarstoolSports',
+        '@CultureCrave',
+        '@Dexerto',
+        '@Tesla',
+        '@MKBHD',
+        '@HouseOfHighlights',
+    ],
+    trackedTwitterHashtags: [
+        '#viral',
+        '#comedy',
+        '#fails',
+        '#tech',
+        '#sports',
+        '#gaming',
+    ],
 };
 
 const SettingsContext = createContext(null);
@@ -135,6 +152,46 @@ export function SettingsProvider({ children }) {
         }
     }, []);
 
+    const addTrackedCreator = useCallback((rawHandle) => {
+        if (!rawHandle || !rawHandle.trim()) return;
+        const clean = rawHandle.trim().startsWith('@') ? rawHandle.trim() : `@${rawHandle.trim()}`;
+        setSettings((prev) => {
+            const current = Array.isArray(prev.trackedTwitterCreators) ? prev.trackedTwitterCreators : [];
+            if (current.some((h) => h.toLowerCase() === clean.toLowerCase())) return prev;
+            return { ...prev, trackedTwitterCreators: [...current, clean] };
+        });
+    }, []);
+
+    const removeTrackedCreator = useCallback((handleToRemove) => {
+        setSettings((prev) => {
+            const current = Array.isArray(prev.trackedTwitterCreators) ? prev.trackedTwitterCreators : [];
+            return {
+                ...prev,
+                trackedTwitterCreators: current.filter((h) => h.toLowerCase() !== handleToRemove.toLowerCase()),
+            };
+        });
+    }, []);
+
+    const addTrackedHashtag = useCallback((rawTag) => {
+        if (!rawTag || !rawTag.trim()) return;
+        const clean = rawTag.trim().startsWith('#') ? rawTag.trim() : `#${rawTag.trim()}`;
+        setSettings((prev) => {
+            const current = Array.isArray(prev.trackedTwitterHashtags) ? prev.trackedTwitterHashtags : [];
+            if (current.some((t) => t.toLowerCase() === clean.toLowerCase())) return prev;
+            return { ...prev, trackedTwitterHashtags: [...current, clean] };
+        });
+    }, []);
+
+    const removeTrackedHashtag = useCallback((tagToRemove) => {
+        setSettings((prev) => {
+            const current = Array.isArray(prev.trackedTwitterHashtags) ? prev.trackedTwitterHashtags : [];
+            return {
+                ...prev,
+                trackedTwitterHashtags: current.filter((t) => t.toLowerCase() !== tagToRemove.toLowerCase()),
+            };
+        });
+    }, []);
+
     const value = {
         settings,
         theme: settings.theme || 'dark',
@@ -146,6 +203,10 @@ export function SettingsProvider({ children }) {
         closeSettings,
         exportAllData,
         clearAllCache,
+        addTrackedCreator,
+        removeTrackedCreator,
+        addTrackedHashtag,
+        removeTrackedHashtag,
     };
 
     return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
@@ -165,6 +226,10 @@ export function useSettings() {
             closeSettings: () => {},
             exportAllData: () => false,
             clearAllCache: () => false,
+            addTrackedCreator: () => {},
+            removeTrackedCreator: () => {},
+            addTrackedHashtag: () => {},
+            removeTrackedHashtag: () => {},
         };
     }
     return context;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useInRouterContext, useNavigate } from 'react-router-dom';
 import { fetchDailyDrop, generateFreshDailyDrop } from '../../api/videos.js';
+import { useSettings } from '../../context/SettingsContext.jsx';
 import './DailyRadarSection.css';
 
 function useSafeNavigate() {
@@ -38,6 +39,17 @@ function formatViews(views) {
  */
 export default function DailyRadarSection({ onPreview }) {
     const navigate = useSafeNavigate();
+    const {
+        settings,
+        addTrackedCreator,
+        removeTrackedCreator,
+        addTrackedHashtag,
+        removeTrackedHashtag,
+    } = useSettings();
+
+    const trackedTwitterCreators = settings?.trackedTwitterCreators || [];
+    const trackedTwitterHashtags = settings?.trackedTwitterHashtags || [];
+
     const [dailyData, setDailyData] = useState(null);
     const [selectedDate, setSelectedDate] = useState('');
     const [activePlatform, setActivePlatform] = useState('all'); // 'all' | 'youtube' | 'twitter'
@@ -46,6 +58,8 @@ export default function DailyRadarSection({ onPreview }) {
     const [errorMessage, setErrorMessage] = useState('');
     const [countdownSec, setCountdownSec] = useState(0);
     const [toastMessage, setToastMessage] = useState('');
+    const [showCustomizer, setShowCustomizer] = useState(false);
+    const [customInput, setCustomInput] = useState('');
 
     // Load daily drop (all platforms loaded together for instantaneous client tab switching)
     const loadDrop = useCallback(async (date = null) => {
@@ -112,6 +126,22 @@ export default function DailyRadarSection({ onPreview }) {
 
     function handleSendToStudio(video) {
         navigate('/studio', { state: { preloadedVideo: video } });
+    }
+
+    function handleAddCustomItem(e) {
+        e?.preventDefault();
+        const trimmed = customInput.trim();
+        if (!trimmed) return;
+        if (trimmed.startsWith('#')) {
+            addTrackedHashtag(trimmed);
+            setToastMessage(`✨ Added ${trimmed} to tracked hashtags!`);
+        } else {
+            const handle = trimmed.startsWith('@') ? trimmed : `@${trimmed}`;
+            addTrackedCreator(handle);
+            setToastMessage(`✨ Added ${handle} to favorite creators!`);
+        }
+        setCustomInput('');
+        setTimeout(() => setToastMessage(''), 3000);
     }
 
     const allVideos = useMemo(() => dailyData?.videos || [], [dailyData]);
@@ -220,48 +250,165 @@ export default function DailyRadarSection({ onPreview }) {
                     </div>
                 </div>
 
-                {/* Platform Filter Tabs */}
-                <div className="daily-radar__platform-tabs" role="tablist" aria-label="Filter daily drops by platform">
+                {/* Platform Filter Tabs & Customizer Button */}
+                <div className="daily-radar__controls-row">
+                    <div className="daily-radar__platform-tabs" role="tablist" aria-label="Filter daily drops by platform">
+                        <button
+                            type="button"
+                            role="tab"
+                            id="tab-all"
+                            aria-selected={activePlatform === 'all'}
+                            className={`daily-radar__tab-btn ${activePlatform === 'all' ? 'active' : ''}`}
+                            onClick={() => setActivePlatform('all')}
+                        >
+                            <span>🔥 All Drops</span>
+                            {platformCounts.all > 0 && (
+                                <span className="daily-radar__tab-count">{platformCounts.all}</span>
+                            )}
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            id="tab-youtube"
+                            aria-selected={activePlatform === 'youtube'}
+                            className={`daily-radar__tab-btn ${activePlatform === 'youtube' ? 'active' : ''}`}
+                            onClick={() => setActivePlatform('youtube')}
+                        >
+                            <span>📺 YouTube Shorts</span>
+                            {platformCounts.youtube > 0 && (
+                                <span className="daily-radar__tab-count">{platformCounts.youtube}</span>
+                            )}
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            id="tab-twitter"
+                            aria-selected={activePlatform === 'twitter'}
+                            className={`daily-radar__tab-btn ${activePlatform === 'twitter' ? 'active' : ''}`}
+                            onClick={() => setActivePlatform('twitter')}
+                        >
+                            <span>𝕏 Twitter Clips</span>
+                            {platformCounts.twitter > 0 && (
+                                <span className="daily-radar__tab-count">{platformCounts.twitter}</span>
+                            )}
+                        </button>
+                    </div>
+
                     <button
                         type="button"
-                        role="tab"
-                        id="tab-all"
-                        aria-selected={activePlatform === 'all'}
-                        className={`daily-radar__tab-btn ${activePlatform === 'all' ? 'active' : ''}`}
-                        onClick={() => setActivePlatform('all')}
+                        className={`daily-radar__customize-btn ${showCustomizer ? 'daily-radar__customize-btn--active' : ''}`}
+                        onClick={() => setShowCustomizer((prev) => !prev)}
+                        aria-expanded={showCustomizer}
+                        title="Customize tracked X/Twitter creators and hashtags"
                     >
-                        <span>🔥 All Drops</span>
-                        {platformCounts.all > 0 && (
-                            <span className="daily-radar__tab-count">{platformCounts.all}</span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        id="tab-youtube"
-                        aria-selected={activePlatform === 'youtube'}
-                        className={`daily-radar__tab-btn ${activePlatform === 'youtube' ? 'active' : ''}`}
-                        onClick={() => setActivePlatform('youtube')}
-                    >
-                        <span>📺 YouTube Shorts</span>
-                        {platformCounts.youtube > 0 && (
-                            <span className="daily-radar__tab-count">{platformCounts.youtube}</span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        id="tab-twitter"
-                        aria-selected={activePlatform === 'twitter'}
-                        className={`daily-radar__tab-btn ${activePlatform === 'twitter' ? 'active' : ''}`}
-                        onClick={() => setActivePlatform('twitter')}
-                    >
-                        <span>𝕏 Twitter Clips</span>
-                        {platformCounts.twitter > 0 && (
-                            <span className="daily-radar__tab-count">{platformCounts.twitter}</span>
-                        )}
+                        <span>🎯 Tracked Creators & Tags</span>
+                        <span className="daily-radar__customize-count">
+                            {trackedTwitterCreators.length + trackedTwitterHashtags.length}
+                        </span>
                     </button>
                 </div>
+
+                {/* Customizer Drawer Panel */}
+                {showCustomizer && (
+                    <div className="daily-radar__customizer" aria-label="Customize Tracked Creators & Hashtags">
+                        <div className="daily-radar__customizer-header">
+                            <div>
+                                <h3 className="daily-radar__customizer-title">🎯 Tracked X/Twitter Creators & Hashtags</h3>
+                                <p className="daily-radar__customizer-subtitle">
+                                    Prioritize drops and viral moments from your favorite accounts and topics.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                className="daily-radar__customizer-close"
+                                onClick={() => setShowCustomizer(false)}
+                                aria-label="Close customizer"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Add Input Form */}
+                        <form onSubmit={handleAddCustomItem} className="daily-radar__customizer-form">
+                            <input
+                                type="text"
+                                className="daily-radar__customizer-input"
+                                placeholder="Type @handle or #hashtag (e.g. @MrBeast, @FabrizioRomano, #gaming)..."
+                                value={customInput}
+                                onChange={(e) => setCustomInput(e.target.value)}
+                            />
+                            <button type="submit" className="daily-radar__customizer-add-btn">
+                                + Add
+                            </button>
+                        </form>
+
+                        {/* Tracked Creators Chips */}
+                        <div className="daily-radar__chips-section">
+                            <span className="daily-radar__chips-label">𝕏 Favorite Creators ({trackedTwitterCreators.length}):</span>
+                            <div className="daily-radar__chips-list">
+                                {trackedTwitterCreators.map((handle) => (
+                                    <span key={handle} className="daily-radar__chip daily-radar__chip--creator">
+                                        <span>{handle}</span>
+                                        <button
+                                            type="button"
+                                            className="daily-radar__chip-del"
+                                            onClick={() => removeTrackedCreator(handle)}
+                                            aria-label={`Remove ${handle}`}
+                                        >
+                                            ✕
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Tracked Hashtags Chips */}
+                        <div className="daily-radar__chips-section">
+                            <span className="daily-radar__chips-label">🏷️ Tracked Hashtags ({trackedTwitterHashtags.length}):</span>
+                            <div className="daily-radar__chips-list">
+                                {trackedTwitterHashtags.map((tag) => (
+                                    <span key={tag} className="daily-radar__chip daily-radar__chip--hashtag">
+                                        <span>{tag}</span>
+                                        <button
+                                            type="button"
+                                            className="daily-radar__chip-del"
+                                            onClick={() => removeTrackedHashtag(tag)}
+                                            aria-label={`Remove ${tag}`}
+                                        >
+                                            ✕
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Quick Suggestion Presets */}
+                        <div className="daily-radar__presets">
+                            <span className="daily-radar__presets-label">⚡ Quick Presets:</span>
+                            <div className="daily-radar__presets-list">
+                                {['@MrBeast', '@FabrizioRomano', '@overtime', '@redbull', '@IGN', '#gaming', '#ufc', '#memes'].map((item) => {
+                                    const isAdded = item.startsWith('@')
+                                        ? trackedTwitterCreators.includes(item)
+                                        : trackedTwitterHashtags.includes(item);
+                                    if (isAdded) return null;
+                                    return (
+                                        <button
+                                            key={item}
+                                            type="button"
+                                            className="daily-radar__preset-btn"
+                                            onClick={() => {
+                                                if (item.startsWith('@')) addTrackedCreator(item);
+                                                else addTrackedHashtag(item);
+                                            }}
+                                        >
+                                            + {item}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Video Cards Grid */}
                 {isLoading ? (

@@ -149,4 +149,28 @@ describe('DailyRadarSection Component', () => {
             expect(screen.getByText(/brand new fresh.*batch generated for today/i)).toBeInTheDocument();
         });
     });
+
+    it('opens the customizer drawer and adds/removes tracked creators and hashtags', async () => {
+        render(
+            <BrowserRouter>
+                <DailyRadarSection onPreview={vi.fn()} />
+            </BrowserRouter>
+        );
+
+        const customizeBtn = await screen.findByRole('button', { name: /tracked creators & tags/i });
+        fireEvent.click(customizeBtn);
+
+        // Drawer is visible
+        expect(screen.getByText(/tracked x\/twitter creators & hashtags/i)).toBeInTheDocument();
+        expect(screen.getAllByText('@elonmusk').length).toBeGreaterThanOrEqual(1);
+
+        // Add custom creator via input
+        const input = screen.getByPlaceholderText(/type @handle or #hashtag/i);
+        const addBtn = screen.getByRole('button', { name: /\+ add/i });
+
+        fireEvent.change(input, { target: { value: '@MrBeast' } });
+        fireEvent.click(addBtn);
+
+        expect(await screen.findByText(/added @mrbeast to favorite creators/i)).toBeInTheDocument();
+    });
 });

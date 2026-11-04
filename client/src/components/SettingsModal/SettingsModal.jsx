@@ -21,12 +21,33 @@ export default function SettingsModal() {
         closeSettings,
         exportAllData,
         clearAllCache,
+        addTrackedCreator,
+        removeTrackedCreator,
+        addTrackedHashtag,
+        removeTrackedHashtag,
     } = useSettings();
 
     const [activeTab, setActiveTab] = useState('appearance');
     const [apiKeyInput, setApiKeyInput] = useState(settings.customGeminiApiKey || '');
     const [showApiKey, setShowApiKey] = useState(false);
     const [actionMessage, setActionMessage] = useState('');
+    const [customTagInput, setCustomTagInput] = useState('');
+
+    function handleAddTagFromSettings(e) {
+        e?.preventDefault();
+        const trimmed = customTagInput.trim();
+        if (!trimmed) return;
+        if (trimmed.startsWith('#')) {
+            addTrackedHashtag(trimmed);
+            setActionMessage(`✨ Added ${trimmed} to hashtags`);
+        } else {
+            const handle = trimmed.startsWith('@') ? trimmed : `@${trimmed}`;
+            addTrackedCreator(handle);
+            setActionMessage(`✨ Added ${handle} to creators`);
+        }
+        setCustomTagInput('');
+        setTimeout(() => setActionMessage(''), 3000);
+    }
 
     useEffect(() => {
         setApiKeyInput(settings.customGeminiApiKey || '');
@@ -257,6 +278,55 @@ export default function SettingsModal() {
                                     <option value={2500}>High Velocity (2,500+ views/hr)</option>
                                     <option value={5000}>Explosive Viral (5,000+ views/hr)</option>
                                 </select>
+                            </div>
+
+                            <div className="settings-item settings-item--vertical">
+                                <div className="settings-item__info">
+                                    <span className="settings-item__label">🎯 Tracked X/Twitter Creators & Hashtags</span>
+                                    <p className="settings-item__desc">Accounts & tags prioritized in your Daily Drops and radar discovery</p>
+                                </div>
+
+                                <form onSubmit={handleAddTagFromSettings} className="settings-tag-form">
+                                    <input
+                                        type="text"
+                                        className="settings-input"
+                                        placeholder="Add @creator or #tag (e.g. @MrBeast, #gaming)..."
+                                        value={customTagInput}
+                                        onChange={(e) => setCustomTagInput(e.target.value)}
+                                    />
+                                    <button type="submit" className="settings-save-btn">
+                                        + Add
+                                    </button>
+                                </form>
+
+                                <div className="settings-chips-preview">
+                                    {(settings.trackedTwitterCreators || []).map((h) => (
+                                        <span key={h} className="settings-chip settings-chip--creator">
+                                            <span>{h}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeTrackedCreator(h)}
+                                                className="settings-chip__del"
+                                                aria-label={`Remove ${h}`}
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
+                                    ))}
+                                    {(settings.trackedTwitterHashtags || []).map((t) => (
+                                        <span key={t} className="settings-chip settings-chip--tag">
+                                            <span>{t}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeTrackedHashtag(t)}
+                                                className="settings-chip__del"
+                                                aria-label={`Remove ${t}`}
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
