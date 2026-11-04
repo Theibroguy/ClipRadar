@@ -76,8 +76,8 @@ function drawHeadlineCanvas(ctx, text, x, y, maxWidth, align = 'center') {
     });
     if (currentLine.length > 0) lines.push(currentLine);
 
-    lines.slice(0, 6).forEach((lineWords, lineIdx) => {
-        const lineY = y + lineIdx * 32;
+    lines.slice(0, 4).forEach((lineWords, lineIdx) => {
+        const lineY = y + lineIdx * 30;
         let lineX = x;
         if (align === 'center') {
             const totalLineWidth = lineWords.reduce((sum, w) => sum + ctx.measureText(w.text + ' ').width, 0);
@@ -436,6 +436,7 @@ export default function VideoStudio() {
     const videoRef = useRef(null);
     const videoInputRef = useRef(null);
     const logoInputRef = useRef(null);
+    const headlineTextareaRef = useRef(null);
 
     // Clean up object URLs on unmount
     useEffect(() => {
@@ -615,6 +616,129 @@ export default function VideoStudio() {
         }
     }
 
+    // Helper to extract words and their highlight status
+    function getHeadlineTokens(text) {
+        if (!text) return [];
+        const parts = text.split(/(\*\*.*?\*\*)/g);
+        const tokens = [];
+
+        parts.forEach((part) => {
+            if (!part) return;
+            const isHighlight = part.startsWith('**') && part.endsWith('**');
+            const clean = isHighlight ? part.slice(2, -2) : part;
+
+            // Split by words
+            const words = clean.split(/(\s+)/);
+            words.forEach((w) => {
+                if (!w) return;
+                const isWhitespace = /^\s+$/.test(w);
+                if (!isWhitespace) {
+                    tokens.push({
+                        text: w,
+                        isHighlight,
+                    });
+                }
+            });
+        });
+        return tokens;
+    }
+
+    // Toggle highlight for whatever text is selected inside the textarea
+    function handleToggleSelectedHighlight() {
+        const textarea = headlineTextareaRef.current;
+        if (!textarea) return;
+
+        let start = textarea.selectionStart;
+        let end = textarea.selectionEnd;
+        const fullText = headlineText || '';
+
+        // If no text selected, select word under cursor
+        if (start === end) {
+            const before = fullText.slice(0, start);
+            const after = fullText.slice(start);
+            const matchBefore = before.match(/[\w'-]+$/);
+            const matchAfter = after.match(/^[\w'-]+/);
+            const wordStart = matchBefore ? start - matchBefore[0].length : start;
+            const wordEnd = matchAfter ? start + matchAfter[0].length : start;
+            if (wordStart === wordEnd) return;
+            start = wordStart;
+            end = wordEnd;
+        }
+
+        const selected = fullText.slice(start, end);
+        const before = fullText.slice(0, start);
+        const after = fullText.slice(end);
+
+        let newText = '';
+        let newStart = start;
+        let newEnd = end;
+
+        // Check if directly bordered by **...**
+        if (before.endsWith('**') && after.startsWith('**')) {
+            newText = before.slice(0, -2) + selected + after.slice(2);
+            newStart = start - 2;
+            newEnd = end - 2;
+        } else if (selected.startsWith('**') && selected.endsWith('**') && selected.length >= 4) {
+            const inner = selected.slice(2, -2);
+            newText = before + inner + after;
+            newStart = start;
+            newEnd = start + inner.length;
+        } else {
+            newText = before + `**${selected}**` + after;
+            newStart = start;
+            newEnd = end + 4;
+        }
+
+        setHeadlineText(newText);
+        setTimeout(() => {
+            if (headlineTextareaRef.current) {
+                headlineTextareaRef.current.focus();
+                headlineTextareaRef.current.setSelectionRange(newStart, newEnd);
+            }
+        }, 0);
+    }
+
+    // Keyboard shortcut handler (Ctrl+B / Cmd+B) for the textarea
+    function handleHeadlineKeyDown(e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+            e.preventDefault();
+            handleToggleSelectedHighlight();
+        }
+    }
+
+    // Click on an individual word chip to toggle its blue highlight status
+    function handleToggleWordToken(tokenIndex) {
+        const tokens = getHeadlineTokens(headlineText);
+        if (!tokens[tokenIndex]) return;
+
+        tokens[tokenIndex].isHighlight = !tokens[tokenIndex].isHighlight;
+
+        // Reconstruct string grouping consecutive highlights
+        let result = '';
+        let inHighlight = false;
+
+        tokens.forEach((t, i) => {
+            if (t.isHighlight && !inHighlight) {
+                result += (i > 0 ? ' ' : '') + '**' + t.text;
+                inHighlight = true;
+            } else if (!t.isHighlight && inHighlight) {
+                result += '** ' + t.text;
+                inHighlight = false;
+            } else {
+                result += (i > 0 ? ' ' : '') + t.text;
+            }
+        });
+        if (inHighlight) result += '**';
+
+        setHeadlineText(result);
+    }
+
+    // Clear all highlights
+    function handleClearAllHighlights() {
+        const unhighlighted = (headlineText || '').replace(/\*\*/g, '');
+        setHeadlineText(unhighlighted);
+    }
+
     // Download an individual moment directly
     async function handleDownloadMoment(moment) {
         if (!videoFile && !videoUrl) return;
@@ -724,6 +848,8 @@ export default function VideoStudio() {
             return <span key={index}>{part}</span>;
         });
     }
+
+    const headlineTokens = getHeadlineTokens(headlineText);
 
     return (
         <main className="video-studio">
@@ -1177,13 +1303,24 @@ export default function VideoStudio() {
                             </div>
                         </div>
 
-                        {/* Headline Text Area for Active Selection */}
+                        {/* Headline Text Area for Active Selection (Strictly 4 Lines) */}
                         <div className="studio-field">
                             <div className="studio-field__header">
-                                <label htmlFor="headline-text" className="studio-field__label">
-                                    Headline / Hook Text
-                                </label>
-                                <span className="studio-field__tip">Tip: Wrap words in **double asterisks** to highlight in blue</span>
+                                <div>
+                                    <label htmlFor="headline-text" className="studio-field__label">
+                                        Headline / Hook Text <span className="studio-field__label-badge">4 Lines</span>
+                                    </label>
+                                    <span className="studio-field__tip">Select text & click blue highlight, or click any word chip below</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="studio-highlight-btn"
+                                    onClick={handleToggleSelectedHighlight}
+                                    title="Highlight selected text in blue (or press Ctrl+B)"
+                                >
+                                    <span>🔵</span>
+                                    <span>Highlight Selection</span>
+                                </button>
                             </div>
 
                             {/* AI Hook Tone & Re-Roll Toolbar */}
@@ -1202,7 +1339,7 @@ export default function VideoStudio() {
                                             className={`studio-hook-style-pill ${hookStyle === style.id ? 'studio-hook-style-pill--active' : ''}`}
                                             onClick={() => handleGenerateHook(style.id)}
                                             disabled={isGeneratingHook}
-                                            title={`Generate ${style.label} hook with Gemini AI`}
+                                            title={`Generate 4-line ${style.label} hook with Gemini AI`}
                                         >
                                             <span>{style.icon}</span>
                                             <span>{style.label}</span>
@@ -1215,7 +1352,7 @@ export default function VideoStudio() {
                                     className="studio-reroll-btn"
                                     disabled={isGeneratingHook}
                                     onClick={() => handleGenerateHook(hookStyle)}
-                                    title="Generate another variation in this tone"
+                                    title="Generate another 4-line variation in this tone"
                                 >
                                     <span className={isGeneratingHook ? 'studio-reroll-btn__spin' : ''}>
                                         {isGeneratingHook ? '⏳' : '✨'}
@@ -1225,13 +1362,51 @@ export default function VideoStudio() {
                             </div>
 
                             <textarea
+                                ref={headlineTextareaRef}
                                 id="headline-text"
-                                rows={3}
+                                rows={4}
                                 className="studio-field__textarea"
                                 value={headlineText}
                                 onChange={(e) => setHeadlineText(e.target.value)}
-                                placeholder="Enter the exact text to display on the video..."
+                                onKeyDown={handleHeadlineKeyDown}
+                                placeholder="Enter the exact 4-line text to display on the video..."
                             />
+
+                            {/* Interactive Click-to-Highlight Visual Word Chips */}
+                            <div className="studio-highlighter-tray">
+                                <div className="studio-highlighter-tray__header">
+                                    <span>Click any word to toggle blue highlight:</span>
+                                    {headlineText && headlineText.includes('**') && (
+                                        <button
+                                            type="button"
+                                            className="studio-highlighter-tray__clear"
+                                            onClick={handleClearAllHighlights}
+                                            title="Remove all blue highlights"
+                                        >
+                                            Clear all highlights
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="studio-highlighter-chips">
+                                    {headlineTokens.map((token, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            className={`studio-word-chip ${token.isHighlight ? 'studio-word-chip--active' : ''}`}
+                                            onClick={() => handleToggleWordToken(idx)}
+                                            title={
+                                                token.isHighlight
+                                                    ? `Click to remove blue highlight on "${token.text}"`
+                                                    : `Click to highlight "${token.text}" in blue`
+                                            }
+                                        >
+                                            {token.isHighlight && <span className="studio-word-chip__check">✓</span>}
+                                            <span>{token.text}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
 

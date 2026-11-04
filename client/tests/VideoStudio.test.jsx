@@ -206,5 +206,26 @@ describe('VideoStudio Component', () => {
             expect(screen.getByText(/generated new shock hook/i)).toBeInTheDocument();
         });
     });
+
+    it('allows selecting text and clicking chips to highlight words in blue', async () => {
+        render(<VideoStudio />);
+
+        // Verify Highlight Selection button exists
+        expect(screen.getByRole('button', { name: /highlight selection/i })).toBeInTheDocument();
+        const textarea = screen.getByLabelText(/headline \/ hook text/i);
+
+        // Find an active word chip (Dua is highlighted by default)
+        const duaChip = screen.getByTitle(/click to remove blue highlight on "Dua"/i);
+        expect(duaChip).toHaveClass('studio-word-chip--active');
+
+        // Click it to un-highlight
+        fireEvent.click(duaChip);
+        expect(screen.getByTitle(/click to highlight "Dua" in blue/i)).toBeInTheDocument();
+
+        // Click "Clear all highlights"
+        const clearBtn = screen.getByRole('button', { name: /clear all highlights/i });
+        fireEvent.click(clearBtn);
+        expect(textarea.value).not.toContain('**');
+    });
 });
 

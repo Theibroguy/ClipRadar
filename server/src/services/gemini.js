@@ -84,7 +84,7 @@ function generateFallbackMoments({ title = 'Viral Video Clip', duration = 30 }) 
     const templates = [
         {
             title: 'Explosive Opening Hook',
-            headline: `Watch what happened when **${safeTitle}** started with this **unbelievable intro**`,
+            headline: `As **${safeTitle}** kicked off with this **unbelievable scene**, fans immediately noticed a **hidden clue** that completely changed how everyone understood the **entire outcome**`,
             relativeStart: 0,
             relativeDuration: Math.min(10, Math.max(5, Math.round(totalSec * 0.25))),
             score: 98,
@@ -93,7 +93,7 @@ function generateFallbackMoments({ title = 'Viral Video Clip', duration = 30 }) 
         },
         {
             title: 'Unexpected Plot Twist',
-            headline: `Nobody anticipated what **${safeTitle}** did right in the **middle of the scene**`,
+            headline: `Nobody was prepared for the **shocking turn of events** during **${safeTitle}**, leaving everyone frozen as the **unthinkable unfolded right before their eyes**`,
             relativeStart: Math.max(4, Math.round(totalSec * 0.32)),
             relativeDuration: Math.min(15, Math.max(6, Math.round(totalSec * 0.3))),
             score: 95,
@@ -102,7 +102,7 @@ function generateFallbackMoments({ title = 'Viral Video Clip', duration = 30 }) 
         },
         {
             title: 'Peak Climax & Reaction',
-            headline: `The exact moment **${safeTitle}** caused the **entire audience to lose it**`,
+            headline: `The exact moment **${safeTitle}** took a **devastating twist**, sparking chaos across social media as **millions watched the drama escalate** out of control`,
             relativeStart: Math.max(8, Math.round(totalSec * 0.65)),
             relativeDuration: Math.min(18, Math.max(6, Math.round(totalSec * 0.25))),
             score: 92,
@@ -114,7 +114,7 @@ function generateFallbackMoments({ title = 'Viral Video Clip', duration = 30 }) 
     if (totalSec >= 45) {
         templates.push({
             title: 'Golden Final Punchline',
-            headline: `The unexpected ending of **${safeTitle}** had everyone **talking in the comments**`,
+            headline: `There is no way **${safeTitle}** genuinely believed this **absurd plan** would work, and the **hilarious outcome** had the whole room in tears laughing`,
             relativeStart: Math.max(15, Math.round(totalSec * 0.85)),
             relativeDuration: Math.min(15, Math.max(5, totalSec - Math.round(totalSec * 0.85))),
             score: 89,
@@ -259,27 +259,27 @@ export async function generateHookWithAI({
 
     const chosenStyleDesc = styleDescriptions[style] || styleDescriptions.curiosity;
 
-    // Fallback generator in case of API failure or missing keys
+    // Fallback templates calibrated to wrap into EXACTLY 4 lines on the 9:16 card (~22-26 words)
     const fallbackTemplates = {
         curiosity: [
-            `Wait until you see what happened when **${cleanTitle}** took this **unexpected turn**`,
-            `The secret behind **${cleanTitle}** that **nobody noticed** until now`,
-            `Watch closely what happened right in the **middle of ${cleanTitle}**`,
+            `As **${cleanTitle}** kicked off with this **unbelievable scene**, fans immediately noticed a **hidden clue** that completely changed how everyone understood the **entire outcome**`,
+            `When **${cleanTitle}** first went viral on the internet, nobody could predict the **mysterious sequence** that unfolded right before the **crowd in disbelief**`,
+            `Watch closely what happened during **${cleanTitle}**, because the **subtle detail** revealed in this footage has left the **whole community completely speechless**`,
         ],
         shock: [
-            `Nobody was ready for this **shocking moment** during **${cleanTitle}**`,
-            `This **unbelievable scene** in **${cleanTitle}** stunned the **entire internet**`,
-            `The most **insane twist** ever captured in **${cleanTitle}**`,
+            `Nobody in the audience was prepared for the **shocking turn of events** during **${cleanTitle}**, leaving everyone frozen as the **unthinkable unfolded on camera**`,
+            `The exact moment **${cleanTitle}** took a **devastating twist**, sparking chaos across social media as **millions watched the drama escalate** out of control`,
+            `This **insane climax** in **${cleanTitle}** stunned every viewer watching, proving that **nobody could have predicted** what happened in those final seconds`,
         ],
         humor: [
-            `This has to be the **most chaotic moment** in **${cleanTitle}** history`,
-            `When **${cleanTitle}** went completely **off the rails** in 5 seconds`,
-            `There is no way **${cleanTitle}** actually thought **this would work**`,
+            `This has to be the **most chaotic fail** in **${cleanTitle}** history, because watching them attempt this **ridiculous stunt** went wrong in every way possible`,
+            `There is no way **${cleanTitle}** genuinely believed this **absurd plan** would work, and the **hilarious outcome** had the whole room in tears laughing`,
+            `When you realize what **${cleanTitle}** was actually trying to do, it makes this **embarrassing moment** ten times funnier than you ever expected`,
         ],
         question: [
-            `Did they really just do this during **${cleanTitle}** or is this **staged**?`,
-            `Would you have survived what happened in this **${cleanTitle}** scene?`,
-            `Is this the **craziest thing** that has ever happened in **${cleanTitle}**?`,
+            `Did they really believe they could get away with this in **${cleanTitle}**, or was this **entire scene staged** just to break the **internet in comments**?`,
+            `Could you have kept your composure if you were right there in **${cleanTitle}**, or would you have **panicked instantly** like everyone else did?`,
+            `Is this the single **most unhinged thing** ever caught on film during **${cleanTitle}**, or did they secretly plan the **entire madness all along**?`,
         ],
     };
 
@@ -293,18 +293,24 @@ export async function generateHookWithAI({
 
     const prompt = `
 You are an elite short-form video copywriter (TikTok, YouTube Shorts, Instagram Reels).
-Write a single, irresistible 1-sentence viral headline hook for a 9:16 short.
+Generate a high-retention viral headline hook for a 9:16 vertical video card.
+
+MANDATORY REQUIREMENT - EXACTLY 4 LINES LONG:
+1. The headline hook MUST span EXACTLY 4 lines on a mobile phone video card (between 22 and 28 words total, around 5 to 7 words per line).
+2. It MUST NOT be short (do NOT write 1, 2, or 3 lines). It MUST NOT be too long (5+ lines). It MUST be EXACTLY 4 lines.
+3. Wrap 2 to 5 key emotional words or names in **double asterisks** for bold blue highlight formatting.
+4. Tone / Style: ${chosenStyleDesc} (${style.toUpperCase()} style).
+5. Must be a compelling, smooth narrative hook that keeps viewers glued to the screen.
+
+Example of an ideal 4-line hook (~24 words):
+"As **Dua Lipa**, **Lupita Nyong'o** and **A$AP Rocky** posed at the **WSJ Innovator Awards**, the comments agreed all three looked beautiful"
 
 Video Title / Topic: ${cleanTitle}
 Additional Context: ${context || 'None'}
 Specific Moment: ${momentTitle || 'Key Highlight'}
-Required Tone / Style: ${chosenStyleDesc}
 
-Guidelines:
-1. Max 16 words. Punchy, viral, natural, not robotic.
-2. Wrap 2 to 4 key words, emotional triggers, or names in **double asterisks** for bold highlight formatting (e.g., "Wait until you see what **MrBeast** gave away in the **last 5 seconds**").
-3. Make it tailor-fit to the ${style.toUpperCase()} style.
-4. Reply ONLY with JSON in this format: {"headline": "..."}
+Reply ONLY with valid JSON in this exact structure (no markdown fences, no extra keys):
+{"headline": "..."}
 `.trim();
 
     const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
