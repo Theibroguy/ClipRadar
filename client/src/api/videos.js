@@ -42,3 +42,20 @@ export async function triggerRefresh() {
     }
     return res.json();
 }
+
+/**
+ * Extract multiple catchy/viral moments from a video using Gemini AI.
+ * @param {{ title?: string, description?: string, transcript?: string, duration?: number }} params
+ */
+export async function extractCatchyMoments(params = {}) {
+    const res = await fetch(`${BASE}/api/studio/moments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, totalMoments, duration, moments }
+}

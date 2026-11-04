@@ -80,6 +80,33 @@ describe('POST /api/videos/refresh', () => {
     });
 });
 
+describe('POST /api/studio/moments', () => {
+    it('extracts multiple catchy moments from video metadata', async () => {
+        const res = await request(app)
+            .post('/api/studio/moments')
+            .send({
+                title: 'MrBeast 100 Days in Nuclear Bunker',
+                duration: 60,
+                description: 'Insane underground challenge',
+            });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.totalMoments).toBeGreaterThanOrEqual(2);
+        expect(Array.isArray(res.body.moments)).toBe(true);
+
+        const firstMoment = res.body.moments[0];
+        expect(firstMoment).toHaveProperty('id');
+        expect(firstMoment).toHaveProperty('title');
+        expect(firstMoment).toHaveProperty('startTime');
+        expect(firstMoment).toHaveProperty('endTime');
+        expect(firstMoment).toHaveProperty('headline');
+        expect(firstMoment).toHaveProperty('score');
+        expect(firstMoment).toHaveProperty('reason');
+        expect(firstMoment.endTime).toBeGreaterThan(firstMoment.startTime);
+    });
+});
+
 describe('Unknown route', () => {
     it('returns 404', async () => {
         const res = await request(app).get('/api/does-not-exist');

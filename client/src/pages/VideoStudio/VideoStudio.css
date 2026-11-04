@@ -870,6 +870,279 @@
     color: var(--color-text-muted);
 }
 
+/* ---- Multi-Moment AI Extraction Styles ---- */
+
+.studio-notification {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-3);
+    color: #93c5fd;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+.studio-moments-section {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.studio-moments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.studio-moments-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.studio-moments-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-full);
+    padding: 3px 10px;
+}
+
+.studio-moments-tip {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.studio-batch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: #ffffff;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.studio-batch-btn:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.studio-batch-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.studio-batch-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+    color: #c4b5fd;
+    font-weight: 600;
+}
+
+.studio-moments-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.studio-moments-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.studio-moments-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.studio-moment-card {
+    background: rgba(22, 26, 36, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.studio-moment-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(26, 31, 44, 0.85);
+}
+
+.studio-moment-card--selected {
+    border-color: rgba(255, 101, 132, 0.6);
+    background: rgba(255, 101, 132, 0.05);
+    box-shadow: 0 0 16px rgba(255, 101, 132, 0.12);
+}
+
+.studio-moment-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.studio-moment-card__badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.studio-moment-card__index {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+}
+
+.studio-moment-card__score {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: var(--radius-full);
+    padding: 2px 8px;
+}
+
+.studio-moment-card__time {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-full);
+    padding: 2px 8px;
+}
+
+.studio-moment-card__title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.studio-moment-card__headline {
+    background: rgba(0, 0, 0, 0.25);
+    border-left: 3px solid #3b82f6;
+    padding: var(--space-2) var(--space-3);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1.45;
+    color: #e2e8f0;
+}
+
+.studio-moment-card__reason {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 0;
+}
+
+.studio-moment-card__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.studio-moment-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.studio-moment-btn--preview {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--color-text);
+    flex: 1;
+}
+
+.studio-moment-btn--preview:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.studio-moment-btn--active {
+    background: rgba(255, 101, 132, 0.15);
+    border-color: rgba(255, 101, 132, 0.4);
+    color: var(--color-accent);
+}
+
+.studio-moment-btn--download {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #ffffff;
+    flex: 1.2;
+}
+
+.studio-moment-btn--download:hover:not(:disabled) {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.35);
+}
+
+.studio-moment-btn--download:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.studio-moment-progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.studio-moment-progress__bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #ec4899);
+    transition: width 0.2s ease;
+}
+
 /* Responsive Layout */
 @media (max-width: 1024px) {
     .video-studio__workspace {

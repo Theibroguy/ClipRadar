@@ -7,6 +7,8 @@ describe('VideoStudio Component', () => {
     beforeAll(() => {
         global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
         global.URL.revokeObjectURL = vi.fn();
+        window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue();
+        window.HTMLMediaElement.prototype.pause = vi.fn();
     });
 
     it('renders the header and main sections', () => {
@@ -70,5 +72,48 @@ describe('VideoStudio Component', () => {
             },
             { timeout: 6000 }
         );
+    });
+
+    it('extracts multiple catchy moments with AI and allows previewing and downloading any moment', async () => {
+        render(<VideoStudio />);
+
+        // Upload a video
+        const videoFile = new File(['dummy video'], 'beast_challenge.mp4', { type: 'video/mp4' });
+        const videoInput = screen.getByLabelText(/upload raw video file/i).querySelector('input[type="file"]');
+        fireEvent.change(videoInput, { target: { files: [videoFile] } });
+
+        // Click the AI Extract button
+        const extractBtn = screen.getByRole('button', { name: /ai: extract all catchy moments/i });
+        expect(extractBtn).not.toBeDisabled();
+        fireEvent.click(extractBtn);
+
+        // Wait for multiple moments to be extracted and rendered
+        await waitFor(() => {
+            expect(screen.getByText(/moments extracted/i)).toBeInTheDocument();
+        });
+
+        // Verify multiple moment cards are rendered
+        expect(screen.getByText('Explosive Opening Hook')).toBeInTheDocument();
+        expect(screen.getByText('Unexpected Plot Twist')).toBeInTheDocument();
+        expect(screen.getByText('Peak Climax & Reaction')).toBeInTheDocument();
+
+        // Verify each moment has a download button
+        const downloadMomentBtns = screen.getAllByRole('button', { name: /download this short/i });
+        expect(downloadMomentBtns.length).toBeGreaterThanOrEqual(3);
+
+        // Verify batch download button exists
+        expect(screen.getByRole('button', { name: /download all/i })).toBeInTheDocument();
+
+        // Preview Moment #2
+        const previewBtns = screen.getAllByRole('button', { name: /preview moment/i });
+        expect(previewBtns.length).toBeGreaterThanOrEqual(2);
+        fireEvent.click(previewBtns[0]); // Preview moment 2
+
+        // Download an individual moment
+        fireEvent.click(downloadMomentBtns[0]);
+        await waitFor(() => {
+            // Verify createObjectURL was called for download
+            expect(global.URL.createObjectURL).toHaveBeenCalled();
+        });
     });
 });

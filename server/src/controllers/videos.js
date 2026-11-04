@@ -14,7 +14,7 @@ import { fetchYouTubeVideos } from '../services/youtube.js';
 import { fetchTwitterVideos } from '../services/twitter.js';
 import { fetchInstagramVideos } from '../services/instagram.js';
 import { fetchTikTokVideos } from '../services/tiktok.js';
-import { enrichVideoWithAI } from '../services/gemini.js';
+import { enrichVideoWithAI, extractMomentsWithAI } from '../services/gemini.js';
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
@@ -192,4 +192,31 @@ export function healthCheck(req, res) {
         mode: isDemoMode() ? 'demo' : 'production',
         timestamp: new Date().toISOString(),
     });
+}
+
+/**
+ * POST /api/studio/moments
+ * Extracts multiple viral/catchy moments from a video using Gemini AI.
+ */
+export async function extractMoments(req, res, next) {
+    try {
+        const { title, description, transcript, duration } = req.body || {};
+        const parsedDuration = Math.max(5, Math.round(Number(duration) || 30));
+
+        const moments = await extractMomentsWithAI({
+            title: title || 'Social Video Clip',
+            description: description || '',
+            transcript: transcript || '',
+            duration: parsedDuration,
+        });
+
+        return res.json({
+            success: true,
+            totalMoments: moments.length,
+            duration: parsedDuration,
+            moments,
+        });
+    } catch (err) {
+        next(err);
+    }
 }
