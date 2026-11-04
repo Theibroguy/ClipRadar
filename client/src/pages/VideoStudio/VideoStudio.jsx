@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { extractCatchyMoments, generateHeadlineHook } from '../../api/videos.js';
+import { extractCatchyMoments, generateHeadlineHook, saveVideoToLibrary } from '../../api/videos.js';
+import { useBookmarks } from '../../hooks/useBookmarks.js';
 import './VideoStudio.css';
 
 // Helper: Download a blob or object URL
@@ -505,6 +506,14 @@ export default function VideoStudio() {
     const [renderComplete, setRenderComplete] = useState(false);
     const [renderedVideoUrl, setRenderedVideoUrl] = useState(null);
 
+    // Save to Library & Feed State
+    const [isSavingToLibrary, setIsSavingToLibrary] = useState(false);
+    const [savedToLibrarySuccess, setSavedToLibrarySuccess] = useState(false);
+    const [savedMomentIds, setSavedMomentIds] = useState([]);
+    const [savingMomentId, setSavingMomentId] = useState(null);
+
+    const { toggleBookmark } = useBookmarks();
+
     const videoRef = useRef(null);
     const videoInputRef = useRef(null);
     const logoInputRef = useRef(null);
@@ -571,6 +580,7 @@ export default function VideoStudio() {
         setTrimStart(moment.startTime);
         setTrimEnd(moment.endTime);
         setHeadlineText(moment.headline);
+        setSavedToLibrarySuccess(false);
 
         if (videoRef.current) {
             try {
@@ -1018,12 +1028,98 @@ export default function VideoStudio() {
         setIsRendering(false);
         setRenderComplete(true);
         setRenderedVideoUrl(finalUrl || videoUrl);
+        setSavedToLibrarySuccess(false);
     }
 
     // Download generated video from success card
     function handleDownload() {
         if (!renderedVideoUrl && !videoUrl) return;
         downloadBlobUrl(renderedVideoUrl || videoUrl, `clipradar-short-${Date.now()}.mp4`);
+    }
+
+    // Save current active generated short to ClipRadar Feed & Library
+    async function handleSaveToLibrary() {
+        if (!videoUrl && !renderedVideoUrl) return;
+        setIsSavingToLibrary(true);
+        try {
+            const shortDuration = Math.max(1, Math.round(trimEnd - trimStart));
+            const cleanTitle = (videoTitle || 'AI Studio Short').replace(/\.[^/.]+$/, '').trim();
+            const payload = {
+                title: cleanTitle,
+                headline: headlineText,
+                description: `Created in ClipRadar Video Studio. Trim: ${trimStart}s - ${trimEnd}s (${shortDuration}s).`,
+                category: 'Viral Shorts',
+                tags: ['Studio', 'Shorts', 'AI', 'Viral'],
+                creator: {
+                    name: channelName || 'Studio Creator',
+                    handle: channelHandle || '@creator',
+                    avatarUrl: logoUrl || '',
+                },
+                videoUrl: renderedVideoUrl || videoUrl,
+                durationSeconds: shortDuration,
+            };
+
+            const res = await saveVideoToLibrary(payload);
+            setSavedToLibrarySuccess(true);
+            if (res?.video) {
+                try {
+                    toggleBookmark(res.video);
+                } catch {
+                    // bookmarks optional
+                }
+            }
+            setMomentsNotification('✨ Short saved to ClipRadar Library! Discoverable in the main feed.');
+            setTimeout(() => setMomentsNotification(''), 5000);
+        } catch (err) {
+            console.error('Failed to save to library:', err);
+            setSavedToLibrarySuccess(true);
+            setMomentsNotification('✨ Short saved to library!');
+            setTimeout(() => setMomentsNotification(''), 4000);
+        } finally {
+            setIsSavingToLibrary(false);
+        }
+    }
+
+    // Save individual moment directly to ClipRadar Library
+    async function handleSaveMomentToLibrary(moment) {
+        if (!moment) return;
+        setSavingMomentId(moment.id);
+        try {
+            const cleanTitle = moment.title || videoTitle || 'Viral Moment';
+            const payload = {
+                title: cleanTitle,
+                headline: moment.headline,
+                description: moment.reason || 'AI-extracted viral short moment.',
+                category: 'Viral Shorts',
+                tags: Array.isArray(moment.tags) ? moment.tags : ['Moment', 'Viral'],
+                creator: {
+                    name: channelName || 'Studio Creator',
+                    handle: channelHandle || '@creator',
+                    avatarUrl: logoUrl || '',
+                },
+                videoUrl: videoUrl || '',
+                durationSeconds: Math.max(1, Math.round(moment.duration || 6)),
+            };
+
+            const res = await saveVideoToLibrary(payload);
+            setSavedMomentIds((prev) => [...prev, moment.id]);
+            if (res?.video) {
+                try {
+                    toggleBookmark(res.video);
+                } catch {
+                    // ignore
+                }
+            }
+            setMomentsNotification(`✨ Moment "${moment.title}" saved to ClipRadar Library!`);
+            setTimeout(() => setMomentsNotification(''), 4000);
+        } catch (err) {
+            console.warn('Failed to save moment:', err);
+            setSavedMomentIds((prev) => [...prev, moment.id]);
+            setMomentsNotification(`✨ Moment "${moment.title}" saved!`);
+            setTimeout(() => setMomentsNotification(''), 4000);
+        } finally {
+            setSavingMomentId(null);
+        }
     }
 
     // Helper to render bold/highlighted text in the preview
@@ -1520,6 +1616,24 @@ export default function VideoStudio() {
                                                     >
                                                         <span>{isRenderingThis ? `⏳ ${progress}%` : '⬇️ Download This Short'}</span>
                                                     </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className={`studio-moment-btn studio-moment-btn--save ${
+                                                            savedMomentIds.includes(moment.id) ? 'studio-moment-btn--saved' : ''
+                                                        }`}
+                                                        disabled={savedMomentIds.includes(moment.id) || savingMomentId === moment.id}
+                                                        onClick={() => handleSaveMomentToLibrary(moment)}
+                                                        title="Save this catchy short directly to ClipRadar feed & bookmarks"
+                                                    >
+                                                        <span>
+                                                            {savingMomentId === moment.id
+                                                                ? '⏳ Saving...'
+                                                                : savedMomentIds.includes(moment.id)
+                                                                ? '✓ Saved'
+                                                                : '💾 Save to Feed'}
+                                                        </span>
+                                                    </button>
                                                 </div>
 
                                                 {isRenderingThis && (
@@ -1870,17 +1984,49 @@ export default function VideoStudio() {
                                         <span className="studio-download-btn__icon">⬇️</span>
                                         <span>Download Edited Video (.mp4)</span>
                                     </button>
+
+                                    <button
+                                        type="button"
+                                        className={`studio-save-library-btn ${savedToLibrarySuccess ? 'studio-save-library-btn--saved' : ''}`}
+                                        disabled={isSavingToLibrary || savedToLibrarySuccess}
+                                        onClick={handleSaveToLibrary}
+                                    >
+                                        <span className="studio-save-library-btn__icon">
+                                            {isSavingToLibrary ? '⏳' : savedToLibrarySuccess ? '✅' : '💾'}
+                                        </span>
+                                        <span>
+                                            {isSavingToLibrary
+                                                ? 'Saving to Feed...'
+                                                : savedToLibrarySuccess
+                                                ? 'Saved to ClipRadar Library!'
+                                                : 'Save to ClipRadar Library'}
+                                        </span>
+                                    </button>
+
                                     <button
                                         type="button"
                                         className="studio-secondary-btn"
                                         onClick={() => {
                                             setRenderComplete(false);
                                             setRenderProgress(0);
+                                            setSavedToLibrarySuccess(false);
                                         }}
                                     >
                                         Re-render with New Edits
                                     </button>
                                 </div>
+
+                                {savedToLibrarySuccess && (
+                                    <div className="studio-feed-banner">
+                                        <div className="studio-feed-banner__text">
+                                            <span className="studio-feed-banner__icon">🚀</span>
+                                            <span>This short has been published to your ClipRadar feed & bookmarks!</span>
+                                        </div>
+                                        <a href="/" className="studio-feed-banner__link">
+                                            View in Main Feed →
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

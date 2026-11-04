@@ -5,7 +5,7 @@ const videoSchema = new mongoose.Schema(
         // Source platform details
         platform: {
             type: String,
-            enum: ['youtube', 'twitter', 'instagram', 'tiktok', 'demo'],
+            enum: ['youtube', 'twitter', 'instagram', 'tiktok', 'demo', 'studio'],
             required: true,
         },
         platformVideoId: {

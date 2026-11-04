@@ -77,3 +77,20 @@ export async function generateHeadlineHook(params = {}) {
     return res.json(); // { success, headline, style }
 }
 
+/**
+ * Save an AI-edited 9:16 short directly into the ClipRadar Library.
+ * @param {object} videoData
+ */
+export async function saveVideoToLibrary(videoData = {}) {
+    const res = await fetch(`${BASE}/api/videos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(videoData),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, message, video }
+}
+

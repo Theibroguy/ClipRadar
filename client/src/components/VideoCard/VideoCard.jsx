@@ -7,6 +7,7 @@ const PLATFORM_LABELS = {
     instagram: 'Instagram',
     tiktok: 'TikTok',
     demo: 'Demo',
+    studio: 'AI Studio',
 };
 
 /**

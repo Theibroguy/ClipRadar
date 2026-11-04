@@ -125,6 +125,29 @@ describe('POST /api/studio/hook', () => {
     });
 });
 
+describe('POST /api/videos', () => {
+    it('saves a studio-generated 9:16 short and makes it available in the feed', async () => {
+        const payload = {
+            title: 'Viral Dua Lipa Red Carpet Short',
+            headline: 'Everyone agreed **Dua Lipa** looked **stunning**',
+            durationSeconds: 15,
+            channelName: 'Viral Clips TV',
+            channelHandle: '@viralclips',
+        };
+
+        const postRes = await request(app).post('/api/videos').send(payload);
+        expect(postRes.status).toBe(201);
+        expect(postRes.body.success).toBe(true);
+        expect(postRes.body.video.platform).toBe('studio');
+        expect(postRes.body.video.title).toBe('Viral Dua Lipa Red Carpet Short');
+
+        // Verify it appears in GET /api/videos with platform=studio
+        const getRes = await request(app).get('/api/videos?platform=studio');
+        expect(getRes.status).toBe(200);
+        expect(getRes.body.videos.some((v) => v.platformVideoId === postRes.body.video.platformVideoId)).toBe(true);
+    });
+});
+
 describe('Unknown route', () => {
     it('returns 404', async () => {
         const res = await request(app).get('/api/does-not-exist');

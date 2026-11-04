@@ -177,6 +177,12 @@
     border: 1px solid #69c9d0;
 }
 
+.badge-studio {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(236, 72, 153, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+}
+
 .badge-demo {
     background: var(--color-primary);
 }

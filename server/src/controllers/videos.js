@@ -18,24 +18,27 @@ import { enrichVideoWithAI, extractMomentsWithAI, generateHookWithAI } from '../
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
+// In-memory store for user-created Studio videos
+export const studioVideosStore = [];
+
 // Load live-cached YouTube clips if available, else demoVideos
 function getFallbackVideos() {
-    if (process.env.NODE_ENV === 'test') {
-        return { videos: demoVideos, mode: 'demo' };
-    }
-    try {
-        const cachePath = path.resolve('src/data/liveCache.json');
-        if (fs.existsSync(cachePath)) {
-            const data = fs.readFileSync(cachePath, 'utf8');
-            const parsed = JSON.parse(data);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                return { videos: parsed, mode: 'live' };
+    let base = demoVideos;
+    if (process.env.NODE_ENV !== 'test') {
+        try {
+            const cachePath = path.resolve('src/data/liveCache.json');
+            if (fs.existsSync(cachePath)) {
+                const data = fs.readFileSync(cachePath, 'utf8');
+                const parsed = JSON.parse(data);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    base = parsed;
+                }
             }
+        } catch {
+            // ignore and fallback
         }
-    } catch {
-        // ignore and fallback
     }
-    return { videos: demoVideos, mode: 'demo' };
+    return { videos: [...studioVideosStore, ...base], mode: isDemoMode() ? 'demo' : 'live' };
 }
 
 // Default YouTube search queries
@@ -239,6 +242,65 @@ export async function generateHook(req, res, next) {
             success: true,
             headline: result.headline,
             style: result.style,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * POST /api/videos & POST /api/studio/save
+ * Saves an AI-edited 9:16 short or moment to the ClipRadar Library.
+ */
+export async function createStudioVideo(req, res, next) {
+    try {
+        const body = req.body || {};
+        const platformVideoId =
+            body.platformVideoId || `studio_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+        const newVideo = {
+            platform: 'studio',
+            platformVideoId,
+            title: body.title || 'AI Studio Short',
+            description: body.description || body.headline || 'Created in ClipRadar AI Video Studio',
+            aiDescription: body.headline || body.aiDescription || 'AI-generated viral short with custom hook.',
+            category: body.category || 'Viral Shorts',
+            tags: Array.isArray(body.tags) && body.tags.length > 0 ? body.tags : ['Studio', 'Shorts', 'Viral'],
+            creator: {
+                name: body.creator?.name || body.channelName || 'Studio Creator',
+                handle: body.creator?.handle || body.channelHandle || '@creator',
+                avatarUrl: body.creator?.avatarUrl || body.logoUrl || '',
+                profileUrl: '',
+            },
+            thumbnailUrl: body.thumbnailUrl || '',
+            videoUrl: body.videoUrl || '',
+            embedUrl: body.embedUrl || '',
+            durationSeconds: Math.max(1, Math.round(Number(body.durationSeconds) || 6)),
+            publishedAt: new Date(),
+            viewCount: 1,
+            likeCount: 0,
+        };
+
+        // Prepend to runtime store so it's instantly discoverable in the feed
+        studioVideosStore.unshift(newVideo);
+
+        // If not in demo mode, persist to MongoDB
+        if (!isDemoMode()) {
+            try {
+                await Video.findOneAndUpdate(
+                    { platform: 'studio', platformVideoId: newVideo.platformVideoId },
+                    newVideo,
+                    { upsert: true, new: true, setDefaultsOnInsert: true }
+                );
+            } catch (mongoErr) {
+                console.warn('MongoDB save warning (saved to in-memory store):', mongoErr.message);
+            }
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: 'Video successfully saved to ClipRadar Library!',
+            video: newVideo,
         });
     } catch (err) {
         next(err);

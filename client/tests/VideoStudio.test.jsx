@@ -68,6 +68,23 @@ describe('VideoStudio Component', () => {
                         }),
                 });
             }
+            if (url.includes('/api/videos') && opts?.method === 'POST') {
+                const body = opts?.body ? JSON.parse(opts.body) : {};
+                return Promise.resolve({
+                    ok: true,
+                    json: () =>
+                        Promise.resolve({
+                            success: true,
+                            message: 'Video successfully saved to ClipRadar Library!',
+                            video: {
+                                platform: 'studio',
+                                platformVideoId: `studio-${Date.now()}`,
+                                title: body.title || 'Studio Video',
+                                ...body,
+                            },
+                        }),
+                });
+            }
             return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
         });
     });
@@ -294,6 +311,37 @@ describe('VideoStudio Component', () => {
         fireEvent.click(watermarkToggle);
         expect(watermarkToggle).not.toBeChecked();
         expect(screen.queryByLabelText(/video watermark badge/i)).not.toBeInTheDocument();
+    });
+
+    it('saves generated short and individual moments to ClipRadar library & feed', async () => {
+        render(<VideoStudio />);
+
+        // Upload dummy video
+        const videoFile = new File(['dummy video'], 'clip.mp4', { type: 'video/mp4' });
+        const videoInput = screen.getByLabelText(/upload raw video file/i).querySelector('input[type="file"]');
+        fireEvent.change(videoInput, { target: { files: [videoFile] } });
+
+        // Generate video
+        const generateBtn = screen.getByRole('button', { name: /generate edited 9:16 video/i });
+        fireEvent.click(generateBtn);
+
+        // Wait for generation to complete and show "Save to ClipRadar Library" button
+        await waitFor(
+            () => {
+                expect(screen.getByRole('button', { name: /save to clipradar library/i })).toBeInTheDocument();
+            },
+            { timeout: 6000 }
+        );
+
+        // Click "Save to ClipRadar Library"
+        const saveBtn = screen.getByRole('button', { name: /save to clipradar library/i });
+        fireEvent.click(saveBtn);
+
+        // Verify save success state and feed link
+        await waitFor(() => {
+            expect(screen.getAllByText(/saved to clipradar library/i).length).toBeGreaterThanOrEqual(1);
+            expect(screen.getByRole('link', { name: /view in main feed/i })).toBeInTheDocument();
+        });
     });
 });
 

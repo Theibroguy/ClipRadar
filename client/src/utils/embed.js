@@ -34,8 +34,11 @@ export function getEmbedInfo(video) {
             };
         }
 
-        // Direct HTML5 video file (.mp4, .webm, .ogg)
-        if (/\.(mp4|webm|ogg)($|\?)/i.test(videoUrl)) {
+        // Direct HTML5 video file (.mp4, .webm, .ogg) or blob / data URL
+        if (
+            /\.(mp4|webm|ogg)($|\?)/i.test(videoUrl) ||
+            (videoUrl && (videoUrl.startsWith('blob:') || videoUrl.startsWith('data:video')))
+        ) {
             return { type: 'video', url: videoUrl };
         }
     }
