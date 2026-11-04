@@ -1941,6 +1941,299 @@
     color: var(--color-text-muted);
 }
 
+/* ---- Rendering Pipeline Progress HUD ---- */
+.studio-hud {
+    margin-top: var(--space-4);
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(108, 99, 255, 0.35);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+.studio-hud__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.studio-hud__title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.studio-hud__spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.studio-hud__title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.studio-hud__pct {
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+    color: var(--color-primary);
+    background: rgba(108, 99, 255, 0.15);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.studio-hud__steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.studio-hud__step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.studio-hud__step--current {
+    background: rgba(108, 99, 255, 0.18);
+    border-color: rgba(108, 99, 255, 0.5);
+    box-shadow: 0 0 10px rgba(108, 99, 255, 0.2);
+}
+
+.studio-hud__step--done {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+.studio-hud__step-bullet {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+
+.studio-hud__step--done .studio-hud__step-bullet {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.studio-hud__step--current .studio-hud__step-bullet {
+    background: var(--color-primary);
+    color: #ffffff;
+}
+
+.studio-hud__step-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.studio-hud__step--current .studio-hud__step-label {
+    color: #ffffff;
+}
+
+.studio-hud__step--done .studio-hud__step-label {
+    color: #34d399;
+}
+
+/* Success Celebration HUD */
+.studio-success-icon-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.studio-success-sparkle {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    font-size: 1.1rem;
+    animation: sparkleSpin 2s infinite ease-in-out;
+}
+
+@keyframes sparkleSpin {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+    50% { transform: scale(1.3) rotate(15deg); opacity: 1; }
+}
+
+.studio-success-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.studio-success-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius-full);
+    padding: 2px 8px;
+}
+
+.studio-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Phone Mockup Live Render Overlay */
+.phone-mockup__render-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 13, 20, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: var(--space-4);
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+}
+
+.phone-mockup__render-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    margin-bottom: 4px;
+}
+
+.phone-mockup__render-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: var(--radius-full);
+    padding: 2px 8px;
+}
+
+.phone-mockup__render-pct {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.phone-mockup__render-msg {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    max-width: 220px;
+}
+
+/* Floating Toast Notification HUD System */
+.studio-toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 380px;
+    pointer-events: none;
+}
+
+.studio-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.2);
+    animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.studio-toast--success {
+    border-left: 4px solid #10b981;
+}
+
+.studio-toast--error {
+    border-left: 4px solid #f87171;
+}
+
+.studio-toast--info {
+    border-left: 4px solid var(--color-primary);
+}
+
+.studio-toast__icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.studio-toast__msg {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    line-height: 1.35;
+    margin: 0;
+    flex: 1;
+}
+
+.studio-toast__close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    line-height: 1;
+    transition: color var(--transition-fast);
+}
+
+.studio-toast__close:hover {
+    color: #ffffff;
+}
+
 /* Responsive Layout */
 @media (max-width: 1024px) {
     .video-studio__workspace {

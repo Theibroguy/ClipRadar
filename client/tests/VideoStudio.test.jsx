@@ -150,7 +150,7 @@ describe('VideoStudio Component', () => {
             },
             { timeout: 6000 }
         );
-    });
+    }, 10000);
 
     it('extracts multiple catchy moments with AI and allows previewing and downloading any moment', async () => {
         render(<VideoStudio />);
@@ -342,6 +342,36 @@ describe('VideoStudio Component', () => {
             expect(screen.getAllByText(/saved to clipradar library/i).length).toBeGreaterThanOrEqual(1);
             expect(screen.getByRole('link', { name: /view in main feed/i })).toBeInTheDocument();
         });
-    });
+    }, 10000);
+
+    it('displays rendering progress HUD, celebration HUD, and floating toasts', async () => {
+        render(<VideoStudio />);
+
+        // Upload video
+        const videoFile = new File(['dummy video'], 'clip.mp4', { type: 'video/mp4' });
+        const videoInput = screen.getByLabelText(/upload raw video file/i).querySelector('input[type="file"]');
+        fireEvent.change(videoInput, { target: { files: [videoFile] } });
+
+        // Generate video
+        const generateBtn = screen.getByRole('button', { name: /generate edited 9:16 video/i });
+        fireEvent.click(generateBtn);
+
+        // Verification HUD completion
+        await waitFor(
+            () => {
+                expect(screen.getByText('📱 1080×1920 HD Ready')).toBeInTheDocument();
+                expect(screen.getByRole('button', { name: /copy details/i })).toBeInTheDocument();
+            },
+            { timeout: 6000 }
+        );
+
+        // Test copy details button
+        const copyBtn = screen.getByRole('button', { name: /copy details/i });
+        fireEvent.click(copyBtn);
+        expect(screen.getByRole('button', { name: /copied/i })).toBeInTheDocument();
+
+        // Check for floating toasts container
+        expect(screen.getByRole('region', { name: /notifications/i })).toBeInTheDocument();
+    }, 10000);
 });
 

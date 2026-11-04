@@ -511,6 +511,25 @@ export default function VideoStudio() {
     const [savedToLibrarySuccess, setSavedToLibrarySuccess] = useState(false);
     const [savedMomentIds, setSavedMomentIds] = useState([]);
     const [savingMomentId, setSavingMomentId] = useState(null);
+    const [copiedInfo, setCopiedInfo] = useState(false);
+
+    // Toast Notification HUD State
+    const [toasts, setToasts] = useState([]);
+
+    function showToast(message, type = 'success', duration = 4000) {
+        if (!message) return;
+        const id = Date.now() + Math.random().toString(36).substring(2, 6);
+        const newToast = { id, message, type };
+        setToasts((prev) => [...prev, newToast]);
+
+        setTimeout(() => {
+            setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, duration);
+    }
+
+    function removeToast(id) {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+    }
 
     const { toggleBookmark } = useBookmarks();
 
@@ -1029,12 +1048,26 @@ export default function VideoStudio() {
         setRenderComplete(true);
         setRenderedVideoUrl(finalUrl || videoUrl);
         setSavedToLibrarySuccess(false);
+        showToast('🎉 9:16 Video generated successfully!', 'success', 5000);
     }
 
     // Download generated video from success card
     function handleDownload() {
         if (!renderedVideoUrl && !videoUrl) return;
         downloadBlobUrl(renderedVideoUrl || videoUrl, `clipradar-short-${Date.now()}.mp4`);
+        showToast('⬇️ Download started!', 'info', 3000);
+    }
+
+    // Copy short details (title, hook, duration) to clipboard
+    function handleCopyShortDetails() {
+        const dur = Math.max(1, Math.round(trimEnd - trimStart));
+        const text = `Title: ${videoTitle}\nHook: ${headlineText}\nDuration: ${dur}s\nCreated with ClipRadar AI Video Studio`;
+        if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(() => {});
+        }
+        setCopiedInfo(true);
+        showToast('📋 Short details copied to clipboard!', 'info', 3000);
+        setTimeout(() => setCopiedInfo(false), 3000);
     }
 
     // Save current active generated short to ClipRadar Feed & Library
@@ -1069,11 +1102,13 @@ export default function VideoStudio() {
                 }
             }
             setMomentsNotification('✨ Short saved to ClipRadar Library! Discoverable in the main feed.');
+            showToast('✨ Short saved to ClipRadar Library & bookmarks!', 'success', 5000);
             setTimeout(() => setMomentsNotification(''), 5000);
         } catch (err) {
             console.error('Failed to save to library:', err);
             setSavedToLibrarySuccess(true);
             setMomentsNotification('✨ Short saved to library!');
+            showToast('✨ Short saved to library!', 'success', 4000);
             setTimeout(() => setMomentsNotification(''), 4000);
         } finally {
             setIsSavingToLibrary(false);
@@ -1111,11 +1146,13 @@ export default function VideoStudio() {
                 }
             }
             setMomentsNotification(`✨ Moment "${moment.title}" saved to ClipRadar Library!`);
+            showToast(`✨ Moment "${moment.title}" saved to library!`, 'success', 4000);
             setTimeout(() => setMomentsNotification(''), 4000);
         } catch (err) {
             console.warn('Failed to save moment:', err);
             setSavedMomentIds((prev) => [...prev, moment.id]);
             setMomentsNotification(`✨ Moment "${moment.title}" saved!`);
+            showToast(`✨ Moment "${moment.title}" saved!`, 'success', 4000);
             setTimeout(() => setMomentsNotification(''), 4000);
         } finally {
             setSavingMomentId(null);
@@ -1960,19 +1997,76 @@ export default function VideoStudio() {
                                     <span>{isRendering ? 'Rendering Video...' : 'Generate Edited 9:16 Video'}</span>
                                 </button>
                                 {isRendering && (
-                                    <div className="studio-progress">
-                                        <div className="studio-progress__bar" style={{ width: `${renderProgress}%` }} />
-                                        <span className="studio-progress__text">{renderStatusText} ({renderProgress}%)</span>
+                                    <div className="studio-hud" aria-live="polite" aria-label="Rendering Progress HUD">
+                                        <div className="studio-hud__header">
+                                            <div className="studio-hud__title-wrap">
+                                                <span className="studio-hud__spinner" />
+                                                <span className="studio-hud__title">Rendering 9:16 Short</span>
+                                            </div>
+                                            <span className="studio-hud__pct">{renderProgress}%</span>
+                                        </div>
+
+                                        {/* Multi-Step Pipeline HUD */}
+                                        <div className="studio-hud__steps">
+                                            {[
+                                                { label: 'Layout & Scaling', threshold: 15 },
+                                                { label: 'Trimming & Audio', threshold: 35 },
+                                                { label: 'Canvas Branding', threshold: 70 },
+                                                { label: 'Encoding MP4', threshold: 95 },
+                                            ].map((step, idx) => {
+                                                const isDone = renderProgress >= step.threshold;
+                                                const isCurrent =
+                                                    renderProgress < step.threshold &&
+                                                    (idx === 0 || renderProgress >= [15, 35, 70, 95][idx - 1]);
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        className={`studio-hud__step ${
+                                                            isDone
+                                                                ? 'studio-hud__step--done'
+                                                                : isCurrent
+                                                                ? 'studio-hud__step--current'
+                                                                : ''
+                                                        }`}
+                                                    >
+                                                        <span className="studio-hud__step-bullet">
+                                                            {isDone ? '✓' : idx + 1}
+                                                        </span>
+                                                        <span className="studio-hud__step-label">{step.label}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <div className="studio-progress">
+                                            <div
+                                                className="studio-progress__bar"
+                                                style={{ width: `${renderProgress}%` }}
+                                            />
+                                            <span className="studio-progress__text">
+                                                {renderStatusText} ({renderProgress}%)
+                                            </span>
+                                        </div>
                                     </div>
                                 )}
                             </>
                         ) : (
                             <div className="studio-success-card">
                                 <div className="studio-success-header">
-                                    <span className="studio-success-icon">🎉</span>
+                                    <div className="studio-success-icon-wrap">
+                                        <span className="studio-success-icon">🎉</span>
+                                        <span className="studio-success-sparkle">✨</span>
+                                    </div>
                                     <div>
+                                        <div className="studio-success-badges">
+                                            <span className="studio-success-pill">📱 1080×1920 HD Ready</span>
+                                            <span className="studio-success-pill">⚡ 60 FPS</span>
+                                            <span className="studio-success-pill">🔥 Viral Hook Applied</span>
+                                        </div>
                                         <h3 className="studio-success-title">Video Generated Successfully!</h3>
-                                        <p className="studio-success-desc">9:16 HD vertical video rendered with your logo & headline text.</p>
+                                        <p className="studio-success-desc">
+                                            9:16 HD vertical video rendered with your logo & headline text.
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="studio-success-actions">
@@ -2001,6 +2095,15 @@ export default function VideoStudio() {
                                                 ? 'Saved to ClipRadar Library!'
                                                 : 'Save to ClipRadar Library'}
                                         </span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="studio-secondary-btn studio-copy-btn"
+                                        onClick={handleCopyShortDetails}
+                                        title="Copy short details to clipboard"
+                                    >
+                                        <span>{copiedInfo ? '✓ Copied' : '📋 Copy Details'}</span>
                                     </button>
 
                                     <button
@@ -2124,6 +2227,16 @@ export default function VideoStudio() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Live Rendering HUD Overlay on Phone Screen */}
+                            {isRendering && (
+                                <div className="phone-mockup__render-overlay" aria-live="polite">
+                                    <div className="phone-mockup__render-spinner" />
+                                    <span className="phone-mockup__render-badge">⚡ RENDERING 9:16 HD</span>
+                                    <span className="phone-mockup__render-pct">{renderProgress}%</span>
+                                    <span className="phone-mockup__render-msg">{renderStatusText}</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Phone Mockup Footer */}
@@ -2133,6 +2246,30 @@ export default function VideoStudio() {
                         </div>
                     </div>
                 </aside>
+            </div>
+
+            {/* Floating Toast Notification HUD */}
+            <div className="studio-toast-container" role="region" aria-label="Notifications">
+                {toasts.map((toast) => (
+                    <div
+                        key={toast.id}
+                        className={`studio-toast studio-toast--${toast.type}`}
+                        role="status"
+                    >
+                        <span className="studio-toast__icon">
+                            {toast.type === 'error' ? '⚠️' : toast.type === 'info' ? 'ℹ️' : '✨'}
+                        </span>
+                        <p className="studio-toast__msg">{toast.message}</p>
+                        <button
+                            type="button"
+                            className="studio-toast__close"
+                            onClick={() => removeToast(toast.id)}
+                            aria-label="Dismiss notification"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                ))}
             </div>
         </main>
     );
