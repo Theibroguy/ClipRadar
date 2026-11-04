@@ -5,7 +5,7 @@
 
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
-  /* Colors */
+  /* Colors - Dark Theme (Default) */
   --color-bg: #0d0f14;
   --color-surface: #161a24;
   --color-surface-2: #1e2330;
@@ -18,6 +18,11 @@
   --color-success: #34d399;
   --color-warning: #fbbf24;
   --color-error: #f87171;
+
+  /* Theme-adaptive surfaces & gradients */
+  --color-navbar-bg: rgba(13, 15, 20, 0.85);
+  --page-gradient: linear-gradient(135deg, #0d0f14 0%, #161a24 60%, #1a1330 100%);
+  --studio-gradient: linear-gradient(135deg, #0d0f14 0%, #161a24 60%, #1f1435 100%);
 
   /* Platform badge colors */
   --color-youtube: #ff0000;
@@ -58,6 +63,30 @@
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
   --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.6);
   --transition: 0.2s ease;
+  --transition-fast: 0.15s ease;
+}
+
+/* --- Light Theme Design Tokens --- */
+[data-theme="light"] {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-primary: #5c52e8;
+  --color-primary-hover: #4839d3;
+  --color-accent: #f43f5e;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  --color-navbar-bg: rgba(255, 255, 255, 0.88);
+  --page-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 60%, #ede9fe 100%);
+  --studio-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 60%, #fce7f3 100%);
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 12px 36px rgba(0, 0, 0, 0.12);
 }
 
 /* --- Reset --- */
@@ -79,6 +108,7 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 img {
@@ -153,6 +183,16 @@ button {
   border-radius: var(--radius-sm);
 }
 
+[data-theme="light"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 50%,
+    #e2e8f0 75%
+  );
+  background-size: 400px 100%;
+}
+
 /* --- Scrollbar --- */
 ::-webkit-scrollbar {
   width: 6px;
@@ -166,4 +206,11 @@ button {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
 }

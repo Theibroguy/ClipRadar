@@ -3,6 +3,7 @@ import { useSettings } from '../../context/SettingsContext.jsx';
 import './SettingsModal.css';
 
 const TABS = [
+    { id: 'appearance', label: 'Appearance', icon: '🎨' },
     { id: 'feed', label: 'Feed & Discovery', icon: '📡' },
     { id: 'playback', label: 'Video Playback', icon: '🎬' },
     { id: 'studio', label: 'Studio & AI Key', icon: '✂️' },
@@ -12,6 +13,8 @@ const TABS = [
 export default function SettingsModal() {
     const {
         settings,
+        theme,
+        toggleTheme,
         updateSettings,
         resetSettings,
         isSettingsOpen,
@@ -20,7 +23,7 @@ export default function SettingsModal() {
         clearAllCache,
     } = useSettings();
 
-    const [activeTab, setActiveTab] = useState('feed');
+    const [activeTab, setActiveTab] = useState('appearance');
     const [apiKeyInput, setApiKeyInput] = useState(settings.customGeminiApiKey || '');
     const [showApiKey, setShowApiKey] = useState(false);
     const [actionMessage, setActionMessage] = useState('');
@@ -88,7 +91,7 @@ export default function SettingsModal() {
                         <span className="settings-modal__icon">⚙️</span>
                         <div>
                             <h2 className="settings-modal__title">ClipRadar Settings</h2>
-                            <p className="settings-modal__subtitle">Customize feed discovery, playback, AI keys & studio defaults</p>
+                            <p className="settings-modal__subtitle">Customize theme, discovery feed, playback & studio defaults</p>
                         </div>
                     </div>
                     <button
@@ -127,7 +130,76 @@ export default function SettingsModal() {
 
                 {/* Modal Content Body */}
                 <div className="settings-modal__body">
-                    {/* Tab 1: Feed & Discovery */}
+                    {/* Tab 1: Appearance & Theme */}
+                    {activeTab === 'appearance' && (
+                        <div className="settings-group">
+                            <div className="settings-item settings-item--vertical">
+                                <div className="settings-item__info">
+                                    <span className="settings-item__label">Interface Theme</span>
+                                    <p className="settings-item__desc">Choose your preferred visual style across all ClipRadar pages</p>
+                                </div>
+
+                                <div className="settings-theme-selector" role="radiogroup" aria-label="Theme Selection">
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={theme === 'dark'}
+                                        className={`settings-theme-card ${theme === 'dark' ? 'settings-theme-card--active' : ''}`}
+                                        onClick={() => updateSettings({ theme: 'dark' })}
+                                    >
+                                        <div className="settings-theme-preview settings-theme-preview--dark">
+                                            <div className="settings-theme-preview__bar" />
+                                            <div className="settings-theme-preview__block" />
+                                        </div>
+                                        <div className="settings-theme-card__content">
+                                            <div className="settings-theme-card__title">
+                                                <span>🌙 Cyber Dark</span>
+                                                {theme === 'dark' && <span className="settings-theme-card__badge">Active</span>}
+                                            </div>
+                                            <p className="settings-theme-card__desc">Deep obsidian background with neon violet accents (Default)</p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={theme === 'light'}
+                                        className={`settings-theme-card ${theme === 'light' ? 'settings-theme-card--active' : ''}`}
+                                        onClick={() => updateSettings({ theme: 'light' })}
+                                    >
+                                        <div className="settings-theme-preview settings-theme-preview--light">
+                                            <div className="settings-theme-preview__bar" />
+                                            <div className="settings-theme-preview__block" />
+                                        </div>
+                                        <div className="settings-theme-card__content">
+                                            <div className="settings-theme-card__title">
+                                                <span>☀️ Clean Light</span>
+                                                {theme === 'light' && <span className="settings-theme-card__badge">Active</span>}
+                                            </div>
+                                            <p className="settings-theme-card__desc">Bright daylight slate cards with crisp high-contrast readability</p>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="settings-item">
+                                <div className="settings-item__info">
+                                    <span className="settings-item__label">Quick Theme Toggle</span>
+                                    <p className="settings-item__desc">Instant 1-click toggle between Dark and Light mode</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="settings-theme-quick-btn"
+                                    onClick={toggleTheme}
+                                >
+                                    <span className="settings-theme-quick-icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
+                                    <span>{theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tab 2: Feed & Discovery */}
                     {activeTab === 'feed' && (
                         <div className="settings-group">
                             <div className="settings-item">
@@ -189,7 +261,7 @@ export default function SettingsModal() {
                         </div>
                     )}
 
-                    {/* Tab 2: Video Playback */}
+                    {/* Tab 3: Video Playback */}
                     {activeTab === 'playback' && (
                         <div className="settings-group">
                             <div className="settings-item">
@@ -224,7 +296,7 @@ export default function SettingsModal() {
                         </div>
                     )}
 
-                    {/* Tab 3: Studio & AI Key */}
+                    {/* Tab 4: Studio & AI Key */}
                     {activeTab === 'studio' && (
                         <div className="settings-group">
                             <div className="settings-item">
@@ -322,7 +394,7 @@ export default function SettingsModal() {
                         </div>
                     )}
 
-                    {/* Tab 4: Data & Backup */}
+                    {/* Tab 5: Data & Backup */}
                     {activeTab === 'data' && (
                         <div className="settings-group">
                             <div className="settings-data-card">

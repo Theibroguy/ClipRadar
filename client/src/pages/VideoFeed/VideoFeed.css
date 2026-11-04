@@ -6,7 +6,7 @@
 
 /* ---- Header / Hero ---- */
 .video-feed__header {
-    background: linear-gradient(135deg, #0d0f14 0%, #161a24 60%, #1a1330 100%);
+    background: var(--page-gradient, linear-gradient(135deg, #0d0f14 0%, #161a24 60%, #1a1330 100%));
     padding: var(--space-10) var(--space-6) var(--space-8);
     text-align: center;
     border-bottom: 1px solid var(--color-border);
@@ -237,7 +237,7 @@
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
     padding: var(--space-4) var(--space-6);
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--color-surface-2, rgba(255, 255, 255, 0.03));
     border: 1px dashed var(--color-border);
     border-radius: var(--radius-full);
 }
@@ -286,4 +286,13 @@
     font-size: var(--font-size-xs);
     border-top: 1px solid var(--color-border);
     margin-top: auto;
+}
+
+/* Light Theme Overrides */
+[data-theme="light"] .video-feed__header::before {
+    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(92, 82, 232, 0.15) 0%, transparent 70%);
+}
+
+[data-theme="light"] .video-feed__back-to-top {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }

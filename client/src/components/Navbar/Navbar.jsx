@@ -4,7 +4,7 @@ import { useSettings } from '../../context/SettingsContext.jsx';
 import './Navbar.css';
 
 export default function Navbar() {
-    const { openSettings } = useSettings();
+    const { openSettings, theme, toggleTheme } = useSettings();
 
     return (
         <header className="navbar" role="banner">
@@ -41,6 +41,22 @@ export default function Navbar() {
                         </NavLink>
                     </nav>
 
+                    {/* Quick Theme Toggle Button */}
+                    <button
+                        type="button"
+                        className="navbar__theme-btn"
+                        onClick={toggleTheme}
+                        aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                        title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                    >
+                        <span className="navbar__theme-icon" aria-hidden="true">
+                            {theme === 'dark' ? '☀️' : '🌙'}
+                        </span>
+                        <span className="navbar__theme-text">
+                            {theme === 'dark' ? 'Light' : 'Dark'}
+                        </span>
+                    </button>
+
                     <button
                         type="button"
                         className="navbar__settings-btn"
@@ -56,4 +72,3 @@ export default function Navbar() {
         </header>
     );
 }
-

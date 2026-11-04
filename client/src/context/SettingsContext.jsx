@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const SETTINGS_KEY = 'clipradar_app_settings';
+const THEME_KEY = 'clipradar_theme';
 
 export const DEFAULT_SETTINGS = {
+    theme: 'dark', // 'dark' | 'light'
     defaultLandingPage: 'feed', // 'feed' | 'studio'
     feedDensity: 'grid', // 'grid' (3-4 cols) | 'cinematic' (2 cols)
     velocityThreshold: 0, // 0 (all) | 1000 | 2500 | 5000 views/hr
@@ -19,7 +21,12 @@ export function SettingsProvider({ children }) {
     const [settings, setSettings] = useState(() => {
         try {
             const raw = localStorage.getItem(SETTINGS_KEY);
-            return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : DEFAULT_SETTINGS;
+            const standaloneTheme = localStorage.getItem(THEME_KEY);
+            const loaded = raw ? JSON.parse(raw) : {};
+            if (!loaded.theme && standaloneTheme) {
+                loaded.theme = standaloneTheme;
+            }
+            return { ...DEFAULT_SETTINGS, ...loaded };
         } catch (e) {
             console.error('Failed to load settings from localStorage', e);
             return DEFAULT_SETTINGS;
@@ -27,6 +34,22 @@ export function SettingsProvider({ children }) {
     });
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // Apply theme changes to document element & localStorage immediately
+    useEffect(() => {
+        const activeTheme = settings.theme || 'dark';
+        if (typeof document !== 'undefined') {
+            document.documentElement.setAttribute('data-theme', activeTheme);
+            if (document.documentElement.style) {
+                document.documentElement.style.colorScheme = activeTheme;
+            }
+        }
+        try {
+            localStorage.setItem(THEME_KEY, activeTheme);
+        } catch (e) {
+            console.error('Failed to sync theme to localStorage', e);
+        }
+    }, [settings.theme]);
 
     useEffect(() => {
         try {
@@ -40,10 +63,18 @@ export function SettingsProvider({ children }) {
         setSettings((prev) => ({ ...prev, ...updates }));
     }, []);
 
+    const toggleTheme = useCallback(() => {
+        setSettings((prev) => {
+            const nextTheme = prev.theme === 'light' ? 'dark' : 'light';
+            return { ...prev, theme: nextTheme };
+        });
+    }, []);
+
     const resetSettings = useCallback(() => {
         setSettings(DEFAULT_SETTINGS);
         try {
             localStorage.removeItem(SETTINGS_KEY);
+            localStorage.removeItem(THEME_KEY);
         } catch (e) {
             console.error('Failed to reset settings', e);
         }
@@ -52,7 +83,7 @@ export function SettingsProvider({ children }) {
     const openSettings = useCallback(() => setIsSettingsOpen(true), []);
     const closeSettings = useCallback(() => setIsSettingsOpen(false), []);
 
-    // Export user data (bookmarks + settings + studio videos) as JSON backup
+    // Export user data (bookmarks + settings + brand kit) as JSON backup
     const exportAllData = useCallback(() => {
         try {
             const bookmarksRaw = localStorage.getItem('clipradar_bookmarks');
@@ -95,6 +126,7 @@ export function SettingsProvider({ children }) {
             localStorage.removeItem('clipradar_bookmarks');
             localStorage.removeItem('clipradar_brand_kit');
             localStorage.removeItem(SETTINGS_KEY);
+            localStorage.removeItem(THEME_KEY);
             setSettings(DEFAULT_SETTINGS);
             return true;
         } catch (err) {
@@ -105,6 +137,8 @@ export function SettingsProvider({ children }) {
 
     const value = {
         settings,
+        theme: settings.theme || 'dark',
+        toggleTheme,
         updateSettings,
         resetSettings,
         isSettingsOpen,
@@ -122,6 +156,8 @@ export function useSettings() {
     if (!context) {
         return {
             settings: DEFAULT_SETTINGS,
+            theme: 'dark',
+            toggleTheme: () => {},
             updateSettings: () => {},
             resetSettings: () => {},
             isSettingsOpen: false,

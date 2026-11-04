@@ -25,6 +25,7 @@ describe('Settings System & SettingsModal Component', () => {
     beforeEach(() => {
         localStorage.clear();
         vi.clearAllMocks();
+        document.documentElement.removeAttribute('data-theme');
     });
 
     it('opens and closes the SettingsModal using Navbar and Done button', () => {
@@ -55,7 +56,31 @@ describe('Settings System & SettingsModal Component', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
-    it('navigates through settings tabs and updates preferences', () => {
+    it('toggles theme from dark to light and back using the Navbar button', () => {
+        render(
+            <BrowserRouter>
+                <SettingsProvider>
+                    <Navbar />
+                </SettingsProvider>
+            </BrowserRouter>
+        );
+
+        // Initial default theme is dark
+        expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+        const themeBtn = screen.getByRole('button', { name: /switch to light theme/i });
+        expect(themeBtn).toBeInTheDocument();
+
+        // Click to toggle to light
+        fireEvent.click(themeBtn);
+        expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+        expect(screen.getByRole('button', { name: /switch to dark theme/i })).toBeInTheDocument();
+
+        // Click to toggle back to dark
+        fireEvent.click(screen.getByRole('button', { name: /switch to dark theme/i }));
+        expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    });
+
+    it('navigates through settings tabs and updates preferences including theme', () => {
         render(
             <SettingsProvider>
                 <TestApp />
@@ -64,7 +89,20 @@ describe('Settings System & SettingsModal Component', () => {
 
         fireEvent.click(screen.getByText('Open Settings Manual'));
 
-        // Tab 1: Feed & Discovery
+        // Tab 1: Appearance & Theme
+        expect(screen.getByRole('radiogroup', { name: /theme selection/i })).toBeInTheDocument();
+        const lightThemeCard = screen.getByRole('radio', { name: /clean light/i });
+        fireEvent.click(lightThemeCard);
+        expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+
+        // Quick toggle inside Appearance tab
+        const quickToggle = screen.getByRole('button', { name: /switch to dark/i });
+        fireEvent.click(quickToggle);
+        expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+
+        // Tab 2: Feed & Discovery
+        const feedTab = screen.getByRole('tab', { name: /feed & discovery/i });
+        fireEvent.click(feedTab);
         expect(screen.getByLabelText(/default landing view/i)).toBeInTheDocument();
         const landingSelect = screen.getByLabelText(/default landing view/i);
         fireEvent.change(landingSelect, { target: { value: 'studio' } });
@@ -75,12 +113,12 @@ describe('Settings System & SettingsModal Component', () => {
         fireEvent.click(cinematicBtn);
         expect(cinematicBtn).toHaveClass('settings-toggle-btn--active');
 
-        // Tab 2: Video Playback
+        // Tab 3: Video Playback
         const playbackTab = screen.getByRole('tab', { name: /video playback/i });
         fireEvent.click(playbackTab);
         expect(screen.getByText(/autoplay video on hover/i)).toBeInTheDocument();
 
-        // Tab 3: Studio & AI Key
+        // Tab 4: Studio & AI Key
         const studioTab = screen.getByRole('tab', { name: /studio & ai key/i });
         fireEvent.click(studioTab);
         expect(screen.getByLabelText(/default studio aspect ratio/i)).toBeInTheDocument();
@@ -94,7 +132,7 @@ describe('Settings System & SettingsModal Component', () => {
         expect(screen.getByText(/gemini api key updated/i)).toBeInTheDocument();
         expect(screen.getByText(/custom key active/i)).toBeInTheDocument();
 
-        // Tab 4: Data & Backup
+        // Tab 5: Data & Backup
         const dataTab = screen.getByRole('tab', { name: /data & backup/i });
         fireEvent.click(dataTab);
         expect(screen.getByText(/export library & settings backup/i)).toBeInTheDocument();
