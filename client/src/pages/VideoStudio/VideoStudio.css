@@ -910,6 +910,52 @@
     justify-content: center;
     align-items: center;
     text-align: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Hook Card Themes */
+.comp-header--theme-white {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+.comp-header--theme-white .comp-header__headline {
+    color: #0f172a;
+}
+.comp-header--theme-white .comp-header__name {
+    color: #0f172a;
+}
+.comp-header--theme-white .comp-header__handle {
+    color: #64748b;
+}
+
+.comp-header--theme-dark {
+    background: #0a0d14 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.comp-header--theme-dark .comp-header__headline {
+    color: #ffffff !important;
+}
+.comp-header--theme-dark .comp-header__name {
+    color: #ffffff !important;
+}
+.comp-header--theme-dark .comp-header__handle {
+    color: #94a3b8 !important;
+}
+
+.comp-header--theme-glass {
+    background: rgba(15, 23, 42, 0.82) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+.comp-header--theme-glass .comp-header__headline {
+    color: #ffffff !important;
+}
+.comp-header--theme-glass .comp-header__name {
+    color: #ffffff !important;
+}
+.comp-header--theme-glass .comp-header__handle {
+    color: #cbd5e1 !important;
 }
 
 .comp-header__template-img {
@@ -1088,7 +1134,7 @@
 }
 
 .studio-preview__highlight {
-    color: #1d4ed8; /* Blue highlight matching sample */
+    color: var(--studio-highlight-color, #1d4ed8);
     font-weight: 900;
 }
 
@@ -1107,6 +1153,34 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Video Watermark Attribution Badge */
+.comp-video__watermark {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-full);
+    padding: 3px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    z-index: 8;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.comp-video__watermark-icon {
+    font-size: 0.75rem;
+    font-weight: 900;
 }
 
 .comp-video__placeholder {
@@ -1532,7 +1606,7 @@
 .studio-highlight-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 7px;
     padding: 4px 12px;
     background: rgba(29, 78, 216, 0.18);
     border: 1px solid rgba(59, 130, 246, 0.45);
@@ -1542,6 +1616,15 @@
     font-weight: 700;
     cursor: pointer;
     transition: all var(--transition-fast);
+}
+
+.studio-highlight-btn__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px currentColor;
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .studio-highlight-btn:hover {
@@ -1618,16 +1701,133 @@
 }
 
 .studio-word-chip--active {
-    background: #1d4ed8 !important;
-    border-color: #3b82f6 !important;
+    background: var(--studio-highlight-color, #1d4ed8) !important;
+    border-color: var(--studio-highlight-color, #1d4ed8) !important;
     color: #ffffff !important;
     font-weight: 700;
-    box-shadow: 0 0 10px rgba(29, 78, 216, 0.5);
+    box-shadow: 0 0 10px rgba(29, 78, 216, 0.45);
 }
 
 .studio-word-chip__check {
     font-size: 0.65rem;
     font-weight: 900;
+}
+
+/* Color Palette Swatches */
+.studio-color-palette {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.studio-color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.studio-color-swatch:hover {
+    transform: scale(1.12);
+}
+
+.studio-color-swatch--active {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px var(--color-primary), 0 0 12px rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.studio-color-swatch__check {
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.studio-color-custom-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.studio-color-picker-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.studio-color-custom-btn {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    transition: transform var(--transition-fast);
+}
+
+.studio-color-custom-wrapper:hover .studio-color-custom-btn {
+    transform: scale(1.12);
+}
+
+/* Watermark Checkbox */
+.studio-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    transition: border-color var(--transition-fast);
+}
+
+.studio-checkbox-label:hover {
+    border-color: var(--color-primary);
+}
+
+.studio-checkbox {
+    margin-top: 3px;
+    accent-color: var(--color-primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.studio-checkbox-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.studio-checkbox-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.studio-checkbox-hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
 }
 
 /* Responsive Layout */

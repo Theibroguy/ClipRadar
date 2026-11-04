@@ -41,8 +41,8 @@ function drawContainImage(ctx, img, x, y, w, h) {
     ctx.drawImage(img, renderX, renderY, renderW, renderH);
 }
 
-// Helper: Draw headline text with blue **highlights** on Canvas
-function drawHeadlineCanvas(ctx, text, x, y, maxWidth, align = 'center') {
+// Helper: Draw headline text with accent **highlights** on Canvas
+function drawHeadlineCanvas(ctx, text, x, y, maxWidth, align = 'center', highlightColor = '#1d4ed8', textColor = '#0f172a') {
     if (!text) return;
     ctx.save();
     ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -85,7 +85,7 @@ function drawHeadlineCanvas(ctx, text, x, y, maxWidth, align = 'center') {
         }
 
         lineWords.forEach((w) => {
-            ctx.fillStyle = w.isHighlight ? '#1d4ed8' : '#0f172a';
+            ctx.fillStyle = w.isHighlight ? (highlightColor || '#1d4ed8') : (textColor || '#0f172a');
             ctx.fillText(w.text, lineX, lineY);
             lineX += ctx.measureText(w.text + ' ').width;
         });
@@ -108,6 +108,9 @@ async function compositeAndDownloadMoment({
     logoHeight = 85,
     headerPosition = 'top',
     textAlign = 'center',
+    cardTheme = 'white',
+    highlightColor = '#1d4ed8',
+    showWatermark = true,
     video = null,
     videoUrl = null,
     onProgress = () => {},
@@ -258,19 +261,41 @@ async function compositeAndDownloadMoment({
                         ctx.restore();
                     }
 
-                    // 3. Header Card
+                    // 3. Hook Card Theme Styling
+                    let cardBg = '#ffffff';
+                    let cardTextColor = '#0f172a';
+                    let cardHandleColor = '#64748b';
+                    let cardBorder = null;
+
+                    if (cardTheme === 'dark') {
+                        cardBg = '#0a0d14';
+                        cardTextColor = '#ffffff';
+                        cardHandleColor = '#94a3b8';
+                        cardBorder = 'rgba(255, 255, 255, 0.15)';
+                    } else if (cardTheme === 'glass') {
+                        cardBg = 'rgba(15, 23, 42, 0.88)';
+                        cardTextColor = '#ffffff';
+                        cardHandleColor = '#cbd5e1';
+                        cardBorder = 'rgba(255, 255, 255, 0.22)';
+                    }
+
                     const cardY = headerPosition === 'top' ? 24 : 420;
                     const cardMargin = 28;
                     const cardW = canvas.width - cardMargin * 2;
                     const cardH = 300;
 
                     ctx.save();
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = cardBg;
                     ctx.shadowColor = 'rgba(0,0,0,0.35)';
                     ctx.shadowBlur = 18;
                     ctx.shadowOffsetY = 6;
                     roundRect(ctx, cardMargin, cardY, cardW, cardH, 20);
                     ctx.fill();
+                    if (cardBorder) {
+                        ctx.strokeStyle = cardBorder;
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                    }
                     ctx.restore();
 
                     // 4. Logo & Branding Header Row
@@ -281,14 +306,14 @@ async function compositeAndDownloadMoment({
                         const logoX = textAlign === 'center' ? canvas.width / 2 - targetLogoW / 2 : cardMargin + 24;
                         const logoY = cardY + 12;
 
-                        // Draw logo directly on plain white canvas card without extra background or border
+                        // Draw logo directly on canvas card without extra background or border
                         drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
 
                         let nextY = logoY + targetLogoH + 4;
 
                         // Only draw channel name/handle if provided
                         if (channelName || channelHandle) {
-                            ctx.fillStyle = '#0f172a';
+                            ctx.fillStyle = cardTextColor;
                             ctx.font = 'bold 22px -apple-system, sans-serif';
                             ctx.textAlign = textAlign === 'center' ? 'center' : 'left';
                             const textX = textAlign === 'center' ? canvas.width / 2 : cardMargin + 24;
@@ -298,7 +323,7 @@ async function compositeAndDownloadMoment({
                                 nextY += 26;
                             }
                             if (channelHandle) {
-                                ctx.fillStyle = '#64748b';
+                                ctx.fillStyle = cardHandleColor;
                                 ctx.font = '16px -apple-system, sans-serif';
                                 ctx.fillText(channelHandle, textX, nextY);
                                 nextY += 22;
@@ -306,18 +331,18 @@ async function compositeAndDownloadMoment({
                         }
 
                         // Headline text - positioned higher and close under the logo
-                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 2, cardW - 48, textAlign);
+                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 2, cardW - 48, textAlign, highlightColor, cardTextColor);
                         ctx.restore();
                     } else {
                         // Default avatar icon when no logo uploaded
                         const avatarX = textAlign === 'center' ? canvas.width / 2 - 90 : cardMargin + 24;
                         const avatarY = cardY + 22;
-                        ctx.fillStyle = '#0f172a';
+                        ctx.fillStyle = cardTheme === 'white' ? '#0f172a' : 'rgba(255, 255, 255, 0.15)';
                         ctx.beginPath();
                         ctx.arc(avatarX + 20, avatarY + 20, 20, 0, Math.PI * 2);
                         ctx.fill();
 
-                        ctx.fillStyle = '#f87171';
+                        ctx.fillStyle = highlightColor || '#f87171';
                         ctx.font = 'bold 18px sans-serif';
                         ctx.textAlign = 'center';
                         ctx.fillText('⚡', avatarX + 20, avatarY + 26);
@@ -325,18 +350,46 @@ async function compositeAndDownloadMoment({
                         let nextY = avatarY + 68;
 
                         if (channelName || channelHandle) {
-                            ctx.fillStyle = '#0f172a';
+                            ctx.fillStyle = cardTextColor;
                             ctx.font = 'bold 20px sans-serif';
                             ctx.textAlign = 'left';
                             if (channelName) ctx.fillText(channelName, avatarX + 50, avatarY + 16);
 
-                            ctx.fillStyle = '#64748b';
+                            ctx.fillStyle = cardHandleColor;
                             ctx.font = '15px sans-serif';
                             if (channelHandle) ctx.fillText(channelHandle, avatarX + 50, avatarY + 36);
                         }
 
                         // Headline text
-                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY, cardW - 48, textAlign);
+                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY, cardW - 48, textAlign, highlightColor, cardTextColor);
+                    }
+
+                    // 5. Watermark Badge Overlay if enabled
+                    if (showWatermark) {
+                        const badgeText = (channelHandle || channelName || 'ClipRadar').trim();
+                        if (badgeText) {
+                            ctx.save();
+                            ctx.font = 'bold 18px -apple-system, sans-serif';
+                            const textMetrics = ctx.measureText(badgeText);
+                            const badgeW = textMetrics.width + 48;
+                            const badgeH = 34;
+                            const badgeX = canvas.width - badgeW - 28;
+                            const badgeY = canvas.height - 48;
+
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+                            ctx.lineWidth = 1;
+                            roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 17);
+                            ctx.fill();
+                            ctx.stroke();
+
+                            ctx.fillStyle = highlightColor || '#38bdf8';
+                            ctx.fillText('⚡', badgeX + 12, badgeY + 23);
+
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillText(badgeText, badgeX + 34, badgeY + 23);
+                            ctx.restore();
+                        }
                     }
                 }
 
@@ -389,6 +442,20 @@ async function compositeAndDownloadMoment({
     return videoUrl;
 }
 
+const HIGHLIGHT_PALETTE = [
+    { label: 'Electric Blue', hex: '#1d4ed8' },
+    { label: 'Cyber Yellow', hex: '#eab308' },
+    { label: 'Neon Pink', hex: '#ec4899' },
+    { label: 'Mint Green', hex: '#10b981' },
+    { label: 'Radiant Orange', hex: '#f97316' },
+];
+
+const CARD_THEMES = [
+    { id: 'white', label: 'Clean White', icon: '☀️' },
+    { id: 'dark', label: 'AMOLED Dark', icon: '🌙' },
+    { id: 'glass', label: 'Frosted Glass', icon: '🧊' },
+];
+
 export default function VideoStudio() {
     // Video State
     const [videoFile, setVideoFile] = useState(null);
@@ -404,6 +471,9 @@ export default function VideoStudio() {
     const [logoHeight, setLogoHeight] = useState(115); // Large & prominent default (115px)
     const [channelName, setChannelName] = useState('');
     const [channelHandle, setChannelHandle] = useState('');
+    const [cardTheme, setCardTheme] = useState('white'); // 'white' | 'dark' | 'glass'
+    const [highlightColor, setHighlightColor] = useState('#1d4ed8');
+    const [showWatermark, setShowWatermark] = useState(true);
 
     // Text & AI Moment State
     const [headlineText, setHeadlineText] = useState(
@@ -876,6 +946,9 @@ export default function VideoStudio() {
                 logoHeight,
                 headerPosition,
                 textAlign,
+                cardTheme,
+                highlightColor,
+                showWatermark,
                 video: videoRef.current,
                 videoUrl,
                 onProgress: (pct) => {
@@ -931,6 +1004,9 @@ export default function VideoStudio() {
             logoHeight,
             headerPosition,
             textAlign,
+            cardTheme,
+            highlightColor,
+            showWatermark,
             video: videoRef.current,
             videoUrl,
             onProgress: (pct, msg) => {
@@ -957,7 +1033,7 @@ export default function VideoStudio() {
         return parts.map((part, index) => {
             if (part.startsWith('**') && part.endsWith('**')) {
                 return (
-                    <span key={index} className="studio-preview__highlight">
+                    <span key={index} className="studio-preview__highlight" style={{ color: highlightColor }}>
                         {part.slice(2, -2)}
                     </span>
                 );
@@ -1197,6 +1273,80 @@ export default function VideoStudio() {
                                         placeholder="e.g. @yourchannel"
                                     />
                                 </div>
+                            </div>
+
+                            {/* Hook Card Theme */}
+                            <div className="studio-field">
+                                <span className="studio-field__label">Hook Card Theme</span>
+                                <div className="studio-toggle-group" role="group" aria-label="Hook Card Themes">
+                                    {CARD_THEMES.map((theme) => (
+                                        <button
+                                            key={theme.id}
+                                            type="button"
+                                            className={`studio-toggle-btn ${cardTheme === theme.id ? 'studio-toggle-btn--active' : ''}`}
+                                            onClick={() => setCardTheme(theme.id)}
+                                        >
+                                            <span>{theme.icon}</span>
+                                            <span>{theme.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Highlight Accent Color Picker */}
+                            <div className="studio-field">
+                                <div className="studio-field__header">
+                                    <span className="studio-field__label">Highlight Accent Color</span>
+                                    <span className="studio-field__tip">{highlightColor.toUpperCase()}</span>
+                                </div>
+                                <div className="studio-color-palette" role="group" aria-label="Highlight Accent Colors">
+                                    {HIGHLIGHT_PALETTE.map((swatch) => (
+                                        <button
+                                            key={swatch.hex}
+                                            type="button"
+                                            className={`studio-color-swatch ${highlightColor.toLowerCase() === swatch.hex.toLowerCase() ? 'studio-color-swatch--active' : ''}`}
+                                            style={{ backgroundColor: swatch.hex }}
+                                            onClick={() => setHighlightColor(swatch.hex)}
+                                            title={`Select ${swatch.label} (${swatch.hex})`}
+                                            aria-label={`Select ${swatch.label}`}
+                                        >
+                                            {highlightColor.toLowerCase() === swatch.hex.toLowerCase() && (
+                                                <span className="studio-color-swatch__check">✓</span>
+                                            )}
+                                        </button>
+                                    ))}
+                                    <div className="studio-color-custom-wrapper" title="Pick custom highlight color">
+                                        <input
+                                            type="color"
+                                            value={highlightColor}
+                                            onChange={(e) => setHighlightColor(e.target.value)}
+                                            className="studio-color-picker-input"
+                                            aria-label="Custom Highlight Color"
+                                        />
+                                        <span className="studio-color-custom-btn" style={{ background: highlightColor }}>
+                                            🎨
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Watermark Attribution Badge Toggle */}
+                            <div className="studio-field">
+                                <label className="studio-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={showWatermark}
+                                        onChange={(e) => setShowWatermark(e.target.checked)}
+                                        className="studio-checkbox"
+                                        aria-label="Show Watermark Badge"
+                                    />
+                                    <div className="studio-checkbox-text">
+                                        <span className="studio-checkbox-title">Display Watermark Badge on Video</span>
+                                        <span className="studio-checkbox-hint">
+                                            Overlay subtle brand handle badge ({channelHandle || channelName || 'ClipRadar'}) to safeguard content
+                                        </span>
+                                    </div>
+                                </label>
                             </div>
 
                             {/* Position & Alignment Toggles */}
@@ -1579,7 +1729,10 @@ export default function VideoStudio() {
                                     onClick={handleToggleSelectedHighlight}
                                     title="Highlight selected text in blue (or press Ctrl+B)"
                                 >
-                                    <span>🔵</span>
+                                    <span
+                                        className="studio-highlight-btn__dot"
+                                        style={{ backgroundColor: highlightColor }}
+                                    />
                                     <span>Highlight Selection</span>
                                 </button>
                             </div>
@@ -1655,6 +1808,14 @@ export default function VideoStudio() {
                                             key={idx}
                                             type="button"
                                             className={`studio-word-chip ${token.isHighlight ? 'studio-word-chip--active' : ''}`}
+                                            style={
+                                                token.isHighlight
+                                                    ? {
+                                                          backgroundColor: highlightColor,
+                                                          borderColor: highlightColor,
+                                                      }
+                                                    : {}
+                                            }
                                             onClick={() => handleToggleWordToken(idx)}
                                             title={
                                                 token.isHighlight
@@ -1727,13 +1888,16 @@ export default function VideoStudio() {
 
                 {/* Right Column: 9:16 Live Phone Preview Mockup */}
                 <aside className="video-studio__preview" aria-label="Live Video Preview">
-                    <div className="phone-mockup">
+                    <div
+                        className="phone-mockup"
+                        style={{ '--studio-highlight-color': highlightColor }}
+                    >
                         <div className="phone-mockup__notch" />
                         <div className="phone-mockup__screen">
                             {/* 9:16 Composition Container */}
                             <div className={`comp-container comp-container--pos-${headerPosition}`}>
                                 {/* Top/Middle Header / Hook Card */}
-                                <div className={`comp-header comp-header--align-${textAlign} comp-header--logo-${logoShape}`}>
+                                <div className={`comp-header comp-header--align-${textAlign} comp-header--logo-${logoShape} comp-header--theme-${cardTheme}`}>
                                     <div className="comp-header__card">
                                         <div className={`comp-header__top-row comp-header__top-row--${logoShape}`}>
                                             <div
@@ -1746,7 +1910,9 @@ export default function VideoStudio() {
                                                               '--logo-custom-height': `${logoHeight}px`,
                                                               height: `${logoHeight}px`,
                                                           }
-                                                        : {}
+                                                        : cardTheme !== 'white'
+                                                        ? { background: 'rgba(255,255,255,0.15)', color: highlightColor }
+                                                        : { color: highlightColor }
                                                 }
                                             >
                                                 {logoUrl ? (
@@ -1776,7 +1942,7 @@ export default function VideoStudio() {
                                             )}
                                         </div>
 
-                                        {/* Headline Hook with Blue Highlights - Always visible */}
+                                        {/* Headline Hook with Accent Highlights */}
                                         <div className="comp-header__headline">
                                             {renderFormattedHeadline(headlineText)}
                                         </div>
@@ -1800,6 +1966,14 @@ export default function VideoStudio() {
                                         <div className="comp-video__placeholder">
                                             <span className="comp-video__placeholder-icon">📹</span>
                                             <p>Upload a video to see live 9:16 composite</p>
+                                        </div>
+                                    )}
+
+                                    {/* Watermark Attribution Badge */}
+                                    {showWatermark && (
+                                        <div className="comp-video__watermark" aria-label="Video Watermark Badge">
+                                            <span className="comp-video__watermark-icon" style={{ color: highlightColor }}>⚡</span>
+                                            <span>{channelHandle || channelName || 'ClipRadar'}</span>
                                         </div>
                                     )}
                                 </div>

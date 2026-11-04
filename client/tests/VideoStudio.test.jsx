@@ -96,7 +96,7 @@ describe('VideoStudio Component', () => {
         // Change channel name
         const nameInput = screen.getByLabelText(/channel name/i);
         fireEvent.change(nameInput, { target: { value: 'VIRAL CLIPS TV' } });
-        expect(screen.getByText('VIRAL CLIPS TV')).toBeInTheDocument();
+        expect(screen.getAllByText('VIRAL CLIPS TV').length).toBeGreaterThanOrEqual(1);
 
         // Upload logo file
         const logoFile = new File(['dummy logo'], 'logo.png', { type: 'image/png' });
@@ -254,6 +254,46 @@ describe('VideoStudio Component', () => {
         fireEvent.click(preset15);
         expect(screen.getByLabelText(/cut start in seconds/i).value).toBe('0');
         expect(screen.getByLabelText(/cut end in seconds/i).value).toBe('15');
+    });
+
+    it('supports customizing card themes, highlight accent colors, and watermark badge toggle', () => {
+        render(<VideoStudio />);
+
+        // 1. Hook Card Themes
+        expect(screen.getByRole('button', { name: /clean white/i })).toBeInTheDocument();
+        const darkThemeBtn = screen.getByRole('button', { name: /amoled dark/i });
+        const glassThemeBtn = screen.getByRole('button', { name: /frosted glass/i });
+
+        // Switch to AMOLED Dark
+        fireEvent.click(darkThemeBtn);
+        expect(document.querySelector('.comp-header--theme-dark')).toBeInTheDocument();
+
+        // Switch to Frosted Glass
+        fireEvent.click(glassThemeBtn);
+        expect(document.querySelector('.comp-header--theme-glass')).toBeInTheDocument();
+
+        // 2. Highlight Accent Colors
+        const cyberYellowSwatch = screen.getByRole('button', { name: /select cyber yellow/i });
+        fireEvent.click(cyberYellowSwatch);
+
+        // Preview should have phone mockup with custom highlight color
+        const phoneMockup = document.querySelector('.phone-mockup');
+        expect(phoneMockup.style.getPropertyValue('--studio-highlight-color')).toBe('#eab308');
+
+        // Custom hex color input
+        const customColorInput = screen.getByLabelText(/custom highlight color/i);
+        fireEvent.change(customColorInput, { target: { value: '#10b981' } });
+        expect(phoneMockup.style.getPropertyValue('--studio-highlight-color')).toBe('#10b981');
+
+        // 3. Watermark Badge Toggle
+        const watermarkToggle = screen.getByLabelText(/show watermark badge/i);
+        expect(watermarkToggle).toBeChecked();
+        expect(screen.getByLabelText(/video watermark badge/i)).toBeInTheDocument();
+
+        // Toggle off
+        fireEvent.click(watermarkToggle);
+        expect(watermarkToggle).not.toBeChecked();
+        expect(screen.queryByLabelText(/video watermark badge/i)).not.toBeInTheDocument();
     });
 });
 
