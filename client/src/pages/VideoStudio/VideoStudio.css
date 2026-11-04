@@ -758,86 +758,82 @@
     transition: all var(--transition-fast);
 }
 
-/* When a real logo image is present: clean transparent frame */
+/* Real Logo Framing & Sizing */
 .comp-header__avatar--has-img {
     background: transparent;
     border: none;
     box-shadow: none;
+    width: auto;
+    min-width: 60px;
+    max-width: 290px;
+    height: var(--logo-custom-height, 85px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
 }
 
 .comp-header__avatar-img {
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain; /* Always preserve full logo aspect ratio without cutoff */
     display: block;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
 }
 
-/* Shape Variants */
-.comp-header__avatar--shape-circle {
-    border-radius: 50%;
-}
-
+/* Shape Variants for uploaded logo */
 .comp-header__avatar--shape-circle.comp-header__avatar--has-img {
+    width: var(--logo-custom-height, 85px);
+    height: var(--logo-custom-height, 85px);
     border-radius: 50%;
+    overflow: hidden;
 }
 
 .comp-header__avatar--shape-circle .comp-header__avatar-img {
     border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.comp-header__avatar--shape-badge {
-    border-radius: 8px;
-    padding: 2px;
+.comp-header__avatar--shape-badge.comp-header__avatar--has-img {
+    border-radius: 12px;
+    padding: 6px 14px;
     background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-.comp-header__avatar--shape-badge .comp-header__avatar-img {
-    border-radius: 6px;
-}
-
-.comp-header__avatar--shape-banner {
-    width: 160px;
-    height: 48px;
-    border-radius: 6px;
+.comp-header__avatar--shape-banner.comp-header__avatar--has-img {
+    width: 100%;
+    max-width: 320px;
+    height: var(--logo-custom-height, 90px);
     background: transparent;
     border: none;
     box-shadow: none;
     padding: 0;
 }
 
-.comp-header__avatar--shape-banner .comp-header__avatar-img {
-    object-fit: contain;
-    border-radius: 0;
+/* Slider Controls */
+.studio-slider-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
 }
 
-/* Size Variants */
-.comp-header__avatar--size-small {
-    width: 36px;
-    height: 36px;
-}
-.comp-header__avatar--shape-banner.comp-header__avatar--size-small {
-    width: 120px;
-    height: 36px;
+.studio-slider-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
 }
 
-.comp-header__avatar--size-medium {
-    width: 48px;
-    height: 48px;
-}
-.comp-header__avatar--shape-banner.comp-header__avatar--size-medium {
-    width: 160px;
-    height: 48px;
-}
-
-.comp-header__avatar--size-large {
-    width: 64px;
-    height: 64px;
-}
-.comp-header__avatar--shape-banner.comp-header__avatar--size-large {
-    width: 200px;
-    height: 58px;
+.studio-slider {
+    flex: 1;
+    accent-color: var(--color-accent);
+    cursor: pointer;
 }
 
 .comp-header--align-center .comp-header__meta {

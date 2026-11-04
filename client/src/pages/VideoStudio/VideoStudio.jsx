@@ -101,11 +101,11 @@ async function compositeAndDownloadMoment({
     headline = '',
     startTime = 0,
     endTime = 6,
-    channelName = 'ClipRadar',
-    channelHandle = '@clipradar',
+    channelName = '',
+    channelHandle = '',
     logoUrl = null,
     logoShape = 'badge',
-    logoSize = 'medium',
+    logoHeight = 85,
     headerPosition = 'top',
     textAlign = 'center',
     video = null,
@@ -235,57 +235,55 @@ async function compositeAndDownloadMoment({
                 // 4. Logo & Branding Header Row
                 if (logoImg) {
                     ctx.save();
-                    if (logoShape === 'banner') {
-                        const logoW = logoSize === 'large' ? 240 : logoSize === 'small' ? 140 : 180;
-                        const logoH = logoSize === 'large' ? 66 : logoSize === 'small' ? 42 : 52;
-                        const logoX = textAlign === 'center' ? canvas.width / 2 - logoW / 2 : cardMargin + 24;
-                        const logoY = cardY + 18;
+                    const targetLogoH = Math.min(180, Math.round((logoHeight || 85) * 1.5));
+                    const targetLogoW = Math.min(cardW - 48, Math.round(targetLogoH * 3.2));
+                    const logoX = textAlign === 'center' ? canvas.width / 2 - targetLogoW / 2 : cardMargin + 24;
+                    const logoY = cardY + 20;
 
-                        drawContainImage(ctx, logoImg, logoX, logoY, logoW, logoH);
-
-                        ctx.fillStyle = '#64748b';
-                        ctx.font = '16px -apple-system, sans-serif';
-                        ctx.textAlign = textAlign === 'center' ? 'center' : 'left';
-                        ctx.fillText(
-                            channelHandle || '@handle',
-                            textAlign === 'center' ? canvas.width / 2 : cardMargin + 24,
-                            logoY + logoH + 18
-                        );
+                    if (logoShape === 'circle') {
+                        const circleSize = targetLogoH;
+                        const circleX = textAlign === 'center' ? canvas.width / 2 - circleSize / 2 : cardMargin + 24;
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(circleX + circleSize / 2, logoY + circleSize / 2, circleSize / 2, 0, Math.PI * 2);
+                        ctx.clip();
+                        drawContainImage(ctx, logoImg, circleX, logoY, circleSize, circleSize);
                         ctx.restore();
-
-                        // Headline text
-                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, logoY + logoH + 34, cardW - 48, textAlign);
+                    } else if (logoShape === 'badge') {
+                        ctx.save();
+                        roundRect(ctx, logoX, logoY, targetLogoW, targetLogoH, 16);
+                        ctx.clip();
+                        drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
+                        ctx.restore();
                     } else {
-                        const logoPx = logoSize === 'large' ? 68 : logoSize === 'small' ? 42 : 54;
-                        const avatarX = textAlign === 'center' ? canvas.width / 2 - 100 : cardMargin + 24;
-                        const avatarY = cardY + 20;
+                        // Banner / Unconstrained
+                        drawContainImage(ctx, logoImg, logoX, logoY, targetLogoW, targetLogoH);
+                    }
 
-                        ctx.save();
-                        if (logoShape === 'circle') {
-                            ctx.beginPath();
-                            ctx.arc(avatarX + logoPx / 2, avatarY + logoPx / 2, logoPx / 2, 0, Math.PI * 2);
-                            ctx.clip();
-                        } else {
-                            roundRect(ctx, avatarX, avatarY, logoPx, logoPx, 10);
-                            ctx.clip();
-                        }
-                        drawContainImage(ctx, logoImg, avatarX, avatarY, logoPx, logoPx);
-                        ctx.restore();
+                    let nextY = logoY + targetLogoH + 16;
 
-                        ctx.save();
+                    // Only draw channel name/handle if provided
+                    if (channelName || channelHandle) {
                         ctx.fillStyle = '#0f172a';
                         ctx.font = 'bold 22px -apple-system, sans-serif';
-                        ctx.textAlign = 'left';
-                        ctx.fillText(channelName || 'CHANNEL', avatarX + logoPx + 14, avatarY + logoPx / 2 - 3);
+                        ctx.textAlign = textAlign === 'center' ? 'center' : 'left';
+                        const textX = textAlign === 'center' ? canvas.width / 2 : cardMargin + 24;
 
-                        ctx.fillStyle = '#64748b';
-                        ctx.font = '16px -apple-system, sans-serif';
-                        ctx.fillText(channelHandle || '@handle', avatarX + logoPx + 14, avatarY + logoPx / 2 + 19);
-                        ctx.restore();
-
-                        // Headline text
-                        drawHeadlineCanvas(ctx, headline, cardMargin + 24, avatarY + logoPx + 24, cardW - 48, textAlign);
+                        if (channelName) {
+                            ctx.fillText(channelName, textX, nextY);
+                            nextY += 28;
+                        }
+                        if (channelHandle) {
+                            ctx.fillStyle = '#64748b';
+                            ctx.font = '16px -apple-system, sans-serif';
+                            ctx.fillText(channelHandle, textX, nextY);
+                            nextY += 24;
+                        }
                     }
+
+                    // Headline text
+                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY + 8, cardW - 48, textAlign);
+                    ctx.restore();
                 } else {
                     // Default avatar icon when no logo uploaded
                     const avatarX = textAlign === 'center' ? canvas.width / 2 - 90 : cardMargin + 24;
@@ -300,17 +298,21 @@ async function compositeAndDownloadMoment({
                     ctx.textAlign = 'center';
                     ctx.fillText('⚡', avatarX + 20, avatarY + 26);
 
-                    ctx.fillStyle = '#0f172a';
-                    ctx.font = 'bold 20px sans-serif';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(channelName || 'CHANNEL', avatarX + 50, avatarY + 16);
+                    let nextY = avatarY + 68;
 
-                    ctx.fillStyle = '#64748b';
-                    ctx.font = '15px sans-serif';
-                    ctx.fillText(channelHandle || '@handle', avatarX + 50, avatarY + 36);
+                    if (channelName || channelHandle) {
+                        ctx.fillStyle = '#0f172a';
+                        ctx.font = 'bold 20px sans-serif';
+                        ctx.textAlign = 'left';
+                        if (channelName) ctx.fillText(channelName, avatarX + 50, avatarY + 16);
+
+                        ctx.fillStyle = '#64748b';
+                        ctx.font = '15px sans-serif';
+                        if (channelHandle) ctx.fillText(channelHandle, avatarX + 50, avatarY + 36);
+                    }
 
                     // Headline text
-                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, avatarY + 68, cardW - 48, textAlign);
+                    drawHeadlineCanvas(ctx, headline, cardMargin + 24, nextY, cardW - 48, textAlign);
                 }
 
                 animId = requestAnimationFrame(draw);
@@ -366,12 +368,10 @@ export default function VideoStudio() {
     // Logo & Branding State
     const [logoFile, setLogoFile] = useState(null);
     const [logoUrl, setLogoUrl] = useState(null);
-    const [logoShape, setLogoShape] = useState('badge'); // 'badge' (auto-fit rounded) | 'circle' | 'banner' (wide)
-    const [logoSize, setLogoSize] = useState('medium'); // 'small' | 'medium' | 'large'
-    const [templateFile, setTemplateFile] = useState(null);
-    const [templateUrl, setTemplateUrl] = useState(null);
-    const [channelName, setChannelName] = useState('JACKET SWIPER');
-    const [channelHandle, setChannelHandle] = useState('@jacketswiper');
+    const [logoShape, setLogoShape] = useState('badge'); // 'badge' (auto-fit) | 'circle' | 'banner'
+    const [logoHeight, setLogoHeight] = useState(85); // Prominent size by default (85px)
+    const [channelName, setChannelName] = useState('');
+    const [channelHandle, setChannelHandle] = useState('');
 
     // Text & AI Moment State
     const [headlineText, setHeadlineText] = useState(
@@ -402,19 +402,17 @@ export default function VideoStudio() {
     const videoRef = useRef(null);
     const videoInputRef = useRef(null);
     const logoInputRef = useRef(null);
-    const templateInputRef = useRef(null);
 
     // Clean up object URLs on unmount
     useEffect(() => {
         return () => {
             if (videoUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(videoUrl);
             if (logoUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(logoUrl);
-            if (templateUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(templateUrl);
             if (renderedVideoUrl && renderedVideoUrl !== videoUrl && typeof URL.revokeObjectURL === 'function') {
                 URL.revokeObjectURL(renderedVideoUrl);
             }
         };
-    }, [videoUrl, logoUrl, templateUrl, renderedVideoUrl]);
+    }, [videoUrl, logoUrl, renderedVideoUrl]);
 
     // Handle Video Upload
     function handleVideoSelect(e) {
@@ -457,17 +455,6 @@ export default function VideoStudio() {
         if (logoUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(logoUrl);
         setLogoFile(null);
         setLogoUrl(null);
-    }
-
-    // Handle Template Frame Upload
-    function handleTemplateSelect(e) {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (templateUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(templateUrl);
-        const url = typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : '';
-        setTemplateFile(file);
-        setTemplateUrl(url);
     }
 
     // Apply a specific moment to the active editor & player preview
@@ -573,7 +560,7 @@ export default function VideoStudio() {
                 channelHandle,
                 logoUrl,
                 logoShape,
-                logoSize,
+                logoHeight,
                 headerPosition,
                 textAlign,
                 video: videoRef.current,
@@ -628,7 +615,7 @@ export default function VideoStudio() {
             channelHandle,
             logoUrl,
             logoShape,
-            logoSize,
+            logoHeight,
             headerPosition,
             textAlign,
             video: videoRef.current,
@@ -677,13 +664,13 @@ export default function VideoStudio() {
                     </div>
                     <h1 className="video-studio__title">Transform Clips into Viral Shorts</h1>
                     <p className="video-studio__tagline">
-                        Extract multiple catchy moments with Gemini AI, apply custom logos & templates, and download individual 9:16 shorts for TikTok & Reels.
+                        Extract multiple catchy moments with Gemini AI, apply prominent brand logos, and download individual 9:16 shorts for TikTok & Reels.
                     </p>
 
                     <div className="video-studio__pills">
                         <span className="studio-pill">📱 9:16 Vertical HD</span>
                         <span className="studio-pill">✨ Multi-Moment AI Extraction</span>
-                        <span className="studio-pill">🖼️ Crisp Logo & Branding</span>
+                        <span className="studio-pill">🖼️ Large Prominent Logo</span>
                         <span className="studio-pill">⬇️ Download Any / All Moments</span>
                     </div>
                 </div>
@@ -754,7 +741,7 @@ export default function VideoStudio() {
                             <span className="studio-card__step">2</span>
                             <div>
                                 <h2 className="studio-card__title">Logo & Branding</h2>
-                                <p className="studio-card__subtitle">Upload your channel logo, choose layout style, and customize headers</p>
+                                <p className="studio-card__subtitle">Upload your channel logo and adjust size & layout</p>
                             </div>
                         </div>
 
@@ -816,7 +803,7 @@ export default function VideoStudio() {
                                 )}
                             </div>
 
-                            {/* Logo Style Options (Visible when logo uploaded) */}
+                            {/* Logo Size & Style Controls (Visible when logo is loaded) */}
                             {logoUrl && (
                                 <div className="studio-layout-toggles">
                                     <div className="studio-field">
@@ -847,55 +834,52 @@ export default function VideoStudio() {
                                     </div>
 
                                     <div className="studio-field">
-                                        <span className="studio-field__label">Logo Size</span>
-                                        <div className="studio-toggle-group">
-                                            <button
-                                                type="button"
-                                                className={`studio-toggle-btn ${logoSize === 'small' ? 'studio-toggle-btn--active' : ''}`}
-                                                onClick={() => setLogoSize('small')}
-                                            >
-                                                Compact
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={`studio-toggle-btn ${logoSize === 'medium' ? 'studio-toggle-btn--active' : ''}`}
-                                                onClick={() => setLogoSize('medium')}
-                                            >
-                                                Standard
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={`studio-toggle-btn ${logoSize === 'large' ? 'studio-toggle-btn--active' : ''}`}
-                                                onClick={() => setLogoSize('large')}
-                                            >
-                                                Prominent
-                                            </button>
+                                        <div className="studio-field__header">
+                                            <span className="studio-field__label">Logo Size</span>
+                                            <span className="studio-field__tip">{logoHeight}px height</span>
+                                        </div>
+                                        <div className="studio-slider-row">
+                                            <span className="studio-slider-label">Small (45px)</span>
+                                            <input
+                                                type="range"
+                                                min="45"
+                                                max="130"
+                                                value={logoHeight}
+                                                onChange={(e) => setLogoHeight(Number(e.target.value))}
+                                                className="studio-slider"
+                                            />
+                                            <span className="studio-slider-label">Extra Large (130px)</span>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
+                            {/* Optional Channel Name & Handle (Leave blank to only show the logo) */}
                             <div className="studio-fields-row">
                                 <div className="studio-field">
-                                    <label htmlFor="channel-name" className="studio-field__label">Channel Name</label>
+                                    <label htmlFor="channel-name" className="studio-field__label">
+                                        Channel Name <span style={{ opacity: 0.6, fontWeight: 400 }}>(Optional)</span>
+                                    </label>
                                     <input
                                         id="channel-name"
                                         type="text"
                                         className="studio-field__input"
                                         value={channelName}
                                         onChange={(e) => setChannelName(e.target.value)}
-                                        placeholder="e.g. JACKET SWIPER"
+                                        placeholder="Leave blank to display logo only"
                                     />
                                 </div>
                                 <div className="studio-field">
-                                    <label htmlFor="channel-handle" className="studio-field__label">Handle</label>
+                                    <label htmlFor="channel-handle" className="studio-field__label">
+                                        Handle <span style={{ opacity: 0.6, fontWeight: 400 }}>(Optional)</span>
+                                    </label>
                                     <input
                                         id="channel-handle"
                                         type="text"
                                         className="studio-field__input"
                                         value={channelHandle}
                                         onChange={(e) => setChannelHandle(e.target.value)}
-                                        placeholder="e.g. @jacketswiper"
+                                        placeholder="e.g. @yourchannel"
                                     />
                                 </div>
                             </div>
@@ -1166,7 +1150,7 @@ export default function VideoStudio() {
                                     <span className="studio-success-icon">🎉</span>
                                     <div>
                                         <h3 className="studio-success-title">Video Generated Successfully!</h3>
-                                        <p className="studio-success-desc">9:16 HD vertical video rendered with your logo & centered headline text.</p>
+                                        <p className="studio-success-desc">9:16 HD vertical video rendered with your logo & headline text.</p>
                                     </div>
                                 </div>
                                 <div className="studio-success-actions">
@@ -1206,31 +1190,41 @@ export default function VideoStudio() {
                                     <div className="comp-header__card">
                                         <div className={`comp-header__top-row comp-header__top-row--${logoShape}`}>
                                             <div
-                                                className={`comp-header__avatar comp-header__avatar--shape-${logoShape} comp-header__avatar--size-${logoSize} ${
+                                                className={`comp-header__avatar comp-header__avatar--shape-${logoShape} ${
                                                     logoUrl ? 'comp-header__avatar--has-img' : ''
                                                 }`}
+                                                style={
+                                                    logoUrl
+                                                        ? {
+                                                              '--logo-custom-height': `${logoHeight}px`,
+                                                              height: `${logoHeight}px`,
+                                                          }
+                                                        : {}
+                                                }
                                             >
                                                 {logoUrl ? (
                                                     <img
                                                         src={logoUrl}
-                                                        alt={channelName}
+                                                        alt={channelName || 'Logo Preview'}
                                                         className="comp-header__avatar-img"
                                                     />
                                                 ) : (
                                                     <span className="comp-header__avatar-icon">⚡</span>
                                                 )}
                                             </div>
-                                            {logoShape !== 'banner' ? (
+
+                                            {/* Only show channel name/handle if the user actually typed one */}
+                                            {(channelName || channelHandle) && (
                                                 <div className="comp-header__meta">
-                                                    <div className="comp-header__name-line">
-                                                        <span className="comp-header__name">{channelName || 'CHANNEL NAME'}</span>
-                                                        <span className="comp-header__verified" title="Verified">✓</span>
-                                                    </div>
-                                                    <span className="comp-header__handle">{channelHandle || '@handle'}</span>
-                                                </div>
-                                            ) : (
-                                                <div className="comp-header__meta comp-header__meta--banner">
-                                                    <span className="comp-header__handle">{channelHandle || '@handle'}</span>
+                                                    {channelName && (
+                                                        <div className="comp-header__name-line">
+                                                            <span className="comp-header__name">{channelName}</span>
+                                                            <span className="comp-header__verified" title="Verified">✓</span>
+                                                        </div>
+                                                    )}
+                                                    {channelHandle && (
+                                                        <span className="comp-header__handle">{channelHandle}</span>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
