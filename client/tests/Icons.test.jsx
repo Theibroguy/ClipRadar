@@ -121,3 +121,4 @@ describe('Icons Component Suite', () => {
         expect(svgs.length).toBe(21);
     });
 });
+

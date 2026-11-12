@@ -1192,3 +1192,4 @@ export function IconTrash({ size = 18, className = '', color = 'currentColor', s
         </svg>
     );
 }
+

@@ -33,14 +33,11 @@ import {
 import './Sidebar.css';
 
 const PLATFORMS = [
-    { value: 'all', label: 'All Platforms', IconComponent: IconGlobe, dot: 'dot-all' },
-    { value: 'daily', label: 'Daily Drops', IconComponent: IconFlame, dot: 'dot-daily' },
-    { value: 'youtube', label: 'YouTube Shorts', IconComponent: IconYouTube, dot: 'dot-youtube' },
-    { value: 'twitter', label: 'X / Twitter Clips', IconComponent: IconX, dot: 'dot-twitter' },
-    { value: 'instagram', label: 'Instagram Reels', IconComponent: IconInstagram, dot: 'dot-instagram' },
-    { value: 'tiktok', label: 'TikTok Videos', IconComponent: IconTikTok, dot: 'dot-tiktok' },
-    { value: 'studio', label: 'AI Studio Shorts', IconComponent: IconScissors, dot: 'dot-studio' },
-    { value: 'demo', label: 'Demo Archive', IconComponent: IconBolt, dot: 'dot-demo' },
+    { value: 'youtube', path: '/youtube', label: 'YouTube Shorts', IconComponent: IconYouTube, dot: 'dot-youtube' },
+    { value: 'twitter', path: '/twitter', label: 'X / Twitter Clips', IconComponent: IconX, dot: 'dot-twitter' },
+    { value: 'instagram', path: '/instagram', label: 'Instagram Reels', IconComponent: IconInstagram, dot: 'dot-instagram' },
+    { value: 'tiktok', path: '/tiktok', label: 'TikTok Videos', IconComponent: IconTikTok, dot: 'dot-tiktok' },
+    { value: 'studio', path: '/studio-shorts', label: 'AI Studio Shorts', IconComponent: IconScissors, dot: 'dot-studio' },
 ];
 
 const CATEGORIES = [
@@ -56,6 +53,14 @@ const CATEGORIES = [
     { value: 'Other', label: 'Other Moments', IconComponent: IconFolder },
 ];
 
+const PLATFORM_ROUTES = {
+    youtube: '/youtube',
+    twitter: '/twitter',
+    instagram: '/instagram',
+    tiktok: '/tiktok',
+    studio: '/studio-shorts',
+};
+
 export default function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -63,19 +68,23 @@ export default function Sidebar() {
     const feedFilters = useFeedFilters();
     const { bookmarksCount } = useBookmarks();
 
-    const currentPlatform = feedFilters?.filters?.platform || 'all';
+    const currentPlatform = feedFilters?.filters?.platform || 'youtube';
     const currentCategory = feedFilters?.filters?.category || 'all';
     const showSavedOnly = !!feedFilters?.showSavedOnly;
 
-    // Helper to safely navigate to feed if not already there
-    function ensureOnFeed() {
-        if (location.pathname !== '/') {
-            navigate('/');
+    // Helper to safely navigate to active platform page if on studio
+    function ensureOnFeed(targetPlatform = currentPlatform) {
+        const route = PLATFORM_ROUTES[targetPlatform] || '/youtube';
+        if (location.pathname === '/studio') {
+            navigate(route);
         }
     }
 
     function handleSelectPlatform(pVal) {
-        ensureOnFeed();
+        const targetRoute = PLATFORM_ROUTES[pVal] || '/youtube';
+        if (location.pathname !== targetRoute) {
+            navigate(targetRoute);
+        }
         if (feedFilters) {
             feedFilters.setShowSavedOnly(false);
             feedFilters.setPlatform(pVal);
@@ -95,14 +104,6 @@ export default function Sidebar() {
         ensureOnFeed();
         if (feedFilters) {
             feedFilters.setShowSavedOnly(true);
-        }
-        if (window.innerWidth < 1024) closeSidebar();
-    }
-
-    function handleResetAll() {
-        ensureOnFeed();
-        if (feedFilters) {
-            feedFilters.resetFilters();
         }
         if (window.innerWidth < 1024) closeSidebar();
     }
@@ -130,7 +131,7 @@ export default function Sidebar() {
                             <span className="sidebar__header-icon">
                                 <IconCompass size={20} />
                             </span>
-                            <span>Navigation & Filters</span>
+                            <span>Social Media Pages</span>
                         </div>
                         <button
                             type="button"
@@ -143,43 +144,50 @@ export default function Sidebar() {
                         </button>
                     </div>
 
-                    {/* Section: Main Feeds & Studio */}
+                    {/* Section: Dedicated Social Media Pages */}
+                    <div className="sidebar__section">
+                        <div className="sidebar__section-header">
+                            <span className="sidebar__section-label">Platforms</span>
+                        </div>
+                        <div className="sidebar__nav-list">
+                            {PLATFORMS.map((p) => {
+                                const isActive =
+                                    location.pathname !== '/studio' &&
+                                    !showSavedOnly &&
+                                    currentPlatform === p.value;
+                                const PlatformIcon = p.IconComponent;
+                                return (
+                                    <button
+                                        key={p.value}
+                                        type="button"
+                                        className={`sidebar__nav-item ${isActive ? 'active' : ''}`}
+                                        onClick={() => handleSelectPlatform(p.value)}
+                                        aria-pressed={isActive}
+                                    >
+                                        <span className={`sidebar__platform-dot ${p.dot}`} aria-hidden="true" />
+                                        <span className="sidebar__nav-icon">
+                                            <PlatformIcon size={18} />
+                                        </span>
+                                        <span className="sidebar__nav-text">{p.label}</span>
+                                        {isActive && (
+                                            <span className="sidebar__active-check">
+                                                <IconCheck size={16} />
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Section: Library & Studio */}
                     <div className="sidebar__section">
                         <span className="sidebar__section-label">Feeds & Views</span>
                         <div className="sidebar__nav-list">
                             <button
                                 type="button"
                                 className={`sidebar__nav-item ${
-                                    location.pathname === '/' && !showSavedOnly && currentPlatform === 'all' && currentCategory === 'all'
-                                        ? 'active'
-                                        : ''
-                                }`}
-                                onClick={handleResetAll}
-                            >
-                                <span className="sidebar__nav-icon">
-                                    <IconRadar size={18} />
-                                </span>
-                                <span className="sidebar__nav-text">All Radar Feed</span>
-                            </button>
-
-                            <button
-                                type="button"
-                                className={`sidebar__nav-item ${
-                                    location.pathname === '/' && currentPlatform === 'daily' ? 'active' : ''
-                                }`}
-                                onClick={() => handleSelectPlatform('daily')}
-                            >
-                                <span className="sidebar__nav-icon">
-                                    <IconFlame size={18} />
-                                </span>
-                                <span className="sidebar__nav-text">Daily Radar Drops</span>
-                                <span className="sidebar__badge-fire">New Daily</span>
-                            </button>
-
-                            <button
-                                type="button"
-                                className={`sidebar__nav-item ${
-                                    location.pathname === '/' && showSavedOnly ? 'active' : ''
+                                    location.pathname !== '/studio' && showSavedOnly ? 'active' : ''
                                 }`}
                                 onClick={handleSelectSaved}
                             >
@@ -207,48 +215,6 @@ export default function Sidebar() {
                                 <span className="sidebar__nav-text">AI Video Studio</span>
                                 <span className="sidebar__badge-pill">Creator 9:16</span>
                             </NavLink>
-                        </div>
-                    </div>
-
-                    {/* Section: Platforms */}
-                    <div className="sidebar__section">
-                        <div className="sidebar__section-header">
-                            <span className="sidebar__section-label">Platforms</span>
-                            {currentPlatform !== 'all' && (
-                                <button
-                                    type="button"
-                                    className="sidebar__reset-btn"
-                                    onClick={() => handleSelectPlatform('all')}
-                                >
-                                    Reset
-                                </button>
-                            )}
-                        </div>
-                        <div className="sidebar__nav-list">
-                            {PLATFORMS.map((p) => {
-                                const isActive = !showSavedOnly && currentPlatform === p.value;
-                                const PlatformIcon = p.IconComponent;
-                                return (
-                                    <button
-                                        key={p.value}
-                                        type="button"
-                                        className={`sidebar__nav-item ${isActive ? 'active' : ''}`}
-                                        onClick={() => handleSelectPlatform(p.value)}
-                                        aria-pressed={isActive}
-                                    >
-                                        <span className={`sidebar__platform-dot ${p.dot}`} aria-hidden="true" />
-                                        <span className="sidebar__nav-icon">
-                                            <PlatformIcon size={18} />
-                                        </span>
-                                        <span className="sidebar__nav-text">{p.label}</span>
-                                        {isActive && (
-                                            <span className="sidebar__active-check">
-                                                <IconCheck size={16} />
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
                         </div>
                     </div>
 

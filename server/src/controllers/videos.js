@@ -32,7 +32,7 @@ async function getFallbackVideos() {
                 const data = fs.readFileSync(cachePath, 'utf8');
                 const parsed = JSON.parse(data);
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    base = parsed;
+                    base = [...parsed, ...demoVideos];
                 }
             }
         } catch {

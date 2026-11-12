@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
-const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
+const DEFAULT_FILTERS = { platform: 'youtube', category: 'all' };
 
 const FeedFilterContext = createContext(null);
 
@@ -18,14 +18,13 @@ export function FeedFilterProvider({ children }) {
     }, []);
 
     const resetFilters = useCallback(() => {
-        setFilters(DEFAULT_FILTERS);
+        setFilters((prev) => ({ platform: prev.platform || 'youtube', category: 'all' }));
         setShowSavedOnly(false);
         setSearchQuery('');
     }, []);
 
     const activeFilterCount = useMemo(() => {
         let count = 0;
-        if (filters.platform && filters.platform !== 'all') count++;
         if (filters.category && filters.category !== 'all') count++;
         if (showSavedOnly) count++;
         if (searchQuery.trim()) count++;

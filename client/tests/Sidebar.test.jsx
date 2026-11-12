@@ -27,7 +27,7 @@ describe('Sidebar Component & Navigation', () => {
         vi.clearAllMocks();
     });
 
-    it('renders the sidebar with Feeds, Platforms, and Categories', () => {
+    it('renders the sidebar with dedicated Social Media Pages, Workspace, and Categories without All Platforms', () => {
         render(
             <BrowserRouter>
                 <SettingsProvider>
@@ -39,20 +39,25 @@ describe('Sidebar Component & Navigation', () => {
         );
 
         // Sections
-        expect(screen.getByText(/feeds & views/i)).toBeInTheDocument();
+        expect(screen.getByText(/social media pages/i)).toBeInTheDocument();
         expect(screen.getByText('Platforms')).toBeInTheDocument();
+        expect(screen.getByText(/feeds & views/i)).toBeInTheDocument();
         expect(screen.getByText(/categories & topics/i)).toBeInTheDocument();
 
-        // Key channels
-        expect(screen.getByRole('button', { name: /all radar feed/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /daily radar drops/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /saved favorites/i })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /ai video studio/i })).toBeInTheDocument();
+        // Ensure "All Platforms" and "All Radar Feed" do NOT exist
+        expect(screen.queryByText(/all platforms/i)).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /all radar feed/i })).not.toBeInTheDocument();
 
-        // Platforms
+        // Dedicated Social Media Pages
         expect(screen.getByRole('button', { name: /youtube shorts/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /x \/ twitter clips/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /instagram reels/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /tiktok videos/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /ai studio shorts/i })).toBeInTheDocument();
+
+        // Workspace
+        expect(screen.getByRole('button', { name: /saved favorites/i })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /ai video studio/i })).toBeInTheDocument();
 
         // Categories
         expect(screen.getByRole('button', { name: /comedy & laughs/i })).toBeInTheDocument();

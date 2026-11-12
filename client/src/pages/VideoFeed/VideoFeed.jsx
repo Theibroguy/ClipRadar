@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useInRouterContext, useNavigate } from 'react-router-dom';
 import { fetchVideos } from '../../api/videos.js';
 import VideoCard from '../../components/VideoCard/VideoCard.jsx';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
@@ -17,17 +18,73 @@ import {
     IconSearch,
     IconClose,
     IconMenu,
+    IconYouTube,
+    IconX,
+    IconInstagram,
+    IconTikTok,
+    IconScissors,
 } from '../../components/common/Icons.jsx';
 import './VideoFeed.css';
 
-const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
+const DEFAULT_FILTERS = { platform: 'youtube', category: 'all' };
 const PAGE_SIZE = 6;
 
-export default function VideoFeed() {
+const SOCIAL_PAGES = [
+    { value: 'youtube', path: '/youtube', label: 'YouTube', IconComponent: IconYouTube },
+    { value: 'twitter', path: '/twitter', label: 'X / Twitter', IconComponent: IconX },
+    { value: 'instagram', path: '/instagram', label: 'Instagram', IconComponent: IconInstagram },
+    { value: 'tiktok', path: '/tiktok', label: 'TikTok', IconComponent: IconTikTok },
+    { value: 'studio', path: '/studio-shorts', label: 'AI Studio', IconComponent: IconScissors },
+];
+
+const PLATFORM_PAGE_META = {
+    youtube: {
+        title: 'YouTube Shorts & Clips',
+        tagline: 'Daily viral YouTube Shorts, creator challenges, and unscripted celebrity moments.',
+        IconComponent: IconYouTube,
+        badgeLabel: 'YouTube Page',
+    },
+    twitter: {
+        title: 'X / Twitter Clips',
+        tagline: 'Breaking viral X videos, tech breakthroughs, sports moments, and tracked creators.',
+        IconComponent: IconX,
+        badgeLabel: 'X / Twitter Page',
+    },
+    instagram: {
+        title: 'Instagram Reels',
+        tagline: 'Curated viral Instagram Reels, backstage celebrity moments, and visual highlights.',
+        IconComponent: IconInstagram,
+        badgeLabel: 'Instagram Page',
+    },
+    tiktok: {
+        title: 'TikTok Videos',
+        tagline: 'Trending TikTok reactions, optical illusions, comedy sketches, and creator challenges.',
+        IconComponent: IconTikTok,
+        badgeLabel: 'TikTok Page',
+    },
+    studio: {
+        title: 'AI Studio Shorts',
+        tagline: 'Your custom-rendered 9:16 vertical shorts created in the ClipRadar Video Studio.',
+        IconComponent: IconScissors,
+        badgeLabel: 'AI Studio Page',
+    },
+};
+
+function useSafeNavigate() {
+    const inRouter = useInRouterContext();
+    const navigate = inRouter ? useNavigate() : null;
+    return inRouter && navigate ? navigate : () => {};
+}
+
+export default function VideoFeed({ pagePlatform }) {
+    const navigate = useSafeNavigate();
     const feedContext = useFeedFilters();
     const { settings, updateSettings, isSidebarOpen, toggleSidebar } = useSettings();
 
-    const [localFilters, setLocalFilters] = useState(DEFAULT_FILTERS);
+    const [localFilters, setLocalFilters] = useState(() => ({
+        ...DEFAULT_FILTERS,
+        platform: pagePlatform || DEFAULT_FILTERS.platform,
+    }));
     const [localSearch, setLocalSearch] = useState('');
     const [localSavedOnly, setLocalSavedOnly] = useState(false);
 
@@ -40,15 +97,34 @@ export default function VideoFeed() {
     const resetFilters = feedContext
         ? feedContext.resetFilters
         : () => {
-              setLocalFilters(DEFAULT_FILTERS);
+              setLocalFilters((prev) => ({ platform: prev.platform || 'youtube', category: 'all' }));
               setLocalSearch('');
               setLocalSavedOnly(false);
           };
 
+    // Sync route platform prop with filter state
+    useEffect(() => {
+        if (pagePlatform && filters.platform !== pagePlatform) {
+            setFilters((prev) => ({ ...prev, platform: pagePlatform }));
+        }
+    }, [pagePlatform, filters.platform, setFilters]);
+
+    const activePlatform = filters.platform || 'youtube';
+    const pageMeta = PLATFORM_PAGE_META[activePlatform] || PLATFORM_PAGE_META.youtube;
+    const ActivePlatformIcon = pageMeta.IconComponent;
+
+    function handleSwitchPlatformPage(targetPlatform) {
+        const pageEntry = SOCIAL_PAGES.find((p) => p.value === targetPlatform);
+        if (pageEntry) {
+            navigate(pageEntry.path);
+        }
+        setShowSavedOnly(false);
+        setFilters((prev) => ({ ...prev, platform: targetPlatform }));
+    }
+
     const activeFilterCount = feedContext
         ? feedContext.activeFilterCount
-        : (filters.platform !== 'all' ? 1 : 0) +
-          (filters.category !== 'all' ? 1 : 0) +
+        : (filters.category !== 'all' ? 1 : 0) +
           (showSavedOnly ? 1 : 0) +
           (searchQuery.trim() ? 1 : 0);
 
@@ -232,20 +308,42 @@ export default function VideoFeed() {
             {/* Header */}
             <header className="video-feed__header">
                 <div className="video-feed__logo">
-                    <span className="video-feed__logo-icon">📡</span>
-                    Clip<span>Radar</span>
+                    <span className="video-feed__logo-icon">
+                        <ActivePlatformIcon size={28} />
+                    </span>
+                    <span>{pageMeta.title}</span>
                 </div>
                 <p className="video-feed__tagline">
-                    Discover the most interesting clips from public social media personalities — curated and described by AI.
+                    {pageMeta.tagline}
                 </p>
+
+                {/* Social Media Page Switcher */}
+                <nav className="video-feed__platform-pages" aria-label="Social Media Pages">
+                    {SOCIAL_PAGES.map((p) => {
+                        const PageIcon = p.IconComponent;
+                        const isActive = activePlatform === p.value && !showSavedOnly;
+                        return (
+                            <button
+                                key={p.value}
+                                type="button"
+                                className={`video-feed__platform-page-btn ${isActive ? 'active' : ''}`}
+                                onClick={() => handleSwitchPlatformPage(p.value)}
+                            >
+                                <PageIcon size={16} />
+                                <span>{p.label}</span>
+                            </button>
+                        );
+                    })}
+                </nav>
+
                 {mode === 'demo' && (
-                    <span className="video-feed__mode-badge">⚡ Demo Mode</span>
+                    <span className="video-feed__mode-badge">Demo Mode</span>
                 )}
                 {mode === 'live' && (
-                    <span className="video-feed__mode-badge video-feed__mode-badge--live">🔴 Live YouTube Feed</span>
+                    <span className="video-feed__mode-badge video-feed__mode-badge--live">Live Feed</span>
                 )}
                 {mode === 'production' && (
-                    <span className="video-feed__mode-badge video-feed__mode-badge--live">🟢 MongoDB Live</span>
+                    <span className="video-feed__mode-badge video-feed__mode-badge--live">MongoDB Live</span>
                 )}
 
                 {/* Search Bar */}
@@ -253,14 +351,16 @@ export default function VideoFeed() {
                     <SearchBar
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Search creators, titles, AI summaries, or tags…"
+                        placeholder={`Search ${pageMeta.title.toLowerCase()}, creators, AI summaries, or tags…`}
                     />
                 </div>
             </header>
 
-            {/* Daily Radar Drops Section */}
-            {!showSavedOnly && !searchQuery && (
+            {/* Daily Radar Drops Section (on YouTube and X/Twitter pages) */}
+            {!showSavedOnly && !searchQuery && (activePlatform === 'youtube' || activePlatform === 'twitter') && (
                 <DailyRadarSection
+                    platform={activePlatform}
+                    onSelectPlatform={handleSwitchPlatformPage}
                     onPreview={(video) => setSelectedVideo(video)}
                 />
             )}
@@ -284,20 +384,11 @@ export default function VideoFeed() {
                         )}
                     </button>
 
-                    {/* Active Filter Chips */}
-                    {filters.platform !== 'all' && (
-                        <button
-                            type="button"
-                            className="video-feed__active-chip"
-                            onClick={() => setFilters({ ...filters, platform: 'all' })}
-                            title="Remove platform filter"
-                        >
-                            <span>Platform: {filters.platform}</span>
-                            <span className="video-feed__active-chip-del">
-                                <IconClose size={12} />
-                            </span>
-                        </button>
-                    )}
+                    {/* Active Page Indicator */}
+                    <span className="video-feed__page-badge">
+                        <ActivePlatformIcon size={14} />
+                        <span>{pageMeta.badgeLabel}</span>
+                    </span>
 
                     {filters.category !== 'all' && (
                         <button

@@ -19,9 +19,14 @@ export default function App() {
                         <Sidebar />
                         <div className="app-main-content">
                             <Routes>
-                                <Route path="/" element={<VideoFeed />} />
+                                <Route path="/" element={<VideoFeed pagePlatform="youtube" />} />
+                                <Route path="/youtube" element={<VideoFeed pagePlatform="youtube" />} />
+                                <Route path="/twitter" element={<VideoFeed pagePlatform="twitter" />} />
+                                <Route path="/instagram" element={<VideoFeed pagePlatform="instagram" />} />
+                                <Route path="/tiktok" element={<VideoFeed pagePlatform="tiktok" />} />
+                                <Route path="/studio-shorts" element={<VideoFeed pagePlatform="studio" />} />
                                 <Route path="/studio" element={<VideoStudio />} />
-                                <Route path="*" element={<Navigate to="/" replace />} />
+                                <Route path="*" element={<Navigate to="/youtube" replace />} />
                             </Routes>
                         </div>
                     </div>

@@ -35,11 +35,15 @@
 }
 
 .video-feed__logo-icon {
-    font-size: 2rem;
-    filter: drop-shadow(0 0 16px rgba(108, 99, 255, 0.7));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 14px rgba(108, 99, 255, 0.55));
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
 }
 
-.video-feed__logo span {
+.video-feed__logo > span:not(.video-feed__logo-icon) {
     background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -49,9 +53,50 @@
 .video-feed__tagline {
     font-size: var(--font-size-base);
     color: var(--color-text-muted);
-    max-width: 480px;
+    max-width: 560px;
     margin: 0 auto var(--space-4);
     position: relative;
+}
+
+/* ---- Social Media Page Switcher ---- */
+.video-feed__platform-pages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 auto var(--space-4);
+    position: relative;
+    z-index: 2;
+}
+
+.video-feed__platform-page-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.video-feed__platform-page-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(108, 99, 255, 0.16);
+}
+
+.video-feed__platform-page-btn.active {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(236, 72, 153, 0.14));
+    color: var(--color-text);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.28);
 }
 
 .video-feed__mode-badge {
@@ -152,6 +197,19 @@
     font-weight: 800;
     padding: 1px 7px;
     border-radius: var(--radius-full);
+}
+
+.video-feed__page-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
 }
 
 .video-feed__active-chip {

@@ -54,7 +54,7 @@ function formatViews(views) {
  * Props:
  *   onPreview {function} - Callback when clicking "Preview" on a video
  */
-export default function DailyRadarSection({ onPreview }) {
+export default function DailyRadarSection({ onPreview, platform = 'youtube', onSelectPlatform }) {
     const navigate = useSafeNavigate();
     const {
         settings,
@@ -69,7 +69,9 @@ export default function DailyRadarSection({ onPreview }) {
 
     const [dailyData, setDailyData] = useState(null);
     const [selectedDate, setSelectedDate] = useState('');
-    const [activePlatform, setActivePlatform] = useState('all'); // 'all' | 'youtube' | 'twitter'
+    const [activePlatform, setActivePlatform] = useState(
+        platform === 'twitter' ? 'twitter' : 'youtube'
+    ); // 'youtube' | 'twitter'
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -78,6 +80,19 @@ export default function DailyRadarSection({ onPreview }) {
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [customInput, setCustomInput] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
+
+    useEffect(() => {
+        if (platform === 'twitter' || platform === 'youtube') {
+            setActivePlatform(platform);
+        }
+    }, [platform]);
+
+    function handleSwitchPlatform(targetPlatform) {
+        setActivePlatform(targetPlatform);
+        if (onSelectPlatform) {
+            onSelectPlatform(targetPlatform);
+        }
+    }
 
     // Load daily drop (all platforms loaded together for instantaneous client tab switching)
     const loadDrop = useCallback(async (date = null) => {
@@ -292,24 +307,10 @@ export default function DailyRadarSection({ onPreview }) {
                         <button
                             type="button"
                             role="tab"
-                            id="tab-all"
-                            aria-selected={activePlatform === 'all'}
-                            className={`daily-radar__tab-btn ${activePlatform === 'all' ? 'active' : ''}`}
-                            onClick={() => setActivePlatform('all')}
-                        >
-                            <IconFlame size={16} />
-                            <span>All Drops</span>
-                            {platformCounts.all > 0 && (
-                                <span className="daily-radar__tab-count">{platformCounts.all}</span>
-                            )}
-                        </button>
-                        <button
-                            type="button"
-                            role="tab"
                             id="tab-youtube"
                             aria-selected={activePlatform === 'youtube'}
                             className={`daily-radar__tab-btn ${activePlatform === 'youtube' ? 'active' : ''}`}
-                            onClick={() => setActivePlatform('youtube')}
+                            onClick={() => handleSwitchPlatform('youtube')}
                         >
                             <IconYouTube size={16} />
                             <span>YouTube Shorts</span>
@@ -323,7 +324,7 @@ export default function DailyRadarSection({ onPreview }) {
                             id="tab-twitter"
                             aria-selected={activePlatform === 'twitter'}
                             className={`daily-radar__tab-btn ${activePlatform === 'twitter' ? 'active' : ''}`}
-                            onClick={() => setActivePlatform('twitter')}
+                            onClick={() => handleSwitchPlatform('twitter')}
                         >
                             <IconX size={15} />
                             <span>Twitter Clips</span>

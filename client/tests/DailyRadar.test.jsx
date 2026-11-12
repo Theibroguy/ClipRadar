@@ -61,10 +61,10 @@ describe('DailyRadarSection Component', () => {
         });
     });
 
-    it('renders the daily drop section header, formatted date, countdown, and both YouTube and Twitter video cards', async () => {
+    it('renders the daily drop section header, formatted date, countdown, and defaults to YouTube Shorts without an All Drops tab', async () => {
         render(
             <BrowserRouter>
-                <DailyRadarSection onPreview={vi.fn()} />
+                <DailyRadarSection platform="youtube" onPreview={vi.fn()} />
             </BrowserRouter>
         );
 
@@ -73,50 +73,48 @@ describe('DailyRadarSection Component', () => {
         expect(screen.getByText(/wednesday, nov 4, 2026/i)).toBeInTheDocument();
         expect(screen.getByText(/celebrity reactions & insane challenges/i)).toBeInTheDocument();
 
-        // Cards rendered for both platforms
-        expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
-        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
-        expect(screen.getByText(/15.0M views/i)).toBeInTheDocument();
-        expect(screen.getByText(/42.5M impressions/i)).toBeInTheDocument();
+        // Ensure "All Drops" tab is gone
+        expect(screen.queryByRole('tab', { name: /all drops/i })).not.toBeInTheDocument();
 
-        // Platform badges & handles
+        // YouTube card rendered by default
+        expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
+        expect(screen.getByText(/15.0M views/i)).toBeInTheDocument();
         expect(screen.getByText('YouTube Short')).toBeInTheDocument();
-        expect(screen.getByText(/post/i)).toBeInTheDocument();
-        expect(screen.getByText('@elonmusk')).toBeInTheDocument();
     });
 
-    it('filters videos between All, YouTube Shorts, and X / Twitter Clips tabs', async () => {
+    it('switches between dedicated YouTube Shorts and X / Twitter Clips views', async () => {
+        const onSelectPlatformMock = vi.fn();
         render(
             <BrowserRouter>
-                <DailyRadarSection onPreview={vi.fn()} />
+                <DailyRadarSection
+                    platform="youtube"
+                    onSelectPlatform={onSelectPlatformMock}
+                    onPreview={vi.fn()}
+                />
             </BrowserRouter>
         );
 
         expect(await screen.findByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
-        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
 
         // Switch to Twitter tab
         const twitterTab = screen.getByRole('tab', { name: /twitter clips/i });
         fireEvent.click(twitterTab);
 
+        expect(onSelectPlatformMock).toHaveBeenCalledWith('twitter');
         expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
         expect(screen.queryByText('Hilarious Hot Ones Spice Challenge')).not.toBeInTheDocument();
         expect(screen.getByText("Today's Viral X / Twitter Clips")).toBeInTheDocument();
+        expect(screen.getByText(/42.5M impressions/i)).toBeInTheDocument();
+        expect(screen.getByText('@elonmusk')).toBeInTheDocument();
 
-        // Switch to YouTube tab
+        // Switch back to YouTube tab
         const youtubeTab = screen.getByRole('tab', { name: /youtube shorts/i });
         fireEvent.click(youtubeTab);
 
+        expect(onSelectPlatformMock).toHaveBeenCalledWith('youtube');
         expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
         expect(screen.queryByText('Starship Orbital Separation Flight Test Drone 4K')).not.toBeInTheDocument();
         expect(screen.getByText("Today's Viral YouTube Shorts")).toBeInTheDocument();
-
-        // Switch back to All Drops
-        const allTab = screen.getByRole('tab', { name: /all drops/i });
-        fireEvent.click(allTab);
-
-        expect(screen.getByText('Hilarious Hot Ones Spice Challenge')).toBeInTheDocument();
-        expect(screen.getByText('Starship Orbital Separation Flight Test Drone 4K')).toBeInTheDocument();
     });
 
     it('triggers the onPreview callback when clicking the preview button or thumbnail', async () => {
