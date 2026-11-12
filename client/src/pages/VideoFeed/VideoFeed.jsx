@@ -135,12 +135,14 @@ export default function VideoFeed({ pagePlatform }) {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [visibleSavedCount, setVisibleSavedCount] = useState(PAGE_SIZE);
     const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+    const [isTransitioning, setIsTransitioning] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [retryCount, setRetryCount] = useState(0);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [showBackToTop, setShowBackToTop] = useState(false);
 
     const sentinelRef = useRef(null);
+    const hasLoadedOnceRef = useRef(false);
 
     const {
         bookmarks,
@@ -162,9 +164,13 @@ export default function VideoFeed({ pagePlatform }) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Initial page load
+    // Initial & filter-change page load with smooth crossfade
     const loadInitialVideos = useCallback(async () => {
-        setStatus('loading');
+        if (!hasLoadedOnceRef.current) {
+            setStatus('loading');
+        } else {
+            setIsTransitioning(true);
+        }
         setErrorMsg('');
         setVisibleSavedCount(PAGE_SIZE);
         try {
@@ -184,11 +190,14 @@ export default function VideoFeed({ pagePlatform }) {
                     ? data.hasMore
                     : (data.videos || []).length < (data.total || 0)
             );
+            hasLoadedOnceRef.current = true;
             setStatus('success');
         } catch (err) {
             console.error('Failed to fetch videos:', err);
             setErrorMsg(err.message || 'Failed to load videos.');
             setStatus('error');
+        } finally {
+            setIsTransitioning(false);
         }
     }, [filters, searchQuery, retryCount]);
 
@@ -307,15 +316,17 @@ export default function VideoFeed({ pagePlatform }) {
         <div className="video-feed">
             {/* Header */}
             <header className="video-feed__header">
-                <div className="video-feed__logo">
-                    <span className="video-feed__logo-icon">
-                        <ActivePlatformIcon size={28} />
-                    </span>
-                    <span>{pageMeta.title}</span>
+                <div key={activePlatform} className="video-feed__hero-identity">
+                    <div className="video-feed__logo">
+                        <span className="video-feed__logo-icon">
+                            <ActivePlatformIcon size={28} />
+                        </span>
+                        <span>{pageMeta.title}</span>
+                    </div>
+                    <p className="video-feed__tagline">
+                        {pageMeta.tagline}
+                    </p>
                 </div>
-                <p className="video-feed__tagline">
-                    {pageMeta.tagline}
-                </p>
 
                 {/* Social Media Page Switcher */}
                 <nav className="video-feed__platform-pages" aria-label="Social Media Pages">
@@ -467,7 +478,7 @@ export default function VideoFeed({ pagePlatform }) {
 
             {/* Main grid */}
             <main
-                className={`video-feed__grid ${settings?.feedDensity === 'cinematic' ? 'video-feed__grid--cinematic' : ''}`}
+                className={`video-feed__grid ${settings?.feedDensity === 'cinematic' ? 'video-feed__grid--cinematic' : ''} ${isTransitioning ? 'video-feed__grid--transitioning' : ''}`}
                 id="video-grid"
                 aria-label="Video results"
             >
@@ -544,10 +555,11 @@ export default function VideoFeed({ pagePlatform }) {
 
                 {/* Videos */}
                 {status === 'success' &&
-                    displayVideos.map((video) => (
+                    displayVideos.map((video, idx) => (
                         <VideoCard
                             key={`${video.platform}-${video.platformVideoId}`}
                             video={video}
+                            index={idx}
                             onSelectVideo={setSelectedVideo}
                             isBookmarked={isBookmarked(video)}
                             onToggleBookmark={toggleBookmark}

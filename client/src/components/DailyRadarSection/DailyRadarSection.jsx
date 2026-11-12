@@ -477,13 +477,14 @@ export default function DailyRadarSection({ onPreview, platform = 'youtube', onS
                     </div>
                 ) : (
                     <div className="daily-radar__grid" role="list">
-                        {visibleVideos.map((video) => {
+                        {visibleVideos.map((video, idx) => {
                             const isTwitter = video.platform === 'twitter';
                             return (
                                 <article
                                     key={video.platformVideoId || video.videoUrl}
                                     className={`daily-card daily-card--${video.platform || 'youtube'}`}
                                     role="listitem"
+                                    style={{ '--card-index': idx % 6 }}
                                 >
                                     {/* Thumbnail */}
                                     <div

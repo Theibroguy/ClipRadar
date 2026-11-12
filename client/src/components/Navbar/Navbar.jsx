@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext.jsx';
 import {
     IconRadar,
@@ -13,7 +13,9 @@ import {
 import './Navbar.css';
 
 export default function Navbar() {
+    const location = useLocation();
     const { openSettings, theme, toggleTheme, isSidebarOpen, toggleSidebar } = useSettings();
+    const isFeedRoute = location.pathname !== '/studio';
 
     return (
         <header className="navbar" role="banner">
@@ -45,9 +47,8 @@ export default function Navbar() {
                     <nav className="navbar__nav" aria-label="Primary Navigation">
                         <NavLink
                             to="/"
-                            end
-                            className={({ isActive }) =>
-                                `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
+                            className={() =>
+                                `navbar__tab ${isFeedRoute ? 'navbar__tab--active' : ''}`
                             }
                         >
                             <span className="navbar__tab-icon">

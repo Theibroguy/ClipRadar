@@ -54,16 +54,20 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* Effects */
+  /* Effects & Motion System */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.6);
-  --transition: 0.2s ease;
-  --transition-fast: 0.15s ease;
+  --shadow-elevated: 0 12px 42px rgba(0, 0, 0, 0.6);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-fast: 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-slow: 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* --- Light Theme Design Tokens --- */
@@ -108,7 +112,9 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.35s var(--ease-smooth), color 0.35s var(--ease-smooth);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img {
@@ -124,6 +130,11 @@ a {
 button {
   cursor: pointer;
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 /* --- Utility Classes --- */
@@ -146,10 +157,56 @@ button {
   padding: 0 var(--space-6);
 }
 
-/* --- Animations --- */
+/* --- Global Animations --- */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardCascadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes headerMorph {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes drawerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.32); }
+  75% { transform: scale(0.92); }
+  100% { transform: scale(1); }
 }
 
 @keyframes shimmer {
@@ -167,7 +224,16 @@ button {
 }
 
 .fade-in {
-  animation: fadeIn 0.4s ease forwards;
+  animation: fadeIn 0.42s var(--ease-smooth) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* --- Skeleton loader --- */

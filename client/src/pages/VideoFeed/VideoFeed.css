@@ -22,6 +22,10 @@
     pointer-events: none;
 }
 
+.video-feed__hero-identity {
+    animation: headerMorph 0.38s var(--ease-smooth) both;
+}
+
 .video-feed__logo {
     display: inline-flex;
     align-items: center;
@@ -41,6 +45,11 @@
     filter: drop-shadow(0 0 14px rgba(108, 99, 255, 0.55));
     background: none !important;
     -webkit-text-fill-color: initial !important;
+    transition: transform 0.35s var(--ease-spring);
+}
+
+.video-feed__logo:hover .video-feed__logo-icon {
+    transform: scale(1.08) rotate(-3deg);
 }
 
 .video-feed__logo > span:not(.video-feed__logo-icon) {
@@ -82,21 +91,26 @@
     font-size: 0.82rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background-color 0.28s var(--ease-smooth),
+                color 0.28s var(--ease-smooth),
+                border-color 0.28s var(--ease-smooth),
+                transform 0.28s var(--ease-spring),
+                box-shadow 0.28s var(--ease-smooth);
 }
 
 .video-feed__platform-page-btn:hover {
     color: var(--color-text);
     border-color: var(--color-primary);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(108, 99, 255, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(108, 99, 255, 0.2);
 }
 
 .video-feed__platform-page-btn.active {
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(236, 72, 153, 0.14));
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(236, 72, 153, 0.16));
     color: var(--color-text);
     border-color: var(--color-primary);
-    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.28);
+    box-shadow: 0 4px 18px rgba(108, 99, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 .video-feed__mode-badge {
@@ -137,6 +151,16 @@
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
+    transition: opacity 0.26s var(--ease-smooth),
+                transform 0.26s var(--ease-smooth),
+                filter 0.26s var(--ease-smooth);
+}
+
+.video-feed__grid--transitioning {
+    opacity: 0.45;
+    transform: translateY(6px) scale(0.996);
+    filter: blur(1.5px);
+    pointer-events: none;
 }
 
 /* ---- Modern Clean Toolbar ---- */

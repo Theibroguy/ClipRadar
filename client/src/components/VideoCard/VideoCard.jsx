@@ -28,6 +28,7 @@ const PLATFORM_LABELS = {
  */
 export default function VideoCard({
     video,
+    index = 0,
     onSelectVideo,
     isBookmarked = false,
     onToggleBookmark,
@@ -55,7 +56,11 @@ export default function VideoCard({
     }
 
     return (
-        <article className="video-card" aria-label={title}>
+        <article
+            className="video-card"
+            aria-label={title}
+            style={{ '--card-index': index % 6 }}
+        >
             {/* Thumbnail with Preview Click */}
             <div
                 className="video-card__thumb"

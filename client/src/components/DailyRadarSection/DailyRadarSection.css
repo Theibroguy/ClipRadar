@@ -301,7 +301,7 @@
     flex-direction: column;
     gap: var(--space-3);
     box-shadow: var(--shadow-card);
-    animation: fadeIn 0.2s ease;
+    animation: drawerReveal 0.34s var(--ease-smooth) both;
 }
 
 .daily-radar__customizer-header {
@@ -510,12 +510,18 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    transition: transform 0.36s var(--ease-smooth),
+                box-shadow 0.36s var(--ease-smooth),
+                border-color 0.3s var(--ease-smooth),
+                background-color 0.35s var(--ease-smooth);
     box-shadow: var(--shadow-card);
+    animation: cardCascadeIn 0.44s var(--ease-smooth) both;
+    animation-delay: calc(var(--card-index, 0) * 50ms);
+    will-change: transform, box-shadow;
 }
 
 .daily-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-elevated);
     border-color: rgba(108, 99, 255, 0.5);
 }
@@ -533,11 +539,11 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.55s var(--ease-smooth);
 }
 
 .daily-card:hover .daily-card__thumb-img {
-    transform: scale(1.05);
+    transform: scale(1.06);
 }
 
 .daily-card__platform-badge {

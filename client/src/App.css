@@ -5,6 +5,7 @@
     flex-direction: column;
     background: var(--color-bg);
     color: var(--color-text);
+    transition: background-color 0.35s var(--ease-smooth), color 0.35s var(--ease-smooth);
 }
 
 .app-body {
@@ -20,6 +21,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeIn 0.36s var(--ease-smooth);
 }
 

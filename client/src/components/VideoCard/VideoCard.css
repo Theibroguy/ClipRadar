@@ -3,15 +3,19 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: transform var(--transition), box-shadow var(--transition),
-        border-color var(--transition);
-    animation: fadeIn 0.4s ease forwards;
+    transition: transform 0.36s var(--ease-smooth),
+                box-shadow 0.36s var(--ease-smooth),
+                border-color 0.3s var(--ease-smooth),
+                background-color 0.35s var(--ease-smooth);
+    animation: cardCascadeIn 0.44s var(--ease-smooth) both;
+    animation-delay: calc(var(--card-index, 0) * 45ms);
     display: flex;
     flex-direction: column;
+    will-change: transform, box-shadow;
 }
 
 .video-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-elevated);
     border-color: var(--color-primary);
 }
@@ -30,11 +34,11 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    transition: transform 0.55s var(--ease-smooth);
 }
 
 .video-card:hover .video-card__thumb img {
-    transform: scale(1.04);
+    transform: scale(1.06);
 }
 
 /* Play Hover Overlay */
@@ -48,7 +52,7 @@
     justify-content: center;
     gap: var(--space-2);
     opacity: 0;
-    transition: opacity var(--transition);
+    transition: opacity 0.3s var(--ease-smooth);
     backdrop-filter: blur(2px);
 }
 
@@ -69,12 +73,13 @@
     font-size: 1.25rem;
     padding-left: 3px;
     box-shadow: 0 4px 16px rgba(108, 99, 255, 0.6);
-    transform: scale(0.9);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(0.86);
+    transition: transform 0.34s var(--ease-spring), box-shadow 0.3s var(--ease-smooth);
 }
 
 .video-card__thumb:hover .video-card__play-icon {
     transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(108, 99, 255, 0.75);
 }
 
 .video-card__play-label {
@@ -157,7 +162,8 @@
 .video-card__bookmark-btn.active {
     background: rgba(255, 101, 132, 0.25);
     border-color: var(--color-accent);
-    box-shadow: 0 0 10px rgba(255, 101, 132, 0.5);
+    box-shadow: 0 0 12px rgba(255, 101, 132, 0.55);
+    animation: heartPop 0.36s var(--ease-spring);
 }
 
 .badge-youtube {
