@@ -1,13 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from '../../context/SettingsContext.jsx';
+import {
+    IconPalette,
+    IconRadar,
+    IconFilm,
+    IconScissors,
+    IconSave,
+    IconSettings,
+    IconClose,
+    IconMoon,
+    IconSun,
+    IconTarget,
+    IconX,
+    IconTag,
+    IconTrash,
+    IconCheck,
+    IconSparkles,
+    IconEye,
+    IconBolt,
+} from '../common/Icons.jsx';
 import './SettingsModal.css';
 
 const TABS = [
-    { id: 'appearance', label: 'Appearance', icon: '🎨' },
-    { id: 'feed', label: 'Feed & Discovery', icon: '📡' },
-    { id: 'playback', label: 'Video Playback', icon: '🎬' },
-    { id: 'studio', label: 'Studio & AI Key', icon: '✂️' },
-    { id: 'data', label: 'Data & Backup', icon: '💾' },
+    { id: 'appearance', label: 'Appearance', IconComponent: IconPalette },
+    { id: 'feed', label: 'Feed & Discovery', IconComponent: IconRadar },
+    { id: 'playback', label: 'Video Playback', IconComponent: IconFilm },
+    { id: 'studio', label: 'Studio & AI Key', IconComponent: IconScissors },
+    { id: 'data', label: 'Data & Backup', IconComponent: IconSave },
 ];
 
 export default function SettingsModal() {
@@ -109,7 +128,9 @@ export default function SettingsModal() {
                 {/* Modal Header */}
                 <div className="settings-modal__header">
                     <div className="settings-modal__title-group">
-                        <span className="settings-modal__icon">⚙️</span>
+                        <span className="settings-modal__icon">
+                            <IconSettings size={22} />
+                        </span>
                         <div>
                             <h2 className="settings-modal__title">ClipRadar Settings</h2>
                             <p className="settings-modal__subtitle">Customize theme, discovery feed, playback & studio defaults</p>
@@ -121,7 +142,7 @@ export default function SettingsModal() {
                         onClick={closeSettings}
                         aria-label="Close settings"
                     >
-                        ✕
+                        <IconClose size={20} />
                     </button>
                 </div>
 
@@ -134,19 +155,22 @@ export default function SettingsModal() {
 
                 {/* Tabs Bar */}
                 <div className="settings-modal__tabs" role="tablist">
-                    {TABS.map((tab) => (
-                        <button
-                            key={tab.id}
-                            type="button"
-                            role="tab"
-                            aria-selected={activeTab === tab.id}
-                            className={`settings-modal__tab ${activeTab === tab.id ? 'settings-modal__tab--active' : ''}`}
-                            onClick={() => setActiveTab(tab.id)}
-                        >
-                            <span>{tab.icon}</span>
-                            <span>{tab.label}</span>
-                        </button>
-                    ))}
+                    {TABS.map((tab) => {
+                        const TabIcon = tab.IconComponent;
+                        return (
+                            <button
+                                key={tab.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === tab.id}
+                                className={`settings-modal__tab ${activeTab === tab.id ? 'settings-modal__tab--active' : ''}`}
+                                onClick={() => setActiveTab(tab.id)}
+                            >
+                                <TabIcon size={18} />
+                                <span>{tab.label}</span>
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Modal Content Body */}
@@ -174,7 +198,7 @@ export default function SettingsModal() {
                                         </div>
                                         <div className="settings-theme-card__content">
                                             <div className="settings-theme-card__title">
-                                                <span>🌙 Cyber Dark</span>
+                                                <span><IconMoon size={16} /> Cyber Dark</span>
                                                 {theme === 'dark' && <span className="settings-theme-card__badge">Active</span>}
                                             </div>
                                             <p className="settings-theme-card__desc">Deep obsidian background with neon violet accents (Default)</p>
@@ -194,7 +218,7 @@ export default function SettingsModal() {
                                         </div>
                                         <div className="settings-theme-card__content">
                                             <div className="settings-theme-card__title">
-                                                <span>☀️ Clean Light</span>
+                                                <span><IconSun size={16} /> Clean Light</span>
                                                 {theme === 'light' && <span className="settings-theme-card__badge">Active</span>}
                                             </div>
                                             <p className="settings-theme-card__desc">Bright daylight slate cards with crisp high-contrast readability</p>
@@ -213,7 +237,9 @@ export default function SettingsModal() {
                                     className="settings-theme-quick-btn"
                                     onClick={toggleTheme}
                                 >
-                                    <span className="settings-theme-quick-icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
+                                    <span className="settings-theme-quick-icon">
+                                        {theme === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
+                                    </span>
                                     <span>{theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}</span>
                                 </button>
                             </div>
@@ -282,7 +308,9 @@ export default function SettingsModal() {
 
                             <div className="settings-item settings-item--vertical">
                                 <div className="settings-item__info">
-                                    <span className="settings-item__label">🎯 Tracked X/Twitter Creators & Hashtags</span>
+                                    <span className="settings-item__label">
+                                        <IconTarget size={16} /> Tracked X/Twitter Creators & Hashtags
+                                    </span>
                                     <p className="settings-item__desc">Accounts & tags prioritized in your Daily Drops and radar discovery</p>
                                 </div>
 
@@ -309,7 +337,7 @@ export default function SettingsModal() {
                                                 className="settings-chip__del"
                                                 aria-label={`Remove ${h}`}
                                             >
-                                                ✕
+                                                <IconClose size={12} />
                                             </button>
                                         </span>
                                     ))}
@@ -322,7 +350,7 @@ export default function SettingsModal() {
                                                 className="settings-chip__del"
                                                 aria-label={`Remove ${t}`}
                                             >
-                                                ✕
+                                                <IconClose size={12} />
                                             </button>
                                         </span>
                                     ))}
@@ -397,14 +425,14 @@ export default function SettingsModal() {
                                         className={`settings-toggle-btn ${settings.defaultStudioFps === 60 ? 'settings-toggle-btn--active' : ''}`}
                                         onClick={() => updateSettings({ defaultStudioFps: 60 })}
                                     >
-                                        ⚡ 60 FPS (Ultra)
+                                        <IconBolt size={14} /> 60 FPS (Ultra)
                                     </button>
                                     <button
                                         type="button"
                                         className={`settings-toggle-btn ${settings.defaultStudioFps === 30 ? 'settings-toggle-btn--active' : ''}`}
                                         onClick={() => updateSettings({ defaultStudioFps: 30 })}
                                     >
-                                        🎬 30 FPS (Compact)
+                                        <IconFilm size={14} /> 30 FPS (Compact)
                                     </button>
                                 </div>
                             </div>
@@ -418,7 +446,15 @@ export default function SettingsModal() {
                                         </p>
                                     </div>
                                     <span className={`settings-api-badge ${settings.customGeminiApiKey ? 'settings-api-badge--active' : ''}`}>
-                                        {settings.customGeminiApiKey ? '✅ Custom Key Active' : '✨ Built-in AI Quota'}
+                                        {settings.customGeminiApiKey ? (
+                                            <>
+                                                <IconCheck size={14} /> Custom Key Active
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IconSparkles size={14} /> Built-in AI Quota
+                                            </>
+                                        )}
                                     </span>
                                 </div>
 
@@ -438,7 +474,7 @@ export default function SettingsModal() {
                                             onClick={() => setShowApiKey(!showApiKey)}
                                             title={showApiKey ? 'Hide key' : 'Show key'}
                                         >
-                                            {showApiKey ? '🙈' : '👁️'}
+                                            <IconEye size={16} />
                                         </button>
                                     </div>
 
@@ -468,7 +504,9 @@ export default function SettingsModal() {
                     {activeTab === 'data' && (
                         <div className="settings-group">
                             <div className="settings-data-card">
-                                <h3 className="settings-data-card__title">📥 Export Library & Settings Backup</h3>
+                                <h3 className="settings-data-card__title">
+                                    <IconSave size={18} /> Export Library & Settings Backup
+                                </h3>
                                 <p className="settings-data-card__desc">
                                     Download a JSON file containing all your bookmarked videos, custom brand kit assets, and application settings.
                                 </p>
@@ -477,13 +515,15 @@ export default function SettingsModal() {
                                     className="settings-action-btn settings-action-btn--primary"
                                     onClick={handleExport}
                                 >
-                                    <span>📥</span>
+                                    <IconSave size={16} />
                                     <span>Download JSON Backup</span>
                                 </button>
                             </div>
 
                             <div className="settings-data-card settings-data-card--danger">
-                                <h3 className="settings-data-card__title">🗑️ Clear Cache & Reset</h3>
+                                <h3 className="settings-data-card__title">
+                                    <IconTrash size={18} /> Clear Cache & Reset
+                                </h3>
                                 <p className="settings-data-card__desc">
                                     Clears saved bookmarks, custom brand kits, and restores all preferences back to factory defaults.
                                 </p>
@@ -492,7 +532,7 @@ export default function SettingsModal() {
                                     className="settings-action-btn settings-action-btn--danger"
                                     onClick={handleClearCache}
                                 >
-                                    <span>🗑️</span>
+                                    <IconTrash size={16} />
                                     <span>Reset All App Cache</span>
                                 </button>
                             </div>

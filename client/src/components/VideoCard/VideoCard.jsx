@@ -1,4 +1,11 @@
 import { formatCount, formatDuration, formatDate } from '../../utils/formatters.js';
+import {
+    IconFilm,
+    IconHeart,
+    IconPlay,
+    IconEye,
+    IconExternalLink,
+} from '../common/Icons.jsx';
 import './VideoCard.css';
 
 const PLATFORM_LABELS = {
@@ -66,7 +73,9 @@ export default function VideoCard({
                 {thumbnailUrl ? (
                     <img src={thumbnailUrl} alt={`Thumbnail for ${title}`} loading="lazy" />
                 ) : (
-                    <div className="video-card__thumb-placeholder" aria-hidden="true">🎬</div>
+                    <div className="video-card__thumb-placeholder" aria-hidden="true">
+                        <IconFilm size={32} />
+                    </div>
                 )}
                 <span className={badgeClass}>{platformLabel}</span>
                 {formatDuration(durationSeconds) && (
@@ -92,13 +101,15 @@ export default function VideoCard({
                         aria-pressed={isBookmarked}
                         title={isBookmarked ? 'Remove from favorites' : 'Save to favorites'}
                     >
-                        {isBookmarked ? '❤️' : '🤍'}
+                        <IconHeart size={18} filled={isBookmarked} />
                     </button>
                 )}
 
                 {/* Hover Play Overlay */}
                 <div className="video-card__play-overlay" aria-hidden="true">
-                    <span className="video-card__play-icon">▶</span>
+                    <span className="video-card__play-icon">
+                        <IconPlay size={20} fill="#ffffff" color="#ffffff" />
+                    </span>
                     <span className="video-card__play-label">Preview</span>
                 </div>
             </div>
@@ -159,7 +170,7 @@ export default function VideoCard({
                     <div className="video-card__meta">
                         {formatCount(viewCount) && (
                             <span className="video-card__views">
-                                👁 {formatCount(viewCount)}
+                                <IconEye size={13} /> {formatCount(viewCount)}
                             </span>
                         )}
                         {formatDate(publishedAt) && (
@@ -176,7 +187,7 @@ export default function VideoCard({
                         onClick={handlePreview}
                         aria-label={`Preview "${title}" in modal`}
                     >
-                        ▶ In-App Preview
+                        <IconPlay size={13} fill="currentColor" /> In-App Preview
                     </button>
                     <a
                         href={videoUrl}
@@ -185,7 +196,7 @@ export default function VideoCard({
                         className="video-card__cta"
                         aria-label={`Watch "${title}" on ${platformLabel}`}
                     >
-                        Watch on {platformLabel} ↗
+                        Watch on {platformLabel} <IconExternalLink size={13} />
                     </a>
                 </div>
             </div>

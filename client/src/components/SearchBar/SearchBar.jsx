@@ -1,3 +1,4 @@
+import { IconSearch, IconClose } from '../common/Icons.jsx';
 import './SearchBar.css';
 
 /**
@@ -30,7 +31,7 @@ export default function SearchBar({
     return (
         <div className="search-bar" role="search">
             <span className="search-bar__icon" aria-hidden="true">
-                🔍
+                <IconSearch size={18} />
             </span>
             <input
                 type="text"
@@ -50,7 +51,7 @@ export default function SearchBar({
                     aria-label="Clear search query"
                     title="Clear search"
                 >
-                    ✕
+                    <IconClose size={16} />
                 </button>
             )}
         </div>

@@ -1,0 +1,145 @@
+/* ==========================================================================
+   ClipRadar Premium Icon System Styles
+   ========================================================================== */
+
+.cr-icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.2s ease;
+}
+
+/* Radar Pulse & Glow */
+.cr-icon--radar {
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
+}
+
+:hover > .cr-icon--radar,
+.cr-icon--radar:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.65));
+}
+
+/* YouTube Crimson Glow */
+.cr-icon--youtube {
+    filter: drop-shadow(0 2px 6px rgba(255, 0, 0, 0.35));
+}
+
+:hover > .cr-icon--youtube,
+.cr-icon--youtube:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.65));
+}
+
+/* X / Twitter Crisp Monochrome */
+.cr-icon--x {
+    filter: drop-shadow(0 1px 4px rgba(255, 255, 255, 0.15));
+}
+
+[data-theme='light'] .cr-icon--x {
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12));
+}
+
+:hover > .cr-icon--x,
+.cr-icon--x:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+}
+
+/* Instagram Sunset Radiant Glow */
+.cr-icon--instagram {
+    filter: drop-shadow(0 2px 6px rgba(225, 48, 108, 0.35));
+}
+
+:hover > .cr-icon--instagram,
+.cr-icon--instagram:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(225, 48, 108, 0.65));
+}
+
+/* TikTok Neon Shift Glow */
+.cr-icon--tiktok {
+    filter: drop-shadow(-1px -1px 0px rgba(0, 242, 234, 0.8))
+            drop-shadow(1px 1px 0px rgba(255, 0, 79, 0.8));
+}
+
+:hover > .cr-icon--tiktok,
+.cr-icon--tiktok:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(-2px -1px 4px rgba(0, 242, 234, 0.9))
+            drop-shadow(2px 1px 4px rgba(255, 0, 79, 0.9));
+}
+
+/* Daily Radar Flame Glow */
+.cr-icon--flame {
+    filter: drop-shadow(0 2px 8px rgba(249, 115, 22, 0.45));
+    animation: flamePulse 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes flamePulse {
+    0% {
+        transform: scale(1);
+        filter: drop-shadow(0 2px 6px rgba(249, 115, 22, 0.4));
+    }
+    100% {
+        transform: scale(1.06);
+        filter: drop-shadow(0 3px 12px rgba(250, 204, 21, 0.65));
+    }
+}
+
+/* Heart Favorite (Active Pulse) */
+.cr-icon--heart-filled {
+    color: #ef4444;
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5));
+    animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+/* Rotating / Spinning for Refresh */
+.cr-icon--spinning {
+    animation: iconSpin 1s linear infinite;
+}
+
+@keyframes iconSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Scissors Studio Purple Glow */
+.cr-icon--scissors {
+    filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.3));
+}
+
+:hover > .cr-icon--scissors,
+.cr-icon--scissors:hover {
+    transform: scale(1.08) rotate(-8deg);
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.6));
+}
+
+/* Sun & Moon Theme Animation */
+.cr-icon--sun {
+    color: #f59e0b;
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+}
+
+.cr-icon--moon {
+    color: #818cf8;
+    filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.5));
+}
+
+/* Settings Gear Rotate on Hover */
+:hover > .cr-icon--settings,
+.cr-icon--settings:hover {
+    transform: rotate(60deg);
+}

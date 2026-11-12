@@ -2,6 +2,23 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useInRouterContext, useNavigate } from 'react-router-dom';
 import { fetchDailyDrop, generateFreshDailyDrop } from '../../api/videos.js';
 import { useSettings } from '../../context/SettingsContext.jsx';
+import {
+    IconFlame,
+    IconCalendar,
+    IconClock,
+    IconRefresh,
+    IconChevron,
+    IconYouTube,
+    IconX,
+    IconTarget,
+    IconClose,
+    IconTag,
+    IconPlay,
+    IconScissors,
+    IconBolt,
+    IconEye,
+    IconSparkles,
+} from '../common/Icons.jsx';
 import './DailyRadarSection.css';
 
 function useSafeNavigate() {
@@ -196,14 +213,16 @@ export default function DailyRadarSection({ onPreview }) {
                 <div className="daily-radar__header">
                     <div className="daily-radar__header-left">
                         <div className="daily-radar__badge-row">
-                            <span className="daily-radar__fire-badge">🔥 Daily Radar Drop</span>
+                            <span className="daily-radar__fire-badge">
+                                <IconFlame size={16} /> Daily Radar Drop
+                            </span>
                             {dailyData?.formattedDate && (
                                 <span className="daily-radar__date-badge">
-                                    📅 {dailyData.formattedDate}
+                                    <IconCalendar size={14} /> {dailyData.formattedDate}
                                 </span>
                             )}
                             <span className="daily-radar__countdown-badge" title="Time until next daily batch">
-                                ⏳ Next Drop in {formatCountdown(countdownSec)}
+                                <IconClock size={14} /> Next Drop in {formatCountdown(countdownSec)}
                             </span>
                         </div>
                         <h2 className="daily-radar__title">
@@ -229,7 +248,7 @@ export default function DailyRadarSection({ onPreview }) {
                                 >
                                     {dailyData.history.map((d, index) => (
                                         <option key={d} value={d}>
-                                            {index === 0 ? `🔥 Today (${d})` : `📅 ${d}`}
+                                            {index === 0 ? `Today (${d})` : d}
                                         </option>
                                     ))}
                                 </select>
@@ -245,7 +264,9 @@ export default function DailyRadarSection({ onPreview }) {
                             title="Generate a completely new batch of videos for today"
                             aria-label="Generate fresh video drop"
                         >
-                            <span className="daily-radar__refresh-icon">{isRefreshing ? '⏳' : '⚡'}</span>
+                            <span className="daily-radar__refresh-icon">
+                                <IconRefresh size={16} spinning={isRefreshing} />
+                            </span>
                             <span>{isRefreshing ? 'Grabbing New Clips…' : 'Generate New Batch'}</span>
                         </button>
 
@@ -257,7 +278,8 @@ export default function DailyRadarSection({ onPreview }) {
                             aria-expanded={!isCollapsed}
                             title={isCollapsed ? "Expand Daily Drops Section" : "Collapse Daily Drops Section"}
                         >
-                            <span>{isCollapsed ? "▾ Show Drops" : "▴ Hide Drops"}</span>
+                            <IconChevron direction={isCollapsed ? 'down' : 'up'} size={15} />
+                            <span>{isCollapsed ? "Show Drops" : "Hide Drops"}</span>
                         </button>
                     </div>
                 </div>
@@ -275,7 +297,8 @@ export default function DailyRadarSection({ onPreview }) {
                             className={`daily-radar__tab-btn ${activePlatform === 'all' ? 'active' : ''}`}
                             onClick={() => setActivePlatform('all')}
                         >
-                            <span>🔥 All Drops</span>
+                            <IconFlame size={16} />
+                            <span>All Drops</span>
                             {platformCounts.all > 0 && (
                                 <span className="daily-radar__tab-count">{platformCounts.all}</span>
                             )}
@@ -288,7 +311,8 @@ export default function DailyRadarSection({ onPreview }) {
                             className={`daily-radar__tab-btn ${activePlatform === 'youtube' ? 'active' : ''}`}
                             onClick={() => setActivePlatform('youtube')}
                         >
-                            <span>📺 YouTube Shorts</span>
+                            <IconYouTube size={16} />
+                            <span>YouTube Shorts</span>
                             {platformCounts.youtube > 0 && (
                                 <span className="daily-radar__tab-count">{platformCounts.youtube}</span>
                             )}
@@ -301,7 +325,8 @@ export default function DailyRadarSection({ onPreview }) {
                             className={`daily-radar__tab-btn ${activePlatform === 'twitter' ? 'active' : ''}`}
                             onClick={() => setActivePlatform('twitter')}
                         >
-                            <span>𝕏 Twitter Clips</span>
+                            <IconX size={15} />
+                            <span>Twitter Clips</span>
                             {platformCounts.twitter > 0 && (
                                 <span className="daily-radar__tab-count">{platformCounts.twitter}</span>
                             )}
@@ -315,7 +340,8 @@ export default function DailyRadarSection({ onPreview }) {
                         aria-expanded={showCustomizer}
                         title="Customize tracked X/Twitter creators and hashtags"
                     >
-                        <span>🎯 Tracked Creators & Tags</span>
+                        <IconTarget size={16} />
+                        <span>Tracked Creators & Tags</span>
                         <span className="daily-radar__customize-count">
                             {trackedTwitterCreators.length + trackedTwitterHashtags.length}
                         </span>
@@ -327,7 +353,9 @@ export default function DailyRadarSection({ onPreview }) {
                     <div className="daily-radar__customizer" aria-label="Customize Tracked Creators & Hashtags">
                         <div className="daily-radar__customizer-header">
                             <div>
-                                <h3 className="daily-radar__customizer-title">🎯 Tracked X/Twitter Creators & Hashtags</h3>
+                                <h3 className="daily-radar__customizer-title">
+                                    <IconTarget size={18} /> Tracked X/Twitter Creators & Hashtags
+                                </h3>
                                 <p className="daily-radar__customizer-subtitle">
                                     Prioritize drops and viral moments from your favorite accounts and topics.
                                 </p>
@@ -338,7 +366,7 @@ export default function DailyRadarSection({ onPreview }) {
                                 onClick={() => setShowCustomizer(false)}
                                 aria-label="Close customizer"
                             >
-                                ✕
+                                <IconClose size={18} />
                             </button>
                         </div>
 
@@ -358,7 +386,9 @@ export default function DailyRadarSection({ onPreview }) {
 
                         {/* Tracked Creators Chips */}
                         <div className="daily-radar__chips-section">
-                            <span className="daily-radar__chips-label">𝕏 Favorite Creators ({trackedTwitterCreators.length}):</span>
+                            <span className="daily-radar__chips-label">
+                                <IconX size={14} /> Favorite Creators ({trackedTwitterCreators.length}):
+                            </span>
                             <div className="daily-radar__chips-list">
                                 {trackedTwitterCreators.map((handle) => (
                                     <span key={handle} className="daily-radar__chip daily-radar__chip--creator">
@@ -369,7 +399,7 @@ export default function DailyRadarSection({ onPreview }) {
                                             onClick={() => removeTrackedCreator(handle)}
                                             aria-label={`Remove ${handle}`}
                                         >
-                                            ✕
+                                            <IconClose size={12} />
                                         </button>
                                     </span>
                                 ))}
@@ -378,7 +408,9 @@ export default function DailyRadarSection({ onPreview }) {
 
                         {/* Tracked Hashtags Chips */}
                         <div className="daily-radar__chips-section">
-                            <span className="daily-radar__chips-label">🏷️ Tracked Hashtags ({trackedTwitterHashtags.length}):</span>
+                            <span className="daily-radar__chips-label">
+                                <IconTag size={14} /> Tracked Hashtags ({trackedTwitterHashtags.length}):
+                            </span>
                             <div className="daily-radar__chips-list">
                                 {trackedTwitterHashtags.map((tag) => (
                                     <span key={tag} className="daily-radar__chip daily-radar__chip--hashtag">
@@ -389,7 +421,7 @@ export default function DailyRadarSection({ onPreview }) {
                                             onClick={() => removeTrackedHashtag(tag)}
                                             aria-label={`Remove ${tag}`}
                                         >
-                                            ✕
+                                            <IconClose size={12} />
                                         </button>
                                     </span>
                                 ))}
@@ -398,7 +430,9 @@ export default function DailyRadarSection({ onPreview }) {
 
                         {/* Quick Suggestion Presets */}
                         <div className="daily-radar__presets">
-                            <span className="daily-radar__presets-label">⚡ Quick Presets:</span>
+                            <span className="daily-radar__presets-label">
+                                <IconBolt size={14} /> Quick Presets:
+                            </span>
                             <div className="daily-radar__presets-list">
                                 {['@MrBeast', '@FabrizioRomano', '@overtime', '@redbull', '@IGN', '#gaming', '#ufc', '#memes'].map((item) => {
                                     const isAdded = item.startsWith('@')
@@ -437,7 +471,7 @@ export default function DailyRadarSection({ onPreview }) {
                     <div className="daily-radar__empty">
                         <p>No daily {activePlatform === 'all' ? '' : activePlatform} drops available for this date.</p>
                         <button type="button" onClick={() => handleForceRefresh()} className="daily-radar__action-btn">
-                            ⚡ Fetch Fresh Batch Now
+                            <IconRefresh size={16} /> Fetch Fresh Batch Now
                         </button>
                     </div>
                 ) : (
@@ -468,7 +502,7 @@ export default function DailyRadarSection({ onPreview }) {
                                         <span
                                             className={`daily-card__platform-badge daily-card__platform-badge--${isTwitter ? 'twitter' : 'youtube'}`}
                                         >
-                                            {isTwitter ? '𝕏 Post' : 'YouTube Short'}
+                                            {isTwitter ? <><IconX size={12} /> Post</> : <><IconYouTube size={12} /> YouTube Short</>}
                                         </span>
                                         {video.durationSeconds && (
                                             <span className="daily-card__duration-badge">
@@ -477,7 +511,9 @@ export default function DailyRadarSection({ onPreview }) {
                                             </span>
                                         )}
                                         <div className="daily-card__play-overlay">
-                                            <span className="daily-card__play-icon" aria-hidden="true">▶</span>
+                                            <span className="daily-card__play-icon" aria-hidden="true">
+                                                <IconPlay size={20} fill="#ffffff" color="#ffffff" />
+                                            </span>
                                         </div>
                                     </div>
 
@@ -487,11 +523,11 @@ export default function DailyRadarSection({ onPreview }) {
                                             <span className="daily-card__category">{video.category || 'Viral'}</span>
                                             {video.velocityViewsPerHour && (
                                                 <span className="daily-card__velocity">
-                                                    ⚡ {formatViews(video.velocityViewsPerHour)}/hr
+                                                    <IconBolt size={12} /> {formatViews(video.velocityViewsPerHour)}/hr
                                                 </span>
                                             )}
                                             <span className="daily-card__views">
-                                                👀 {formatViews(video.viewCount)} {isTwitter ? 'impressions' : 'views'}
+                                                <IconEye size={12} /> {formatViews(video.viewCount)} {isTwitter ? 'impressions' : 'views'}
                                             </span>
                                         </div>
 
@@ -520,7 +556,7 @@ export default function DailyRadarSection({ onPreview }) {
                                                             className="daily-card__creator-img"
                                                         />
                                                     ) : (
-                                                        <span>{video.creator?.name ? video.creator.name.charAt(0) : (isTwitter ? '𝕏' : 'Y')}</span>
+                                                        <span>{video.creator?.name ? video.creator.name.charAt(0) : (isTwitter ? <IconX size={12} /> : 'Y')}</span>
                                                     )}
                                                 </div>
                                                 <div className="daily-card__creator-info">
@@ -542,7 +578,7 @@ export default function DailyRadarSection({ onPreview }) {
                                                     onClick={() => onPreview && onPreview(video)}
                                                     title="Preview full video with embedded player"
                                                 >
-                                                    🎬 Preview
+                                                    <IconPlay size={13} fill="currentColor" /> Preview
                                                 </button>
                                                 <button
                                                     type="button"
@@ -550,7 +586,7 @@ export default function DailyRadarSection({ onPreview }) {
                                                     onClick={() => handleSendToStudio(video)}
                                                     title="Remix and generate viral short in Video Studio"
                                                 >
-                                                    ✂️ Studio
+                                                    <IconScissors size={13} /> Studio
                                                 </button>
                                             </div>
                                         </div>

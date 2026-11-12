@@ -1,6 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { getEmbedInfo } from '../../utils/embed.js';
 import { formatCount, formatDuration, formatDate } from '../../utils/formatters.js';
+import {
+    IconHeart,
+    IconClose,
+    IconFilm,
+    IconPlay,
+    IconExternalLink,
+    IconSparkles,
+} from '../common/Icons.jsx';
 import './VideoModal.css';
 
 const PLATFORM_LABELS = {
@@ -119,9 +127,7 @@ export default function VideoModal({
                                         : 'Save to favorites'
                                 }
                             >
-                                <span aria-hidden="true">
-                                    {isBookmarked ? '❤️' : '🤍'}
-                                </span>
+                                <IconHeart size={18} filled={isBookmarked} />
                                 <span className="video-modal__bookmark-text">
                                     {isBookmarked ? 'Saved' : 'Save'}
                                 </span>
@@ -134,7 +140,7 @@ export default function VideoModal({
                             onClick={onClose}
                             aria-label="Close preview modal"
                         >
-                            ✕
+                            <IconClose size={20} />
                         </button>
                     </div>
                 </div>
@@ -175,7 +181,9 @@ export default function VideoModal({
                                     className="video-modal__no-embed-poster"
                                 />
                             ) : (
-                                <div className="video-modal__no-embed-placeholder">🎬</div>
+                                <div className="video-modal__no-embed-placeholder">
+                                    <IconFilm size={36} />
+                                </div>
                             )}
                             <div className="video-modal__no-embed-overlay">
                                 <p className="video-modal__no-embed-msg">
@@ -187,7 +195,7 @@ export default function VideoModal({
                                     rel="noopener noreferrer"
                                     className="video-modal__cta-btn"
                                 >
-                                    ▶ Watch original clip on {platformLabel}
+                                    <IconPlay size={14} fill="currentColor" /> Watch original clip on {platformLabel} <IconExternalLink size={13} />
                                 </a>
                             </div>
                         </div>
@@ -233,7 +241,7 @@ export default function VideoModal({
                                 rel="noopener noreferrer"
                                 className="video-modal__creator-profile-link"
                             >
-                                View Profile ↗
+                                View Profile <IconExternalLink size={13} />
                             </a>
                         )}
                     </div>
@@ -242,7 +250,9 @@ export default function VideoModal({
                     {aiDescription && (
                         <div className="video-modal__ai-box">
                             <div className="video-modal__ai-header">
-                                <span className="video-modal__ai-sparkle">✨</span>
+                                <span className="video-modal__ai-sparkle">
+                                    <IconSparkles size={16} />
+                                </span>
                                 <span className="video-modal__ai-label">AI Description</span>
                             </div>
                             <p className="video-modal__ai-text">{aiDescription}</p>
@@ -308,9 +318,8 @@ export default function VideoModal({
                                 }`}
                                 onClick={() => onToggleBookmark(video)}
                             >
-                                {isBookmarked
-                                    ? '❤️ Saved in Favorites'
-                                    : '🤍 Save to Favorites'}
+                                <IconHeart size={16} filled={isBookmarked} />
+                                <span>{isBookmarked ? 'Saved in Favorites' : 'Save to Favorites'}</span>
                             </button>
                         )}
                         <a
@@ -319,7 +328,7 @@ export default function VideoModal({
                             rel="noopener noreferrer"
                             className="video-modal__cta-btn"
                         >
-                            ▶ Watch on {platformLabel} ↗
+                            <IconPlay size={14} fill="currentColor" /> Watch on {platformLabel} <IconExternalLink size={13} />
                         </a>
                     </div>
                 </div>

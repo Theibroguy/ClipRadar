@@ -77,7 +77,9 @@
 }
 
 .navbar__brand-icon {
-    font-size: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     filter: drop-shadow(0 0 10px rgba(108, 99, 255, 0.6));
 }
 
@@ -104,6 +106,19 @@
     border: 1px solid var(--color-border);
     padding: 4px;
     border-radius: var(--radius-full);
+}
+
+.navbar__tab-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar__theme-icon,
+.navbar__settings-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Theme Toggle Button */

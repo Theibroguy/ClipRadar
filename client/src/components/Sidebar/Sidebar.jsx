@@ -3,30 +3,57 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext.jsx';
 import { useFeedFilters } from '../../context/FeedFilterContext.jsx';
 import { useBookmarks } from '../../hooks/useBookmarks.js';
+import {
+    IconGlobe,
+    IconFlame,
+    IconYouTube,
+    IconX,
+    IconInstagram,
+    IconTikTok,
+    IconScissors,
+    IconBolt,
+    IconSparkles,
+    IconComedy,
+    IconLaptop,
+    IconPopcorn,
+    IconTrophy,
+    IconMusic,
+    IconNewspaper,
+    IconLifestyle,
+    IconFolder,
+    IconCompass,
+    IconRadar,
+    IconHeart,
+    IconCheck,
+    IconSun,
+    IconMoon,
+    IconSettings,
+    IconClose,
+} from '../common/Icons.jsx';
 import './Sidebar.css';
 
 const PLATFORMS = [
-    { value: 'all', label: 'All Platforms', icon: '🌐', dot: 'dot-all' },
-    { value: 'daily', label: 'Daily Drops', icon: '🔥', dot: 'dot-daily' },
-    { value: 'youtube', label: 'YouTube Shorts', icon: '📺', dot: 'dot-youtube' },
-    { value: 'twitter', label: 'X / Twitter Clips', icon: '𝕏', dot: 'dot-twitter' },
-    { value: 'instagram', label: 'Instagram Reels', icon: '📸', dot: 'dot-instagram' },
-    { value: 'tiktok', label: 'TikTok Videos', icon: '🎵', dot: 'dot-tiktok' },
-    { value: 'studio', label: 'AI Studio Shorts', icon: '✂️', dot: 'dot-studio' },
-    { value: 'demo', label: 'Demo Archive', icon: '⚡', dot: 'dot-demo' },
+    { value: 'all', label: 'All Platforms', IconComponent: IconGlobe, dot: 'dot-all' },
+    { value: 'daily', label: 'Daily Drops', IconComponent: IconFlame, dot: 'dot-daily' },
+    { value: 'youtube', label: 'YouTube Shorts', IconComponent: IconYouTube, dot: 'dot-youtube' },
+    { value: 'twitter', label: 'X / Twitter Clips', IconComponent: IconX, dot: 'dot-twitter' },
+    { value: 'instagram', label: 'Instagram Reels', IconComponent: IconInstagram, dot: 'dot-instagram' },
+    { value: 'tiktok', label: 'TikTok Videos', IconComponent: IconTikTok, dot: 'dot-tiktok' },
+    { value: 'studio', label: 'AI Studio Shorts', IconComponent: IconScissors, dot: 'dot-studio' },
+    { value: 'demo', label: 'Demo Archive', IconComponent: IconBolt, dot: 'dot-demo' },
 ];
 
 const CATEGORIES = [
-    { value: 'all', label: 'All Categories', icon: '✨' },
-    { value: 'Comedy', label: 'Comedy & Laughs', icon: '🎭' },
-    { value: 'Challenge', label: 'Challenges & Feats', icon: '⚡' },
-    { value: 'Science & Tech', label: 'Science & Tech', icon: '💻' },
-    { value: 'Entertainment', label: 'Entertainment', icon: '🍿' },
-    { value: 'Sports', label: 'Sports & Stunts', icon: '⚽' },
-    { value: 'Music', label: 'Music & Dance', icon: '🎵' },
-    { value: 'News', label: 'News & Culture', icon: '📰' },
-    { value: 'Lifestyle', label: 'Lifestyle & POV', icon: '🏝️' },
-    { value: 'Other', label: 'Other Moments', icon: '📁' },
+    { value: 'all', label: 'All Categories', IconComponent: IconSparkles },
+    { value: 'Comedy', label: 'Comedy & Laughs', IconComponent: IconComedy },
+    { value: 'Challenge', label: 'Challenges & Feats', IconComponent: IconBolt },
+    { value: 'Science & Tech', label: 'Science & Tech', IconComponent: IconLaptop },
+    { value: 'Entertainment', label: 'Entertainment', IconComponent: IconPopcorn },
+    { value: 'Sports', label: 'Sports & Stunts', IconComponent: IconTrophy },
+    { value: 'Music', label: 'Music & Dance', IconComponent: IconMusic },
+    { value: 'News', label: 'News & Culture', IconComponent: IconNewspaper },
+    { value: 'Lifestyle', label: 'Lifestyle & POV', IconComponent: IconLifestyle },
+    { value: 'Other', label: 'Other Moments', IconComponent: IconFolder },
 ];
 
 export default function Sidebar() {
@@ -100,7 +127,9 @@ export default function Sidebar() {
                     {/* Header */}
                     <div className="sidebar__header">
                         <div className="sidebar__header-title">
-                            <span className="sidebar__header-icon">🧭</span>
+                            <span className="sidebar__header-icon">
+                                <IconCompass size={20} />
+                            </span>
                             <span>Navigation & Filters</span>
                         </div>
                         <button
@@ -110,7 +139,7 @@ export default function Sidebar() {
                             aria-label="Close sidebar"
                             title="Close sidebar"
                         >
-                            ✕
+                            <IconClose size={18} />
                         </button>
                     </div>
 
@@ -127,7 +156,9 @@ export default function Sidebar() {
                                 }`}
                                 onClick={handleResetAll}
                             >
-                                <span className="sidebar__nav-icon">📡</span>
+                                <span className="sidebar__nav-icon">
+                                    <IconRadar size={18} />
+                                </span>
                                 <span className="sidebar__nav-text">All Radar Feed</span>
                             </button>
 
@@ -138,7 +169,9 @@ export default function Sidebar() {
                                 }`}
                                 onClick={() => handleSelectPlatform('daily')}
                             >
-                                <span className="sidebar__nav-icon">🔥</span>
+                                <span className="sidebar__nav-icon">
+                                    <IconFlame size={18} />
+                                </span>
                                 <span className="sidebar__nav-text">Daily Radar Drops</span>
                                 <span className="sidebar__badge-fire">New Daily</span>
                             </button>
@@ -150,7 +183,9 @@ export default function Sidebar() {
                                 }`}
                                 onClick={handleSelectSaved}
                             >
-                                <span className="sidebar__nav-icon">❤️</span>
+                                <span className="sidebar__nav-icon">
+                                    <IconHeart size={18} filled={true} />
+                                </span>
                                 <span className="sidebar__nav-text">Saved Favorites</span>
                                 {bookmarksCount > 0 && (
                                     <span className="sidebar__badge-count">{bookmarksCount}</span>
@@ -166,7 +201,9 @@ export default function Sidebar() {
                                     if (window.innerWidth < 1024) closeSidebar();
                                 }}
                             >
-                                <span className="sidebar__nav-icon">✂️</span>
+                                <span className="sidebar__nav-icon">
+                                    <IconScissors size={18} />
+                                </span>
                                 <span className="sidebar__nav-text">AI Video Studio</span>
                                 <span className="sidebar__badge-pill">Creator 9:16</span>
                             </NavLink>
@@ -190,6 +227,7 @@ export default function Sidebar() {
                         <div className="sidebar__nav-list">
                             {PLATFORMS.map((p) => {
                                 const isActive = !showSavedOnly && currentPlatform === p.value;
+                                const PlatformIcon = p.IconComponent;
                                 return (
                                     <button
                                         key={p.value}
@@ -199,9 +237,15 @@ export default function Sidebar() {
                                         aria-pressed={isActive}
                                     >
                                         <span className={`sidebar__platform-dot ${p.dot}`} aria-hidden="true" />
-                                        <span className="sidebar__nav-icon">{p.icon}</span>
+                                        <span className="sidebar__nav-icon">
+                                            <PlatformIcon size={18} />
+                                        </span>
                                         <span className="sidebar__nav-text">{p.label}</span>
-                                        {isActive && <span className="sidebar__active-check">✓</span>}
+                                        {isActive && (
+                                            <span className="sidebar__active-check">
+                                                <IconCheck size={16} />
+                                            </span>
+                                        )}
                                     </button>
                                 );
                             })}
@@ -225,6 +269,7 @@ export default function Sidebar() {
                         <div className="sidebar__nav-list">
                             {CATEGORIES.map((c) => {
                                 const isActive = currentCategory === c.value;
+                                const CategoryIcon = c.IconComponent;
                                 return (
                                     <button
                                         key={c.value}
@@ -233,9 +278,15 @@ export default function Sidebar() {
                                         onClick={() => handleSelectCategory(c.value)}
                                         aria-pressed={isActive}
                                     >
-                                        <span className="sidebar__nav-icon">{c.icon}</span>
+                                        <span className="sidebar__nav-icon">
+                                            <CategoryIcon size={18} />
+                                        </span>
                                         <span className="sidebar__nav-text">{c.label}</span>
-                                        {isActive && <span className="sidebar__active-check">✓</span>}
+                                        {isActive && (
+                                            <span className="sidebar__active-check">
+                                                <IconCheck size={16} />
+                                            </span>
+                                        )}
                                     </button>
                                 );
                             })}
@@ -250,7 +301,9 @@ export default function Sidebar() {
                             onClick={toggleTheme}
                             title="Toggle Light / Dark Mode"
                         >
-                            <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+                            <span>
+                                {theme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
+                            </span>
                             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
                         </button>
 
@@ -263,7 +316,9 @@ export default function Sidebar() {
                             }}
                             title="Open Settings & Preferences"
                         >
-                            <span>⚙️</span>
+                            <span>
+                                <IconSettings size={18} />
+                            </span>
                             <span>Settings</span>
                         </button>
                     </div>

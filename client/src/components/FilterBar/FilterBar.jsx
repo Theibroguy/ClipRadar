@@ -1,8 +1,9 @@
+import { IconHeart, IconFlame } from '../common/Icons.jsx';
 import './FilterBar.css';
 
 const PLATFORMS = [
     { value: 'all', label: 'All Platforms', dot: 'dot-all' },
-    { value: 'daily', label: '🔥 Daily Drops', dot: 'dot-daily' },
+    { value: 'daily', label: 'Daily Drops', dot: 'dot-daily' },
     { value: 'studio', label: 'AI Studio', dot: 'dot-studio' },
     { value: 'youtube', label: 'YouTube', dot: 'dot-youtube' },
     { value: 'twitter', label: 'X / Twitter', dot: 'dot-twitter' },
@@ -66,7 +67,7 @@ export default function FilterBar({
                         id="saved-clips-filter"
                         title={showSavedOnly ? 'Show all clips' : 'Show saved favorites only'}
                     >
-                        <span aria-hidden="true">{showSavedOnly ? '❤️' : '🤍'}</span>
+                        <IconHeart size={14} filled={showSavedOnly} />
                         <span>Saved ({savedCount})</span>
                     </button>
                 </div>

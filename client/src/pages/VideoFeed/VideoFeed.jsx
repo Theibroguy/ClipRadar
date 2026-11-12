@@ -8,6 +8,16 @@ import DailyRadarSection from '../../components/DailyRadarSection/DailyRadarSect
 import { useBookmarks } from '../../hooks/useBookmarks.js';
 import { useSettings } from '../../context/SettingsContext.jsx';
 import { useFeedFilters } from '../../context/FeedFilterContext.jsx';
+import {
+    IconGrid,
+    IconCinematic,
+    IconAlert,
+    IconRefresh,
+    IconHeart,
+    IconSearch,
+    IconClose,
+    IconMenu,
+} from '../../components/common/Icons.jsx';
 import './VideoFeed.css';
 
 const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
@@ -265,7 +275,9 @@ export default function VideoFeed() {
                         aria-label={isSidebarOpen ? 'Close sidebar channels & filters' : 'Open sidebar channels & filters'}
                         title="Toggle Channels & Filters Sidebar (Ctrl+B)"
                     >
-                        <span className="video-feed__toggle-icon">{isSidebarOpen ? '✕' : '☰'}</span>
+                        <span className="video-feed__toggle-icon">
+                            {isSidebarOpen ? <IconClose size={18} /> : <IconMenu size={18} />}
+                        </span>
                         <span>Channels & Filters</span>
                         {activeFilterCount > 0 && (
                             <span className="video-feed__toolbar-badge">{activeFilterCount}</span>
@@ -281,7 +293,9 @@ export default function VideoFeed() {
                             title="Remove platform filter"
                         >
                             <span>Platform: {filters.platform}</span>
-                            <span className="video-feed__active-chip-del">✕</span>
+                            <span className="video-feed__active-chip-del">
+                                <IconClose size={12} />
+                            </span>
                         </button>
                     )}
 
@@ -293,7 +307,9 @@ export default function VideoFeed() {
                             title="Remove category filter"
                         >
                             <span>Category: {filters.category}</span>
-                            <span className="video-feed__active-chip-del">✕</span>
+                            <span className="video-feed__active-chip-del">
+                                <IconClose size={12} />
+                            </span>
                         </button>
                     )}
 
@@ -304,8 +320,11 @@ export default function VideoFeed() {
                             onClick={() => setShowSavedOnly(false)}
                             title="Show all clips"
                         >
-                            <span>❤️ Saved Only</span>
-                            <span className="video-feed__active-chip-del">✕</span>
+                            <IconHeart size={14} filled={true} />
+                            <span>Saved Only</span>
+                            <span className="video-feed__active-chip-del">
+                                <IconClose size={12} />
+                            </span>
                         </button>
                     )}
 
@@ -340,7 +359,7 @@ export default function VideoFeed() {
                             title="Standard 3-4 Column Grid"
                             aria-label="Standard Grid View"
                         >
-                            ⊞
+                            <IconGrid size={17} />
                         </button>
                         <button
                             type="button"
@@ -349,7 +368,7 @@ export default function VideoFeed() {
                             title="Cinematic 2 Column Grid"
                             aria-label="Cinematic View"
                         >
-                            ⊟
+                            <IconCinematic size={17} />
                         </button>
                     </div>
                 </div>
@@ -371,7 +390,9 @@ export default function VideoFeed() {
                 {/* Error */}
                 {status === 'error' && (
                     <div className="video-feed__state" role="alert">
-                        <span className="video-feed__state-icon">⚠️</span>
+                        <span className="video-feed__state-icon">
+                            <IconAlert size={36} color="#ef4444" />
+                        </span>
                         <h2 className="video-feed__state-title">Something went wrong</h2>
                         <p className="video-feed__state-msg">{errorMsg}</p>
                         <button
@@ -379,7 +400,7 @@ export default function VideoFeed() {
                             onClick={handleRetry}
                             id="retry-button"
                         >
-                            🔄 Try again
+                            <IconRefresh size={16} /> Try again
                         </button>
                     </div>
                 )}
@@ -387,7 +408,9 @@ export default function VideoFeed() {
                 {/* Empty State: Saved tab has no bookmarks */}
                 {status === 'success' && showSavedOnly && bookmarksCount === 0 && (
                     <div className="video-feed__state">
-                        <span className="video-feed__state-icon">❤️</span>
+                        <span className="video-feed__state-icon">
+                            <IconHeart size={36} filled={true} />
+                        </span>
                         <h2 className="video-feed__state-title">No saved clips yet</h2>
                         <p className="video-feed__state-msg">
                             Click the heart icon on any video card to save your favorite clips here.
@@ -407,7 +430,9 @@ export default function VideoFeed() {
                     displayVideos.length === 0 &&
                     (!showSavedOnly || bookmarksCount > 0) && (
                         <div className="video-feed__state">
-                            <span className="video-feed__state-icon">🔍</span>
+                            <span className="video-feed__state-icon">
+                                <IconSearch size={36} color="#64748b" />
+                            </span>
                             <h2 className="video-feed__state-title">No clips found</h2>
                             <p className="video-feed__state-msg">
                                 {searchQuery

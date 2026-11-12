@@ -1,6 +1,15 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext.jsx';
+import {
+    IconRadar,
+    IconScissors,
+    IconSun,
+    IconMoon,
+    IconSettings,
+    IconMenu,
+    IconClose,
+} from '../common/Icons.jsx';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -17,11 +26,15 @@ export default function Navbar() {
                         aria-label={isSidebarOpen ? 'Close navigation sidebar' : 'Open navigation sidebar'}
                         title="Toggle Navigation Sidebar (Ctrl+B)"
                     >
-                        <span className="navbar__sidebar-toggle-icon">{isSidebarOpen ? '✕' : '☰'}</span>
+                        <span className="navbar__sidebar-toggle-icon">
+                            {isSidebarOpen ? <IconClose size={20} /> : <IconMenu size={20} />}
+                        </span>
                     </button>
 
                     <Link to="/" className="navbar__brand" aria-label="ClipRadar Home">
-                        <span className="navbar__brand-icon">📡</span>
+                        <span className="navbar__brand-icon">
+                            <IconRadar size={26} />
+                        </span>
                         <span className="navbar__brand-text">
                             Clip<span>Radar</span>
                         </span>
@@ -37,7 +50,9 @@ export default function Navbar() {
                                 `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
                             }
                         >
-                            <span className="navbar__tab-icon">📡</span>
+                            <span className="navbar__tab-icon">
+                                <IconRadar size={18} />
+                            </span>
                             <span className="navbar__tab-label">Radar Feed</span>
                         </NavLink>
 
@@ -47,7 +62,9 @@ export default function Navbar() {
                                 `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
                             }
                         >
-                            <span className="navbar__tab-icon">✂️</span>
+                            <span className="navbar__tab-icon">
+                                <IconScissors size={18} />
+                            </span>
                             <span className="navbar__tab-label">Video Studio</span>
                             <span className="navbar__tab-badge">New</span>
                         </NavLink>
@@ -62,7 +79,7 @@ export default function Navbar() {
                         title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
                     >
                         <span className="navbar__theme-icon" aria-hidden="true">
-                            {theme === 'dark' ? '☀️' : '🌙'}
+                            {theme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
                         </span>
                         <span className="navbar__theme-text">
                             {theme === 'dark' ? 'Light' : 'Dark'}
@@ -76,7 +93,9 @@ export default function Navbar() {
                         aria-label="Open Settings"
                         title="Preferences & Settings"
                     >
-                        <span className="navbar__settings-icon">⚙️</span>
+                        <span className="navbar__settings-icon">
+                            <IconSettings size={18} />
+                        </span>
                         <span className="navbar__settings-text">Settings</span>
                     </button>
                 </div>
