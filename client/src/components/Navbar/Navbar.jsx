@@ -4,17 +4,29 @@ import { useSettings } from '../../context/SettingsContext.jsx';
 import './Navbar.css';
 
 export default function Navbar() {
-    const { openSettings, theme, toggleTheme } = useSettings();
+    const { openSettings, theme, toggleTheme, isSidebarOpen, toggleSidebar } = useSettings();
 
     return (
         <header className="navbar" role="banner">
             <div className="navbar__container">
-                <Link to="/" className="navbar__brand" aria-label="ClipRadar Home">
-                    <span className="navbar__brand-icon">📡</span>
-                    <span className="navbar__brand-text">
-                        Clip<span>Radar</span>
-                    </span>
-                </Link>
+                <div className="navbar__left">
+                    <button
+                        type="button"
+                        className={`navbar__sidebar-toggle ${isSidebarOpen ? 'navbar__sidebar-toggle--active' : ''}`}
+                        onClick={toggleSidebar}
+                        aria-label={isSidebarOpen ? 'Close navigation sidebar' : 'Open navigation sidebar'}
+                        title="Toggle Navigation Sidebar (Ctrl+B)"
+                    >
+                        <span className="navbar__sidebar-toggle-icon">{isSidebarOpen ? '✕' : '☰'}</span>
+                    </button>
+
+                    <Link to="/" className="navbar__brand" aria-label="ClipRadar Home">
+                        <span className="navbar__brand-icon">📡</span>
+                        <span className="navbar__brand-text">
+                            Clip<span>Radar</span>
+                        </span>
+                    </Link>
+                </div>
 
                 <div className="navbar__actions">
                     <nav className="navbar__nav" aria-label="Primary Navigation">

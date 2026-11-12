@@ -398,5 +398,357 @@
       ]
     },
     "generatedAt": "2026-11-04T16:57:49.771Z"
+  },
+  "2026-11-12": {
+    "date": "2026-11-12",
+    "formattedDate": "Thursday, Nov 12, 2026",
+    "theme": "Creator Challenges & Viral Crowdwork",
+    "nextDropCountdownSeconds": 44241,
+    "total": 7,
+    "videos": [
+      {
+        "platform": "youtube",
+        "platformVideoId": "DgM1YypmL_Q",
+        "creator": {
+          "name": "Snoop.newspaper",
+          "handle": "@snoopnews",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Snoop&background=f59e0b&color=fff",
+          "profileUrl": "https://www.youtube.com/@snoopnews"
+        },
+        "title": "Celebrities' hilarious reactions as they eat spicy wings on 'Hot Ones'",
+        "description": "Watch stars like BLACKPINK's Lisa and Jennie lose their cool over the world's hottest wings.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=DgM1YypmL_Q",
+        "embedUrl": "https://www.youtube.com/embed/DgM1YypmL_Q",
+        "durationSeconds": 61,
+        "viewCount": 16592354,
+        "likeCount": 484558,
+        "category": "Comedy",
+        "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T07:30:00.000Z",
+        "velocityViewsPerHour": 230449
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1801234567890123456",
+        "creator": {
+          "name": "Tesla",
+          "handle": "@Tesla",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Tesla&background=cc0000&color=fff",
+          "profileUrl": "https://x.com/Tesla"
+        },
+        "title": "Tesla Optimus humanoid robot sorting battery cells autonomously in factory floor test",
+        "description": "End-to-end neural networks running on robot hardware in real-time factory conditions.",
+        "thumbnailUrl": "https://picsum.photos/seed/optimus01/640/360",
+        "videoUrl": "https://x.com/Tesla/status/1801234567890123456",
+        "embedUrl": "",
+        "durationSeconds": 52,
+        "viewCount": 38200000,
+        "likeCount": 1450000,
+        "category": "Science & Tech",
+        "aiDescription": "Tesla displays real-time footage of their humanoid robot Optimus independently handling industrial manufacturing tasks with uncanny dexterity.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T09:15:00.000Z",
+        "velocityViewsPerHour": 795833
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "tX-6XdbAC7E",
+        "creator": {
+          "name": "America's Funniest Home Videos",
+          "handle": "@afv",
+          "avatarUrl": "https://ui-avatars.com/api/?name=AFV&background=ef4444&color=fff",
+          "profileUrl": "https://www.youtube.com/@afv"
+        },
+        "title": "Why did he do this? 😭 #funny #shorts",
+        "description": "The ultimate classic fail caught on tape.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=tX-6XdbAC7E",
+        "embedUrl": "https://www.youtube.com/embed/tX-6XdbAC7E",
+        "durationSeconds": 14,
+        "viewCount": 32252988,
+        "likeCount": 147259,
+        "category": "Comedy",
+        "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T07:30:00.000Z",
+        "velocityViewsPerHour": 447958
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1802345678901234567",
+        "creator": {
+          "name": "SportsCenter",
+          "handle": "@SportsCenter",
+          "avatarUrl": "https://ui-avatars.com/api/?name=SC&background=ea580c&color=fff",
+          "profileUrl": "https://x.com/SportsCenter"
+        },
+        "title": "High school quarterback throws impossible 70-yard no-look hail mary to win state championship",
+        "description": "As time expired! Unbelievable sports moment.",
+        "thumbnailUrl": "https://picsum.photos/seed/sports02/640/360",
+        "videoUrl": "https://x.com/SportsCenter/status/1802345678901234567",
+        "embedUrl": "",
+        "durationSeconds": 31,
+        "viewCount": 24100000,
+        "likeCount": 780000,
+        "category": "Sports",
+        "aiDescription": "A high school quarterback executes a miracle buzzer-beater throw under heavy defensive pressure, leading to an ecstatic stadium rush.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T09:15:00.000Z",
+        "velocityViewsPerHour": 502083
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "8dQ3Kf5u2ys",
+        "creator": {
+          "name": "Strong Mind Set",
+          "handle": "@strongmindset",
+          "avatarUrl": "https://ui-avatars.com/api/?name=SMS&background=10b981&color=fff",
+          "profileUrl": "https://www.youtube.com/@strongmindset"
+        },
+        "title": "Sha'Carri Richardson American Athlete #shorts",
+        "description": "Sha'Carri Richardson explosive 100m performance.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=8dQ3Kf5u2ys",
+        "embedUrl": "https://www.youtube.com/embed/8dQ3Kf5u2ys",
+        "durationSeconds": 14,
+        "viewCount": 147376962,
+        "likeCount": 3381909,
+        "category": "Sports",
+        "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T07:30:00.000Z",
+        "velocityViewsPerHour": 2046902
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1803456789012345678",
+        "creator": {
+          "name": "No Context Humans",
+          "handle": "@NoContextHumans",
+          "avatarUrl": "https://ui-avatars.com/api/?name=NC&background=4f46e5&color=fff",
+          "profileUrl": "https://x.com/NoContextHumans"
+        },
+        "title": "Dad builds elaborate 50-step Rube Goldberg machine just to pour morning cereal",
+        "description": "The mechanical genius and absurdity is unmatched.",
+        "thumbnailUrl": "https://picsum.photos/seed/rube01/640/360",
+        "videoUrl": "https://x.com/NoContextHumans/status/1803456789012345678",
+        "embedUrl": "",
+        "durationSeconds": 58,
+        "viewCount": 18700000,
+        "likeCount": 920000,
+        "category": "Comedy",
+        "aiDescription": "A dedicated inventor designs an insanely complicated contraption weaving through his entire living room simply to drop milk into a bowl.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T09:15:00.000Z",
+        "velocityViewsPerHour": 389583
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "Q9-EEoGQyTE",
+        "creator": {
+          "name": "Nick DiGiovanni",
+          "handle": "@nickdigiovanni",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Nick&background=6366f1&color=fff",
+          "profileUrl": "https://www.youtube.com/@nickdigiovanni"
+        },
+        "title": "Cheese Stacking Challenge with ChefRush",
+        "description": "Massive cheese stack showdown with Bayashi and ChefRush.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=Q9-EEoGQyTE",
+        "embedUrl": "https://www.youtube.com/embed/Q9-EEoGQyTE",
+        "durationSeconds": 15,
+        "viewCount": 14648091,
+        "likeCount": 174677,
+        "category": "Challenge",
+        "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-12",
+        "publishedAt": "2026-11-12T07:30:00.000Z",
+        "velocityViewsPerHour": 203445
+      }
+    ],
+    "platforms": {
+      "youtube": [
+        {
+          "platform": "youtube",
+          "platformVideoId": "DgM1YypmL_Q",
+          "creator": {
+            "name": "Snoop.newspaper",
+            "handle": "@snoopnews",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Snoop&background=f59e0b&color=fff",
+            "profileUrl": "https://www.youtube.com/@snoopnews"
+          },
+          "title": "Celebrities' hilarious reactions as they eat spicy wings on 'Hot Ones'",
+          "description": "Watch stars like BLACKPINK's Lisa and Jennie lose their cool over the world's hottest wings.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=DgM1YypmL_Q",
+          "embedUrl": "https://www.youtube.com/embed/DgM1YypmL_Q",
+          "durationSeconds": 61,
+          "viewCount": 16592354,
+          "likeCount": 484558,
+          "category": "Comedy",
+          "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T07:30:00.000Z",
+          "velocityViewsPerHour": 230449
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "tX-6XdbAC7E",
+          "creator": {
+            "name": "America's Funniest Home Videos",
+            "handle": "@afv",
+            "avatarUrl": "https://ui-avatars.com/api/?name=AFV&background=ef4444&color=fff",
+            "profileUrl": "https://www.youtube.com/@afv"
+          },
+          "title": "Why did he do this? 😭 #funny #shorts",
+          "description": "The ultimate classic fail caught on tape.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=tX-6XdbAC7E",
+          "embedUrl": "https://www.youtube.com/embed/tX-6XdbAC7E",
+          "durationSeconds": 14,
+          "viewCount": 32252988,
+          "likeCount": 147259,
+          "category": "Comedy",
+          "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T07:30:00.000Z",
+          "velocityViewsPerHour": 447958
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "8dQ3Kf5u2ys",
+          "creator": {
+            "name": "Strong Mind Set",
+            "handle": "@strongmindset",
+            "avatarUrl": "https://ui-avatars.com/api/?name=SMS&background=10b981&color=fff",
+            "profileUrl": "https://www.youtube.com/@strongmindset"
+          },
+          "title": "Sha'Carri Richardson American Athlete #shorts",
+          "description": "Sha'Carri Richardson explosive 100m performance.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=8dQ3Kf5u2ys",
+          "embedUrl": "https://www.youtube.com/embed/8dQ3Kf5u2ys",
+          "durationSeconds": 14,
+          "viewCount": 147376962,
+          "likeCount": 3381909,
+          "category": "Sports",
+          "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T07:30:00.000Z",
+          "velocityViewsPerHour": 2046902
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "Q9-EEoGQyTE",
+          "creator": {
+            "name": "Nick DiGiovanni",
+            "handle": "@nickdigiovanni",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Nick&background=6366f1&color=fff",
+            "profileUrl": "https://www.youtube.com/@nickdigiovanni"
+          },
+          "title": "Cheese Stacking Challenge with ChefRush",
+          "description": "Massive cheese stack showdown with Bayashi and ChefRush.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=Q9-EEoGQyTE",
+          "embedUrl": "https://www.youtube.com/embed/Q9-EEoGQyTE",
+          "durationSeconds": 15,
+          "viewCount": 14648091,
+          "likeCount": 174677,
+          "category": "Challenge",
+          "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T07:30:00.000Z",
+          "velocityViewsPerHour": 203445
+        }
+      ],
+      "twitter": [
+        {
+          "platform": "twitter",
+          "platformVideoId": "1801234567890123456",
+          "creator": {
+            "name": "Tesla",
+            "handle": "@Tesla",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Tesla&background=cc0000&color=fff",
+            "profileUrl": "https://x.com/Tesla"
+          },
+          "title": "Tesla Optimus humanoid robot sorting battery cells autonomously in factory floor test",
+          "description": "End-to-end neural networks running on robot hardware in real-time factory conditions.",
+          "thumbnailUrl": "https://picsum.photos/seed/optimus01/640/360",
+          "videoUrl": "https://x.com/Tesla/status/1801234567890123456",
+          "embedUrl": "",
+          "durationSeconds": 52,
+          "viewCount": 38200000,
+          "likeCount": 1450000,
+          "category": "Science & Tech",
+          "aiDescription": "Tesla displays real-time footage of their humanoid robot Optimus independently handling industrial manufacturing tasks with uncanny dexterity.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T09:15:00.000Z",
+          "velocityViewsPerHour": 795833
+        },
+        {
+          "platform": "twitter",
+          "platformVideoId": "1802345678901234567",
+          "creator": {
+            "name": "SportsCenter",
+            "handle": "@SportsCenter",
+            "avatarUrl": "https://ui-avatars.com/api/?name=SC&background=ea580c&color=fff",
+            "profileUrl": "https://x.com/SportsCenter"
+          },
+          "title": "High school quarterback throws impossible 70-yard no-look hail mary to win state championship",
+          "description": "As time expired! Unbelievable sports moment.",
+          "thumbnailUrl": "https://picsum.photos/seed/sports02/640/360",
+          "videoUrl": "https://x.com/SportsCenter/status/1802345678901234567",
+          "embedUrl": "",
+          "durationSeconds": 31,
+          "viewCount": 24100000,
+          "likeCount": 780000,
+          "category": "Sports",
+          "aiDescription": "A high school quarterback executes a miracle buzzer-beater throw under heavy defensive pressure, leading to an ecstatic stadium rush.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T09:15:00.000Z",
+          "velocityViewsPerHour": 502083
+        },
+        {
+          "platform": "twitter",
+          "platformVideoId": "1803456789012345678",
+          "creator": {
+            "name": "No Context Humans",
+            "handle": "@NoContextHumans",
+            "avatarUrl": "https://ui-avatars.com/api/?name=NC&background=4f46e5&color=fff",
+            "profileUrl": "https://x.com/NoContextHumans"
+          },
+          "title": "Dad builds elaborate 50-step Rube Goldberg machine just to pour morning cereal",
+          "description": "The mechanical genius and absurdity is unmatched.",
+          "thumbnailUrl": "https://picsum.photos/seed/rube01/640/360",
+          "videoUrl": "https://x.com/NoContextHumans/status/1803456789012345678",
+          "embedUrl": "",
+          "durationSeconds": 58,
+          "viewCount": 18700000,
+          "likeCount": 920000,
+          "category": "Comedy",
+          "aiDescription": "A dedicated inventor designs an insanely complicated contraption weaving through his entire living room simply to drop milk into a bowl.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-12",
+          "publishedAt": "2026-11-12T09:15:00.000Z",
+          "velocityViewsPerHour": 389583
+        }
+      ]
+    },
+    "generatedAt": "2026-11-12T10:42:38.761Z"
   }
 }

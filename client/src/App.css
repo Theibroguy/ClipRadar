@@ -1,0 +1,25 @@
+/* Application Root Layout */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.app-body {
+    display: flex;
+    flex: 1;
+    position: relative;
+    width: 100%;
+}
+
+.app-main-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+

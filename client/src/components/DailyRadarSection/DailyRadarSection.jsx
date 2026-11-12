@@ -60,6 +60,7 @@ export default function DailyRadarSection({ onPreview }) {
     const [toastMessage, setToastMessage] = useState('');
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [customInput, setCustomInput] = useState('');
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     // Load daily drop (all platforms loaded together for instantaneous client tab switching)
     const loadDrop = useCallback(async (date = null) => {
@@ -247,11 +248,24 @@ export default function DailyRadarSection({ onPreview }) {
                             <span className="daily-radar__refresh-icon">{isRefreshing ? '⏳' : '⚡'}</span>
                             <span>{isRefreshing ? 'Grabbing New Clips…' : 'Generate New Batch'}</span>
                         </button>
+
+                        {/* Minimize / Expand Toggle */}
+                        <button
+                            type="button"
+                            className="daily-radar__collapse-btn"
+                            onClick={() => setIsCollapsed((prev) => !prev)}
+                            aria-expanded={!isCollapsed}
+                            title={isCollapsed ? "Expand Daily Drops Section" : "Collapse Daily Drops Section"}
+                        >
+                            <span>{isCollapsed ? "▾ Show Drops" : "▴ Hide Drops"}</span>
+                        </button>
                     </div>
                 </div>
 
-                {/* Platform Filter Tabs & Customizer Button */}
-                <div className="daily-radar__controls-row">
+                {!isCollapsed && (
+                    <>
+                        {/* Platform Filter Tabs & Customizer Button */}
+                        <div className="daily-radar__controls-row">
                     <div className="daily-radar__platform-tabs" role="tablist" aria-label="Filter daily drops by platform">
                         <button
                             type="button"
@@ -545,6 +559,8 @@ export default function DailyRadarSection({ onPreview }) {
                             );
                         })}
                     </div>
+                )}
+                    </>
                 )}
             </div>
         </section>

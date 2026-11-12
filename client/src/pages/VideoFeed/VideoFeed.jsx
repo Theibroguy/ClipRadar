@@ -1,27 +1,52 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { fetchVideos } from '../../api/videos.js';
 import VideoCard from '../../components/VideoCard/VideoCard.jsx';
-import FilterBar from '../../components/FilterBar/FilterBar.jsx';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import Spinner from '../../components/Spinner/Spinner.jsx';
 import VideoModal from '../../components/VideoModal/VideoModal.jsx';
 import DailyRadarSection from '../../components/DailyRadarSection/DailyRadarSection.jsx';
 import { useBookmarks } from '../../hooks/useBookmarks.js';
 import { useSettings } from '../../context/SettingsContext.jsx';
+import { useFeedFilters } from '../../context/FeedFilterContext.jsx';
 import './VideoFeed.css';
 
 const DEFAULT_FILTERS = { platform: 'all', category: 'all' };
 const PAGE_SIZE = 6;
 
 export default function VideoFeed() {
+    const feedContext = useFeedFilters();
+    const { settings, updateSettings, isSidebarOpen, toggleSidebar } = useSettings();
+
+    const [localFilters, setLocalFilters] = useState(DEFAULT_FILTERS);
+    const [localSearch, setLocalSearch] = useState('');
+    const [localSavedOnly, setLocalSavedOnly] = useState(false);
+
+    const filters = feedContext ? feedContext.filters : localFilters;
+    const setFilters = feedContext ? feedContext.setFilters : setLocalFilters;
+    const searchQuery = feedContext ? feedContext.searchQuery : localSearch;
+    const setSearchQuery = feedContext ? feedContext.setSearchQuery : setLocalSearch;
+    const showSavedOnly = feedContext ? feedContext.showSavedOnly : localSavedOnly;
+    const setShowSavedOnly = feedContext ? feedContext.setShowSavedOnly : setLocalSavedOnly;
+    const resetFilters = feedContext
+        ? feedContext.resetFilters
+        : () => {
+              setLocalFilters(DEFAULT_FILTERS);
+              setLocalSearch('');
+              setLocalSavedOnly(false);
+          };
+
+    const activeFilterCount = feedContext
+        ? feedContext.activeFilterCount
+        : (filters.platform !== 'all' ? 1 : 0) +
+          (filters.category !== 'all' ? 1 : 0) +
+          (showSavedOnly ? 1 : 0) +
+          (searchQuery.trim() ? 1 : 0);
+
     const [videos, setVideos] = useState([]);
     const [total, setTotal] = useState(0);
     const [mode, setMode] = useState(null);
     const [hasMore, setHasMore] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [filters, setFilters] = useState(DEFAULT_FILTERS);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [showSavedOnly, setShowSavedOnly] = useState(false);
     const [visibleSavedCount, setVisibleSavedCount] = useState(PAGE_SIZE);
     const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
     const [errorMsg, setErrorMsg] = useState('');
@@ -37,8 +62,6 @@ export default function VideoFeed() {
         isBookmarked,
         toggleBookmark,
     } = useBookmarks();
-
-    const { settings } = useSettings();
 
     // Scroll listener for "Back to Top" button
     useEffect(() => {
@@ -184,16 +207,8 @@ export default function VideoFeed() {
         return () => observer.disconnect();
     }, [canLoadMore, isLoadingMore, status, handleLoadMore]);
 
-    function handleFiltersChange(newFilters) {
-        setFilters(newFilters);
-    }
-
     function handleRetry() {
         setRetryCount((c) => c + 1);
-    }
-
-    function handleToggleSaved() {
-        setShowSavedOnly((prev) => !prev);
     }
 
     function handleClearSearch() {
@@ -240,57 +255,105 @@ export default function VideoFeed() {
                 />
             )}
 
-            {/* Filters & Favorites Bar */}
-            <FilterBar
-                platform={filters.platform}
-                category={filters.category}
-                onChange={handleFiltersChange}
-                showSavedOnly={showSavedOnly}
-                savedCount={bookmarksCount}
-                onToggleSaved={handleToggleSaved}
-            />
+            {/* Clean Modern Toolbar: Sidebar Toggle & Active Filters */}
+            <div className="video-feed__toolbar">
+                <div className="video-feed__toolbar-left">
+                    <button
+                        type="button"
+                        className={`video-feed__sidebar-toggle-btn ${isSidebarOpen ? 'active' : ''}`}
+                        onClick={toggleSidebar}
+                        aria-label={isSidebarOpen ? 'Close sidebar channels & filters' : 'Open sidebar channels & filters'}
+                        title="Toggle Channels & Filters Sidebar (Ctrl+B)"
+                    >
+                        <span className="video-feed__toggle-icon">{isSidebarOpen ? '✕' : '☰'}</span>
+                        <span>Channels & Filters</span>
+                        {activeFilterCount > 0 && (
+                            <span className="video-feed__toolbar-badge">{activeFilterCount}</span>
+                        )}
+                    </button>
 
-            {/* Results count & status bar */}
-            {status === 'success' && (
-                <div className="video-feed__results-bar">
-                    <span>
-                        {showSavedOnly
-                            ? `Showing ${displayVideos.length} of ${filteredBookmarks.length} saved clip${
-                                  filteredBookmarks.length === 1 ? '' : 's'
-                              }`
-                            : searchQuery
-                            ? `Showing ${displayVideos.length} of ${total} result${
-                                  total === 1 ? '' : 's'
-                              } for "${searchQuery}"`
-                            : displayVideos.length === 0
-                            ? 'No videos found'
-                            : `Showing ${displayVideos.length} of ${total} videos`}
-                    </span>
-                    {(searchQuery || showSavedOnly) && (
-                        <div>
-                            {searchQuery && (
-                                <button
-                                    type="button"
-                                    className="video-feed__clear-link"
-                                    onClick={handleClearSearch}
-                                >
-                                    Clear search
-                                </button>
-                            )}
-                            {showSavedOnly && (
-                                <button
-                                    type="button"
-                                    className="video-feed__clear-link"
-                                    onClick={() => setShowSavedOnly(false)}
-                                    style={{ marginLeft: '12px' }}
-                                >
-                                    View all clips
-                                </button>
-                            )}
-                        </div>
+                    {/* Active Filter Chips */}
+                    {filters.platform !== 'all' && (
+                        <button
+                            type="button"
+                            className="video-feed__active-chip"
+                            onClick={() => setFilters({ ...filters, platform: 'all' })}
+                            title="Remove platform filter"
+                        >
+                            <span>Platform: {filters.platform}</span>
+                            <span className="video-feed__active-chip-del">✕</span>
+                        </button>
+                    )}
+
+                    {filters.category !== 'all' && (
+                        <button
+                            type="button"
+                            className="video-feed__active-chip"
+                            onClick={() => setFilters({ ...filters, category: 'all' })}
+                            title="Remove category filter"
+                        >
+                            <span>Category: {filters.category}</span>
+                            <span className="video-feed__active-chip-del">✕</span>
+                        </button>
+                    )}
+
+                    {showSavedOnly && (
+                        <button
+                            type="button"
+                            className="video-feed__active-chip video-feed__active-chip--saved"
+                            onClick={() => setShowSavedOnly(false)}
+                            title="Show all clips"
+                        >
+                            <span>❤️ Saved Only</span>
+                            <span className="video-feed__active-chip-del">✕</span>
+                        </button>
+                    )}
+
+                    {activeFilterCount > 0 && (
+                        <button
+                            type="button"
+                            className="video-feed__reset-filters-btn"
+                            onClick={resetFilters}
+                        >
+                            Clear all
+                        </button>
                     )}
                 </div>
-            )}
+
+                <div className="video-feed__toolbar-right">
+                    {status === 'success' && (
+                        <span className="video-feed__results-summary">
+                            {showSavedOnly
+                                ? `${displayVideos.length} of ${filteredBookmarks.length} saved`
+                                : searchQuery
+                                ? `${displayVideos.length} of ${total} for "${searchQuery}"`
+                                : `${displayVideos.length} of ${total} clips`}
+                        </span>
+                    )}
+
+                    {/* Grid Density Switcher */}
+                    <div className="video-feed__density-group" role="group" aria-label="Layout density">
+                        <button
+                            type="button"
+                            className={`video-feed__density-btn ${settings?.feedDensity !== 'cinematic' ? 'active' : ''}`}
+                            onClick={() => updateSettings({ feedDensity: 'grid' })}
+                            title="Standard 3-4 Column Grid"
+                            aria-label="Standard Grid View"
+                        >
+                            ⊞
+                        </button>
+                        <button
+                            type="button"
+                            className={`video-feed__density-btn ${settings?.feedDensity === 'cinematic' ? 'active' : ''}`}
+                            onClick={() => updateSettings({ feedDensity: 'cinematic' })}
+                            title="Cinematic 2 Column Grid"
+                            aria-label="Cinematic View"
+                        >
+                            ⊟
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             {/* Main grid */}
             <main

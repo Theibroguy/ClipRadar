@@ -94,6 +94,163 @@
     margin: 0 auto;
 }
 
+/* ---- Modern Clean Toolbar ---- */
+.video-feed__toolbar {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 64px;
+    z-index: 30;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.video-feed__toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.video-feed__sidebar-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 15px;
+    background: linear-gradient(135deg, var(--color-primary), #4f46e5);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(108, 99, 255, 0.35);
+    transition: all var(--transition-fast);
+}
+
+.video-feed__sidebar-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 18px rgba(108, 99, 255, 0.5);
+    background: linear-gradient(135deg, var(--color-primary-hover), #4338ca);
+}
+
+.video-feed__toggle-icon {
+    font-size: 0.95rem;
+}
+
+.video-feed__toolbar-badge {
+    background: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: var(--radius-full);
+}
+
+.video-feed__active-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.video-feed__active-chip:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(108, 99, 255, 0.1);
+}
+
+.video-feed__active-chip-del {
+    font-size: 0.72rem;
+    opacity: 0.7;
+    margin-left: 2px;
+}
+
+.video-feed__active-chip--saved {
+    background: rgba(255, 101, 132, 0.15);
+    border-color: rgba(255, 101, 132, 0.35);
+    color: var(--color-accent);
+}
+
+.video-feed__reset-filters-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0 4px;
+    transition: opacity var(--transition-fast);
+}
+
+.video-feed__reset-filters-btn:hover {
+    opacity: 0.8;
+}
+
+.video-feed__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-left: auto;
+}
+
+.video-feed__results-summary {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.video-feed__density-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    gap: 2px;
+}
+
+.video-feed__density-btn {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.video-feed__density-btn:hover {
+    color: var(--color-text);
+}
+
+.video-feed__density-btn.active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
 .video-feed__grid--cinematic {
     grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
     gap: var(--space-8);
@@ -295,4 +452,26 @@
 
 [data-theme="light"] .video-feed__back-to-top {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 768px) {
+    .video-feed__toolbar {
+        padding: 8px var(--space-4);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .video-feed__toolbar-left {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        flex-wrap: nowrap;
+    }
+
+    .video-feed__toolbar-right {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+    }
 }

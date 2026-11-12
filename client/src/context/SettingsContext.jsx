@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 const SETTINGS_KEY = 'clipradar_app_settings';
 const THEME_KEY = 'clipradar_theme';
+const SIDEBAR_KEY = 'clipradar_sidebar_open';
 
 export const DEFAULT_SETTINGS = {
     theme: 'dark', // 'dark' | 'light'
@@ -51,6 +52,51 @@ export function SettingsProvider({ children }) {
     });
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+        try {
+            const stored = localStorage.getItem(SIDEBAR_KEY);
+            if (stored !== null) return stored === 'true';
+            return typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
+        } catch {
+            return true;
+        }
+    });
+
+    const toggleSidebar = useCallback(() => {
+        setIsSidebarOpen((prev) => {
+            const next = !prev;
+            try {
+                localStorage.setItem(SIDEBAR_KEY, String(next));
+            } catch {}
+            return next;
+        });
+    }, []);
+
+    const closeSidebar = useCallback(() => {
+        setIsSidebarOpen(false);
+        try {
+            localStorage.setItem(SIDEBAR_KEY, 'false');
+        } catch {}
+    }, []);
+
+    const openSidebar = useCallback(() => {
+        setIsSidebarOpen(true);
+        try {
+            localStorage.setItem(SIDEBAR_KEY, 'true');
+        } catch {}
+    }, []);
+
+    // Global shortcut Ctrl+B / Cmd+B to toggle sidebar
+    useEffect(() => {
+        function handleKeyDown(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+                e.preventDefault();
+                toggleSidebar();
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [toggleSidebar]);
 
     // Apply theme changes to document element & localStorage immediately
     useEffect(() => {
@@ -201,6 +247,11 @@ export function SettingsProvider({ children }) {
         isSettingsOpen,
         openSettings,
         closeSettings,
+        isSidebarOpen,
+        toggleSidebar,
+        closeSidebar,
+        openSidebar,
+        setIsSidebarOpen,
         exportAllData,
         clearAllCache,
         addTrackedCreator,
@@ -224,6 +275,11 @@ export function useSettings() {
             isSettingsOpen: false,
             openSettings: () => {},
             closeSettings: () => {},
+            isSidebarOpen: true,
+            toggleSidebar: () => {},
+            closeSidebar: () => {},
+            openSidebar: () => {},
+            setIsSidebarOpen: () => {},
             exportAllData: () => false,
             clearAllCache: () => false,
             addTrackedCreator: () => {},
