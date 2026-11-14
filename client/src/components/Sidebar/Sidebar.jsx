@@ -29,6 +29,7 @@ import {
     IconMoon,
     IconSettings,
     IconClose,
+    IconChart,
 } from '../common/Icons.jsx';
 import './Sidebar.css';
 
@@ -72,10 +73,10 @@ export default function Sidebar() {
     const currentCategory = feedFilters?.filters?.category || 'all';
     const showSavedOnly = !!feedFilters?.showSavedOnly;
 
-    // Helper to safely navigate to active platform page if on studio
+    // Helper to safely navigate to active platform page if on studio or dashboard
     function ensureOnFeed(targetPlatform = currentPlatform) {
         const route = PLATFORM_ROUTES[targetPlatform] || '/youtube';
-        if (location.pathname === '/studio') {
+        if (location.pathname === '/studio' || location.pathname === '/dashboard') {
             navigate(route);
         }
     }
@@ -153,6 +154,7 @@ export default function Sidebar() {
                             {PLATFORMS.map((p) => {
                                 const isActive =
                                     location.pathname !== '/studio' &&
+                                    location.pathname !== '/dashboard' &&
                                     !showSavedOnly &&
                                     currentPlatform === p.value;
                                 const PlatformIcon = p.IconComponent;
@@ -184,10 +186,30 @@ export default function Sidebar() {
                     <div className="sidebar__section">
                         <span className="sidebar__section-label">Feeds & Views</span>
                         <div className="sidebar__nav-list">
+                            <NavLink
+                                to="/dashboard"
+                                className={({ isActive }) =>
+                                    `sidebar__nav-item ${isActive ? 'active' : ''}`
+                                }
+                                onClick={() => {
+                                    if (window.innerWidth < 1024) closeSidebar();
+                                }}
+                            >
+                                <span className="sidebar__nav-icon">
+                                    <IconChart size={18} />
+                                </span>
+                                <span className="sidebar__nav-text">Channel Analytics</span>
+                                <span className="sidebar__badge-fire">AI Coach</span>
+                            </NavLink>
+
                             <button
                                 type="button"
                                 className={`sidebar__nav-item ${
-                                    location.pathname !== '/studio' && showSavedOnly ? 'active' : ''
+                                    location.pathname !== '/studio' &&
+                                    location.pathname !== '/dashboard' &&
+                                    showSavedOnly
+                                        ? 'active'
+                                        : ''
                                 }`}
                                 onClick={handleSelectSaved}
                             >

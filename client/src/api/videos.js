@@ -132,3 +132,56 @@ export async function saveVideoToLibrary(videoData = {}) {
     }
     return res.json(); // { success, message, video }
 }
+
+/**
+ * Fetch YouTube Channel Analytics, Charts, Outlier Videos, and AI Growth Review.
+ * @param {string} [handle='@ClipRadarOfficial']
+ */
+export async function fetchChannelAnalytics(handle = '@ClipRadarOfficial') {
+    const params = new URLSearchParams();
+    if (handle && handle.trim()) params.set('handle', handle.trim());
+    const url = `${BASE}/api/channel/analytics?${params.toString()}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+/**
+ * Run a deep-dive AI assessment & CTR rewrite on a single YouTube video.
+ * @param {object} video
+ * @param {object} [channelBaseline]
+ */
+export async function assessChannelVideo(video = {}, channelBaseline = {}) {
+    const res = await fetch(`${BASE}/api/channel/assess-video`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ video, channelBaseline }),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, assessment }
+}
+
+/**
+ * Refresh AI Channel Growth Coach action plan & "What to Post Next" ideas.
+ * @param {string} handle
+ * @param {object} [analytics]
+ */
+export async function refreshChannelCoach(handle = '@ClipRadarOfficial', analytics = null) {
+    const res = await fetch(`${BASE}/api/channel/coach`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handle, analytics }),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, aiAssessment }
+}
+

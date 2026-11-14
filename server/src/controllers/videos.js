@@ -10,11 +10,17 @@ import fs from 'fs';
 import path from 'path';
 import { demoVideos } from '../data/demoVideos.js';
 import { Video } from '../models/Video.js';
-import { fetchYouTubeVideos } from '../services/youtube.js';
+import { fetchYouTubeVideos, fetchYouTubeChannelAnalytics } from '../services/youtube.js';
 import { fetchTwitterVideos } from '../services/twitter.js';
 import { fetchInstagramVideos } from '../services/instagram.js';
 import { fetchTikTokVideos } from '../services/tiktok.js';
-import { enrichVideoWithAI, extractMomentsWithAI, generateHookWithAI } from '../services/gemini.js';
+import {
+    enrichVideoWithAI,
+    extractMomentsWithAI,
+    generateHookWithAI,
+    assessChannelWithAI,
+    assessSingleVideoWithAI,
+} from '../services/gemini.js';
 import { getDailyDrop, getTodayDropVideos } from '../services/dailyDrops.js';
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
@@ -363,3 +369,59 @@ export async function createStudioVideo(req, res, next) {
         next(err);
     }
 }
+
+/**
+ * GET /api/channel/analytics?handle=@ClipRadarOfficial
+ * Fetches linked YouTube channel performance analytics, charts data, outliers, and AI growth review.
+ */
+export async function getChannelAnalyticsController(req, res, next) {
+    try {
+        const handle = req.query.handle || '@ClipRadarOfficial';
+        const analytics = await fetchYouTubeChannelAnalytics(handle);
+        const aiAssessment = await assessChannelWithAI(analytics);
+
+        return res.json({
+            success: true,
+            ...analytics,
+            aiAssessment,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * POST /api/channel/assess-video
+ * Performs a deep-dive AI critique & CTR rewrite audit on a specific YouTube video.
+ */
+export async function assessChannelVideoController(req, res, next) {
+    try {
+        const { video = {}, channelBaseline = {} } = req.body || {};
+        const assessment = await assessSingleVideoWithAI(video, channelBaseline);
+        return res.json({
+            success: true,
+            assessment,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * POST /api/channel/coach
+ * Refreshes AI Channel Growth Coach action plan & "What to Post Next" ideas.
+ */
+export async function refreshChannelCoachController(req, res, next) {
+    try {
+        const { handle = '@ClipRadarOfficial', analytics } = req.body || {};
+        const baseAnalytics = analytics || (await fetchYouTubeChannelAnalytics(handle));
+        const aiAssessment = await assessChannelWithAI(baseAnalytics);
+        return res.json({
+            success: true,
+            aiAssessment,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+

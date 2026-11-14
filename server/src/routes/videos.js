@@ -8,6 +8,9 @@ import {
     generateHook,
     getDailyDropsController,
     generateDailyDropController,
+    getChannelAnalyticsController,
+    assessChannelVideoController,
+    refreshChannelCoachController,
 } from '../controllers/videos.js';
 
 const router = Router();
@@ -23,5 +26,10 @@ router.post('/studio/save', createStudioVideo);
 // Daily Radar Drops Routes
 router.get('/daily-drops', getDailyDropsController);
 router.post('/daily-drops/generate', generateDailyDropController);
+
+// YouTube Channel Analytics & AI Growth Coach Routes
+router.get('/channel/analytics', getChannelAnalyticsController);
+router.post('/channel/assess-video', assessChannelVideoController);
+router.post('/channel/coach', refreshChannelCoachController);
 
 export default router;

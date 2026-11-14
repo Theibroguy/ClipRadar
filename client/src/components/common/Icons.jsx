@@ -1193,3 +1193,107 @@ export function IconTrash({ size = 18, className = '', color = 'currentColor', s
     );
 }
 
+/**
+ * Analytics Bar Chart Icon
+ */
+export function IconChart({ size = 18, className = '', color = 'currentColor', strokeWidth = 2, ...props }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`cr-icon cr-icon--chart ${className}`.trim()}
+            aria-hidden="true"
+            {...props}
+        >
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+    );
+}
+
+/**
+ * Trending Up / Growth Line Icon
+ */
+export function IconTrendingUp({ size = 18, className = '', color = 'currentColor', strokeWidth = 2, ...props }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`cr-icon cr-icon--trending ${className}`.trim()}
+            aria-hidden="true"
+            {...props}
+        >
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+        </svg>
+    );
+}
+
+/**
+ * Users / Subscribers Icon
+ */
+export function IconUsers({ size = 18, className = '', color = 'currentColor', strokeWidth = 2, ...props }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`cr-icon cr-icon--users ${className}`.trim()}
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+    );
+}
+
+/**
+ * Award / Milestone Trophy Icon
+ */
+export function IconAward({ size = 18, className = '', color = 'currentColor', strokeWidth = 2, ...props }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`cr-icon cr-icon--award ${className}`.trim()}
+            aria-hidden="true"
+            {...props}
+        >
+            <circle cx="12" cy="8" r="7" />
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+        </svg>
+    );
+}
+
+

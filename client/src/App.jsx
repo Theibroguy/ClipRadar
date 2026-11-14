@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar.jsx';
 import Sidebar from './components/Sidebar/Sidebar.jsx';
 import VideoFeed from './pages/VideoFeed/VideoFeed.jsx';
 import VideoStudio from './pages/VideoStudio/VideoStudio.jsx';
+import ChannelDashboard from './pages/ChannelDashboard/ChannelDashboard.jsx';
 import SettingsModal from './components/SettingsModal/SettingsModal.jsx';
 import { SettingsProvider } from './context/SettingsContext.jsx';
 import { FeedFilterProvider } from './context/FeedFilterContext.jsx';
@@ -25,6 +26,7 @@ export default function App() {
                                 <Route path="/instagram" element={<VideoFeed pagePlatform="instagram" />} />
                                 <Route path="/tiktok" element={<VideoFeed pagePlatform="tiktok" />} />
                                 <Route path="/studio-shorts" element={<VideoFeed pagePlatform="studio" />} />
+                                <Route path="/dashboard" element={<ChannelDashboard />} />
                                 <Route path="/studio" element={<VideoStudio />} />
                                 <Route path="*" element={<Navigate to="/youtube" replace />} />
                             </Routes>

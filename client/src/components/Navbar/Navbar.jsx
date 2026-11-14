@@ -4,6 +4,7 @@ import { useSettings } from '../../context/SettingsContext.jsx';
 import {
     IconRadar,
     IconScissors,
+    IconChart,
     IconSun,
     IconMoon,
     IconSettings,
@@ -15,7 +16,7 @@ import './Navbar.css';
 export default function Navbar() {
     const location = useLocation();
     const { openSettings, theme, toggleTheme, isSidebarOpen, toggleSidebar } = useSettings();
-    const isFeedRoute = location.pathname !== '/studio';
+    const isFeedRoute = location.pathname !== '/studio' && location.pathname !== '/dashboard';
 
     return (
         <header className="navbar" role="banner">
@@ -55,6 +56,18 @@ export default function Navbar() {
                                 <IconRadar size={18} />
                             </span>
                             <span className="navbar__tab-label">Radar Feed</span>
+                        </NavLink>
+
+                        <NavLink
+                            to="/dashboard"
+                            className={({ isActive }) =>
+                                `navbar__tab ${isActive ? 'navbar__tab--active' : ''}`
+                            }
+                        >
+                            <span className="navbar__tab-icon">
+                                <IconChart size={18} />
+                            </span>
+                            <span className="navbar__tab-label">Channel Analytics</span>
                         </NavLink>
 
                         <NavLink

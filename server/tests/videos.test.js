@@ -191,6 +191,43 @@ describe('Daily Radar Drops API', () => {
     });
 });
 
+describe('YouTube Channel Analytics & AI Coach API', () => {
+    it('returns channel analytics, timeSeries charts, outlier videos, and AI assessment via GET /api/channel/analytics', async () => {
+        const res = await request(app).get('/api/channel/analytics?handle=@ClipRadarOfficial');
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.channel).toBeDefined();
+        expect(res.body.channel.handle).toBe('@ClipRadarOfficial');
+        expect(res.body.kpis).toBeDefined();
+        expect(res.body.timeSeries).toHaveProperty('days30');
+        expect(Array.isArray(res.body.videos)).toBe(true);
+        expect(res.body.videos.length).toBeGreaterThan(0);
+        expect(res.body.aiAssessment).toHaveProperty('healthScore');
+        expect(Array.isArray(res.body.aiAssessment.actionPlan)).toBe(true);
+    });
+
+    it('assesses a single YouTube video via POST /api/channel/assess-video', async () => {
+        const res = await request(app)
+            .post('/api/channel/assess-video')
+            .send({
+                video: {
+                    platformVideoId: 'test_vid_1',
+                    title: 'Testing AI Editing Trick for 7 Days',
+                    durationSeconds: 42,
+                    viewCount: 120000,
+                    outlierMultiplier: 2.4,
+                    engagementRate: 7.8,
+                },
+                channelBaseline: { avgViewsPerVideo: 50000 },
+            });
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.assessment).toHaveProperty('overallScore');
+        expect(res.body.assessment).toHaveProperty('pillars');
+        expect(Array.isArray(res.body.assessment.titleRewrites)).toBe(true);
+    });
+});
+
 describe('Unknown route', () => {
     it('returns 404', async () => {
         const res = await request(app).get('/api/does-not-exist');
