@@ -59,7 +59,6 @@ export default function ChannelDashboard() {
     const [timeRange, setTimeRange] = useState('30d'); // '7d' | '30d' | '90d'
     const [chartMetric, setChartMetric] = useState('views'); // 'views' | 'subscribersGained' | 'watchHours'
     const [hoveredPointIdx, setHoveredPointIdx] = useState(null);
-    const [leftBottomTab, setLeftBottomTab] = useState('outliers'); // 'outliers' | 'pillars' | 'schedule'
 
     // Per-Video AI Assessment State
     const [selectedVideoForAudit, setSelectedVideoForAudit] = useState(null);
@@ -90,6 +89,7 @@ export default function ChannelDashboard() {
                 setAnalyticsData(res);
                 setStatus('success');
 
+                // Automatically select the first video for initial AI audit preview
                 if (res.videos && res.videos.length > 0) {
                     const firstVid = res.videos[0];
                     setSelectedVideoForAudit(firstVid);
@@ -107,13 +107,30 @@ export default function ChannelDashboard() {
         };
     }, [linkedHandle]);
 
+    function sanitizeAudit(assessment) {
+        if (!assessment) return null;
+        const rawVerdict = String(assessment.verdict || 'AI Video Assessment').trim();
+        const isLongVerdict = rawVerdict.length > 48;
+        return {
+            ...assessment,
+            verdict: isLongVerdict
+                ? Number(assessment.overallScore || 75) >= 80
+                    ? 'High-Velocity Outlier'
+                    : 'Packaging & Hook Opportunity'
+                : rawVerdict,
+            summary:
+                assessment.summary ||
+                (isLongVerdict ? rawVerdict : 'AI packaging and retention assessment complete.'),
+        };
+    }
+
     async function runVideoAudit(video, kpisBaseline) {
         if (!video) return;
         setSelectedVideoForAudit(video);
         setIsAuditingVideo(true);
         try {
             const res = await assessChannelVideo(video, kpisBaseline || analyticsData?.kpis || {});
-            setVideoAuditResult(res.assessment);
+            setVideoAuditResult(sanitizeAudit(res.assessment));
         } catch (err) {
             console.error('Video AI assessment error:', err);
         } finally {
@@ -125,16 +142,15 @@ export default function ChannelDashboard() {
         e.preventDefault();
         const trimmed = handleInput.trim();
         if (!trimmed) return;
-        const formatted =
-            trimmed.startsWith('@') || trimmed.startsWith('http') || trimmed.startsWith('UC')
-                ? trimmed
-                : `@${trimmed}`;
+        const formatted = trimmed.startsWith('@') || trimmed.startsWith('http') || trimmed.startsWith('UC')
+            ? trimmed
+            : `@${trimmed}`;
         setHandleInput(formatted);
         setLinkedHandle(formatted);
         try {
             localStorage.setItem(STORAGE_CHANNEL_KEY, formatted);
         } catch {
-            // ignore
+            // ignore storage errors
         }
     }
 
@@ -183,7 +199,7 @@ export default function ChannelDashboard() {
             navigator.clipboard.writeText(text).catch(() => {});
         }
         setCopiedText(label);
-        setTimeout(() => setCopiedText(''), 2000);
+        setTimeout(() => setCopiedText(''), 2200);
     }
 
     function handleSendIdeaToStudio(idea) {
@@ -213,12 +229,12 @@ export default function ChannelDashboard() {
     // Compute SVG coordinates for the Area/Line Chart
     const svgChartGeometry = useMemo(() => {
         if (!activeSeries.length) return { points: [], areaPath: '', linePath: '', maxVal: 1, minVal: 0 };
-        const width = 560;
-        const height = 148;
-        const padLeft = 14;
-        const padRight = 14;
-        const padTop = 14;
-        const padBottom = 18;
+        const width = 760;
+        const height = 230;
+        const padLeft = 18;
+        const padRight = 18;
+        const padTop = 22;
+        const padBottom = 28;
         const usableW = width - padLeft - padRight;
         const usableH = height - padTop - padBottom;
 
@@ -257,389 +273,438 @@ export default function ChannelDashboard() {
     const milestone = analyticsData?.milestoneForecast || {};
 
     const healthScore = aiAssessment.healthScore || 86;
-    const circumference = 2 * Math.PI * 24;
+    const circumference = 2 * Math.PI * 46;
     const strokeDashoffset = circumference - (healthScore / 100) * circumference;
 
     const actionList = aiAssessment.actionPlan || [];
     const completedCount = actionList.filter((a) => completedActions[a.id]).length;
-
-    // Sanitize verdict badge so a long sentence from AI never stretches into a giant circle
-    const rawVerdict = videoAuditResult?.verdict || '';
-    const displayVerdictBadge =
-        rawVerdict.length > 52 ? 'AI Packaging & Retention Audit' : rawVerdict;
-    const displayAuditSummary =
-        rawVerdict.length > 52 && (!videoAuditResult?.summary || videoAuditResult.summary === rawVerdict)
-            ? rawVerdict
-            : videoAuditResult?.summary || rawVerdict;
 
     return (
         <div className="channel-dashboard">
             {/* Top Laser Sweep Bar */}
             <div key={linkedHandle} className="channel-dashboard__laser" aria-hidden="true" />
 
-            {/* Top Command Bar: Identity + KPIs + Properly Fitted Channel Linker */}
-            <header className="cd-topbar">
-                {/* Left: Channel Identity + Health Ring */}
-                <div className="cd-topbar__identity">
-                    {status === 'success' ? (
-                        <>
-                            <img
-                                src={channel.avatarUrl}
-                                alt={channel.name}
-                                className="cd-topbar__avatar"
-                            />
-                            <div className="cd-topbar__meta">
-                                <div className="cd-topbar__title-row">
-                                    <h1>{channel.name}</h1>
-                                    <span className="cd-topbar__handle">{channel.handle}</span>
-                                    <span className={`cd-topbar__mode ${channel.isLive ? 'live' : ''}`}>
-                                        {channel.isLive ? 'Live API' : 'Simulated'}
-                                    </span>
+            {/* Hero Header & Account Linker */}
+            <header className="channel-dashboard__hero">
+                <div className="channel-dashboard__hero-inner">
+                    <div className="channel-dashboard__hero-top">
+                        <div className="channel-dashboard__brand-title">
+                            <span className="channel-dashboard__yt-badge">
+                                <IconYouTube size={24} />
+                                <span>YouTube Creator Intelligence</span>
+                            </span>
+                            <h1>Channel Performance & AI Growth Coach</h1>
+                            <p>
+                                Real-time channel analytics, outlier multiplier detection, AI video audits, and actionable steps to grow your YouTube channel faster.
+                            </p>
+                        </div>
+
+                        {/* Link / Switch YouTube Channel Form */}
+                        <div className="channel-dashboard__linker-card">
+                            <form onSubmit={handleLinkChannelSubmit} className="channel-dashboard__linker-form">
+                                <label htmlFor="yt-channel-handle-input" className="channel-dashboard__linker-label">
+                                    Linked YouTube Account (@handle or URL)
+                                </label>
+                                <div className="channel-dashboard__linker-pill">
+                                    <input
+                                        id="yt-channel-handle-input"
+                                        type="text"
+                                        value={handleInput}
+                                        onChange={(e) => setHandleInput(e.target.value)}
+                                        placeholder="e.g. @YourChannel or https://youtube.com/@..."
+                                        className="channel-dashboard__linker-input"
+                                    />
+                                    <button type="submit" className="channel-dashboard__linker-btn">
+                                        <IconBolt size={14} />
+                                        <span>Analyze Channel</span>
+                                    </button>
                                 </div>
-                                <p className="cd-topbar__sub">YouTube Performance & AI Growth Command Center</p>
+                            </form>
+                            <div className="channel-dashboard__presets">
+                                <span>Quick Switch:</span>
+                                {PRESET_CHANNELS.map((preset) => (
+                                    <button
+                                        key={preset}
+                                        type="button"
+                                        className={`channel-dashboard__preset-pill ${linkedHandle.toLowerCase() === preset.toLowerCase() ? 'active' : ''}`}
+                                        onClick={() => handleSelectPresetChannel(preset)}
+                                    >
+                                        {preset}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Linked Channel Identity Banner */}
+                    {status === 'success' && (
+                        <div key={channel.handle} className="channel-dashboard__profile-bar">
+                            <div className="channel-dashboard__profile-left">
+                                <img
+                                    src={channel.avatarUrl}
+                                    alt={channel.name}
+                                    className="channel-dashboard__avatar"
+                                />
+                                <div className="channel-dashboard__profile-meta">
+                                    <div className="channel-dashboard__profile-name-row">
+                                        <h2>{channel.name}</h2>
+                                        <span className="channel-dashboard__handle-pill">{channel.handle}</span>
+                                        <span className={`channel-dashboard__mode-pill ${channel.isLive ? 'live' : ''}`}>
+                                            {channel.isLive ? 'Live YouTube Data API' : 'AI Simulated Channel Data'}
+                                        </span>
+                                    </div>
+                                    <p className="channel-dashboard__profile-desc">{channel.description}</p>
+                                </div>
                             </div>
 
-                            {/* Compact Health Ring */}
-                            <div
-                                className="cd-topbar__health"
-                                aria-label={`Channel Health Score ${healthScore} out of 100`}
-                            >
-                                <div className="cd-topbar__ring">
-                                    <svg width="58" height="58" viewBox="0 0 58 58">
+                            {/* Radial Health Score Ring */}
+                            <div className="channel-dashboard__health-ring-card" aria-label={`Channel Health Score ${healthScore} out of 100`}>
+                                <div className="channel-dashboard__ring-wrap">
+                                    <svg width="110" height="110" viewBox="0 0 110 110">
                                         <circle
-                                            cx="29"
-                                            cy="29"
-                                            r="24"
+                                            cx="55"
+                                            cy="55"
+                                            r="46"
                                             fill="none"
-                                            stroke="rgba(148, 163, 184, 0.2)"
-                                            strokeWidth="5"
+                                            stroke="rgba(148, 163, 184, 0.18)"
+                                            strokeWidth="9"
                                         />
                                         <circle
-                                            cx="29"
-                                            cy="29"
-                                            r="24"
+                                            cx="55"
+                                            cy="55"
+                                            r="46"
                                             fill="none"
-                                            stroke="url(#cdMiniRingGrad)"
-                                            strokeWidth="5"
+                                            stroke="url(#healthRingGrad)"
+                                            strokeWidth="9"
                                             strokeLinecap="round"
                                             strokeDasharray={circumference}
                                             strokeDashoffset={strokeDashoffset}
-                                            transform="rotate(-90 29 29)"
+                                            transform="rotate(-90 55 55)"
+                                            className="channel-dashboard__ring-progress"
                                         />
                                         <defs>
-                                            <linearGradient id="cdMiniRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <linearGradient id="healthRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                                 <stop offset="0%" stopColor="#10b981" />
                                                 <stop offset="50%" stopColor="#6c63ff" />
                                                 <stop offset="100%" stopColor="#ec4899" />
                                             </linearGradient>
                                         </defs>
                                     </svg>
-                                    <span className="cd-topbar__ring-val">{healthScore}</span>
+                                    <div className="channel-dashboard__ring-center">
+                                        <span className="channel-dashboard__ring-score">{healthScore}</span>
+                                        <span className="channel-dashboard__ring-grade">Grade {aiAssessment.grade || 'A'}</span>
+                                    </div>
                                 </div>
-                                <div className="cd-topbar__health-meta">
-                                    <strong>Grade {aiAssessment.grade || 'A'}</strong>
-                                    <span>AI Health</span>
+                                <div className="channel-dashboard__ring-text">
+                                    <strong>AI Channel Health</strong>
+                                    <span>5-Pillar Composite Score</span>
                                 </div>
                             </div>
-                        </>
-                    ) : (
-                        <div className="cd-topbar__meta">
-                            <h1>YouTube Channel Analytics</h1>
-                            <p className="cd-topbar__sub">Loading channel intelligence…</p>
                         </div>
                     )}
                 </div>
-
-                {/* Center: 4 Compact KPI Strip Cards */}
-                {status === 'success' && (
-                    <div className="cd-topbar__kpis" aria-label="Key Performance Indicators">
-                        <div className="cd-mini-kpi">
-                            <div className="cd-mini-kpi__head">
-                                <span>Subscribers</span>
-                                <IconUsers size={14} />
-                            </div>
-                            <div className="cd-mini-kpi__val">{formatCount(channel.subscriberCount) || '0'}</div>
-                            <div className="cd-mini-kpi__foot positive">
-                                {kpis.subsGrowth30dPct || '+18.6%'} · Goal {formatCount(milestone.nextSubMilestone)}
-                            </div>
-                        </div>
-
-                        <div className="cd-mini-kpi">
-                            <div className="cd-mini-kpi__head">
-                                <span>Total Views</span>
-                                <IconEye size={14} />
-                            </div>
-                            <div className="cd-mini-kpi__val">{formatCount(channel.totalViews) || '0'}</div>
-                            <div className="cd-mini-kpi__foot positive">
-                                {kpis.viewsGrowth30dPct || '+31.4%'} velocity
-                            </div>
-                        </div>
-
-                        <div className="cd-mini-kpi">
-                            <div className="cd-mini-kpi__head">
-                                <span>Avg Views/Vid</span>
-                                <IconFlame size={14} />
-                            </div>
-                            <div className="cd-mini-kpi__val">{formatCount(kpis.avgViewsPerVideo) || '0'}</div>
-                            <div className="cd-mini-kpi__foot outlier">
-                                Top Hit: {kpis.topOutlierMultiplier || '3.1x'}
-                            </div>
-                        </div>
-
-                        <div className="cd-mini-kpi">
-                            <div className="cd-mini-kpi__head">
-                                <span>Engagement</span>
-                                <IconAward size={14} />
-                            </div>
-                            <div className="cd-mini-kpi__val">{kpis.engagementRate}%</div>
-                            <div className="cd-mini-kpi__foot positive">
-                                Shorts: {kpis.shortsRatio}%
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Right: Unified Channel Linker Pill (Button Snugly Fitted Inside Background) */}
-                <div className="cd-topbar__linker">
-                    <form onSubmit={handleLinkChannelSubmit} className="cd-linker-pill">
-                        <IconYouTube size={16} />
-                        <input
-                            id="yt-channel-handle-input"
-                            type="text"
-                            value={handleInput}
-                            onChange={(e) => setHandleInput(e.target.value)}
-                            placeholder="@YourChannel or URL"
-                            aria-label="Linked YouTube Account (@handle or URL)"
-                            className="cd-linker-pill__input"
-                        />
-                        <button type="submit" className="cd-linker-pill__btn">
-                            <IconBolt size={13} />
-                            <span>Analyze Channel</span>
-                        </button>
-                    </form>
-                    <div className="cd-linker-presets">
-                        {PRESET_CHANNELS.map((preset) => (
-                            <button
-                                key={preset}
-                                type="button"
-                                className={`cd-preset-chip ${
-                                    linkedHandle.toLowerCase() === preset.toLowerCase() ? 'active' : ''
-                                }`}
-                                onClick={() => handleSelectPresetChannel(preset)}
-                            >
-                                {preset}
-                            </button>
-                        ))}
-                    </div>
-                </div>
             </header>
 
-            {/* Full-Screen Single-Viewport Bento Workspace (No Page Scroll) */}
-            <div className="cd-workspace">
+            {/* Main Dashboard Body */}
+            <div className="channel-dashboard__container">
                 {status === 'loading' && (
-                    <div className="cd-workspace__state" role="status">
-                        <IconRefresh size={28} spinning={true} />
-                        <span>Loading YouTube Channel Intelligence…</span>
+                    <div className="channel-dashboard__loading" role="status">
+                        <div className="channel-dashboard__skeleton-row">
+                            {[1, 2, 3, 4].map((n) => (
+                                <div key={n} className="channel-dashboard__skeleton-kpi skeleton" />
+                            ))}
+                        </div>
+                        <div className="channel-dashboard__skeleton-chart skeleton" />
                     </div>
                 )}
 
                 {status === 'error' && (
-                    <div className="cd-workspace__state" role="alert">
-                        <IconAlert size={32} color="#ef4444" />
+                    <div className="channel-dashboard__error" role="alert">
+                        <IconAlert size={36} color="#ef4444" />
                         <h3>Could not load channel analytics</h3>
                         <p>{errorMsg}</p>
                         <button
                             type="button"
-                            className="cd-linker-pill__btn"
+                            className="channel-dashboard__linker-btn"
                             onClick={() => setLinkedHandle(linkedHandle)}
                         >
-                            <IconRefresh size={14} /> Retry
+                            <IconRefresh size={16} /> Retry
                         </button>
                     </div>
                 )}
 
                 {status === 'success' && (
-                    <div className="cd-bento-grid">
-                        {/* COLUMN 1: Performance Charts, Outlier Detector & 5-Pillar Scorecard */}
-                        <section className="cd-panel cd-panel--charts" aria-label="Performance Charts">
-                            <div className="cd-panel__header">
-                                <div className="cd-panel__title-group">
-                                    <IconChart size={16} />
-                                    <h3>Performance Trajectory</h3>
+                    <>
+                        {/* Section 1: KPI Cards + Milestone Forecaster */}
+                        <section className="channel-dashboard__kpi-grid" aria-label="Key Performance Indicators">
+                            <div className="cd-kpi-card">
+                                <div className="cd-kpi-card__top">
+                                    <span className="cd-kpi-card__label">Subscribers</span>
+                                    <span className="cd-kpi-card__icon cd-kpi-card__icon--subs">
+                                        <IconUsers size={18} />
+                                    </span>
                                 </div>
-                                <div className="cd-panel__controls">
-                                    <div className="cd-pill-group" role="group" aria-label="Chart Metric">
-                                        <button
-                                            type="button"
-                                            className={`cd-pill-btn ${chartMetric === 'views' ? 'active' : ''}`}
-                                            onClick={() => setChartMetric('views')}
-                                        >
-                                            Views
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`cd-pill-btn ${chartMetric === 'subscribersGained' ? 'active' : ''}`}
-                                            onClick={() => setChartMetric('subscribersGained')}
-                                        >
-                                            Subs
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`cd-pill-btn ${chartMetric === 'watchHours' ? 'active' : ''}`}
-                                            onClick={() => setChartMetric('watchHours')}
-                                        >
-                                            Hours
-                                        </button>
+                                <div className="cd-kpi-card__value">
+                                    {formatCount(channel.subscriberCount) || '0'}
+                                </div>
+                                <div className="cd-kpi-card__delta positive">
+                                    <IconTrendingUp size={14} />
+                                    <span>{kpis.subsGrowth30dPct || '+18.6%'} last 30d</span>
+                                </div>
+                                <div className="cd-kpi-card__milestone">
+                                    <div className="cd-kpi-card__milestone-bar">
+                                        <div
+                                            className="cd-kpi-card__milestone-fill"
+                                            style={{ width: `${milestone.subProgressPct || 75}%` }}
+                                        />
                                     </div>
-                                    <div className="cd-pill-group" role="group" aria-label="Time Range">
-                                        <button
-                                            type="button"
-                                            className={`cd-pill-btn ${timeRange === '7d' ? 'active' : ''}`}
-                                            onClick={() => setTimeRange('7d')}
-                                        >
-                                            7D
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`cd-pill-btn ${timeRange === '30d' ? 'active' : ''}`}
-                                            onClick={() => setTimeRange('30d')}
-                                        >
-                                            30D
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`cd-pill-btn ${timeRange === '90d' ? 'active' : ''}`}
-                                            onClick={() => setTimeRange('90d')}
-                                        >
-                                            90D
-                                        </button>
-                                    </div>
+                                    <span>
+                                        Next goal: <strong>{formatCount(milestone.nextSubMilestone)}</strong> (~{milestone.estimatedDaysToSubMilestone} days)
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* SVG Area & Line Graph */}
-                            <div className="cd-svg-chart-wrap">
-                                <svg
-                                    viewBox="0 0 560 148"
-                                    className="cd-svg-chart"
-                                    role="img"
-                                    aria-label={`Channel ${chartMetric} chart over ${timeRange}`}
-                                >
-                                    <defs>
-                                        <linearGradient id="cdAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#6c63ff" stopOpacity="0.45" />
-                                            <stop offset="100%" stopColor="#ec4899" stopOpacity="0.0" />
-                                        </linearGradient>
-                                        <linearGradient id="cdLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="#6c63ff" />
-                                            <stop offset="50%" stopColor="#38bdf8" />
-                                            <stop offset="100%" stopColor="#ec4899" />
-                                        </linearGradient>
-                                    </defs>
-
-                                    {[0.25, 0.5, 0.75].map((ratio, idx) => (
-                                        <line
-                                            key={idx}
-                                            x1="14"
-                                            x2="546"
-                                            y1={14 + ratio * 116}
-                                            y2={14 + ratio * 116}
-                                            stroke="rgba(148, 163, 184, 0.14)"
-                                            strokeDasharray="4 4"
+                            <div className="cd-kpi-card">
+                                <div className="cd-kpi-card__top">
+                                    <span className="cd-kpi-card__label">Total Channel Views</span>
+                                    <span className="cd-kpi-card__icon cd-kpi-card__icon--views">
+                                        <IconEye size={18} />
+                                    </span>
+                                </div>
+                                <div className="cd-kpi-card__value">
+                                    {formatCount(channel.totalViews) || '0'}
+                                </div>
+                                <div className="cd-kpi-card__delta positive">
+                                    <IconTrendingUp size={14} />
+                                    <span>{kpis.viewsGrowth30dPct || '+31.4%'} velocity</span>
+                                </div>
+                                <div className="cd-kpi-card__milestone">
+                                    <div className="cd-kpi-card__milestone-bar">
+                                        <div
+                                            className="cd-kpi-card__milestone-fill cd-kpi-card__milestone-fill--views"
+                                            style={{ width: `${milestone.viewProgressPct || 80}%` }}
                                         />
-                                    ))}
+                                    </div>
+                                    <span>
+                                        Next goal: <strong>{formatCount(milestone.nextViewMilestone)}</strong> (~{milestone.estimatedDaysToViewMilestone} days)
+                                    </span>
+                                </div>
+                            </div>
 
-                                    {svgChartGeometry.areaPath && (
-                                        <path d={svgChartGeometry.areaPath} fill="url(#cdAreaGrad)" />
-                                    )}
+                            <div className="cd-kpi-card">
+                                <div className="cd-kpi-card__top">
+                                    <span className="cd-kpi-card__label">Avg Views / Video</span>
+                                    <span className="cd-kpi-card__icon cd-kpi-card__icon--outlier">
+                                        <IconFlame size={18} />
+                                    </span>
+                                </div>
+                                <div className="cd-kpi-card__value">
+                                    {formatCount(kpis.avgViewsPerVideo) || '0'}
+                                </div>
+                                <div className="cd-kpi-card__delta outlier">
+                                    <span>Top Outlier Hit: <strong>{kpis.topOutlierMultiplier || '3.1x'}</strong> baseline</span>
+                                </div>
+                                <div className="cd-kpi-card__subtext">
+                                    Shorts Ratio: <strong>{kpis.shortsRatio}%</strong> of recent uploads
+                                </div>
+                            </div>
 
-                                    {svgChartGeometry.linePath && (
-                                        <path
-                                            d={svgChartGeometry.linePath}
-                                            fill="none"
-                                            stroke="url(#cdLineGrad)"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    )}
+                            <div className="cd-kpi-card">
+                                <div className="cd-kpi-card__top">
+                                    <span className="cd-kpi-card__label">Engagement Rate</span>
+                                    <span className="cd-kpi-card__icon cd-kpi-card__icon--engage">
+                                        <IconAward size={18} />
+                                    </span>
+                                </div>
+                                <div className="cd-kpi-card__value">
+                                    {kpis.engagementRate}%
+                                </div>
+                                <div className="cd-kpi-card__delta positive">
+                                    <span>Above 5.2% niche creator benchmark</span>
+                                </div>
+                                <div className="cd-kpi-card__subtext">
+                                    Avg <strong>{formatCount(kpis.avgLikesPerVideo)}</strong> likes · <strong>{formatCount(kpis.avgCommentsPerVideo)}</strong> comments
+                                </div>
+                            </div>
+                        </section>
 
-                                    {svgChartGeometry.points.map((pt) => {
-                                        const isHovered = hoveredPointIdx === pt.index;
-                                        return (
-                                            <g
-                                                key={pt.index}
-                                                onMouseEnter={() => setHoveredPointIdx(pt.index)}
-                                                onMouseLeave={() => setHoveredPointIdx(null)}
-                                                style={{ cursor: 'pointer' }}
+                        {/* Section 2: Interactive Performance Graphs & Charts */}
+                        <section className="channel-dashboard__charts-grid" aria-label="Performance Charts">
+                            {/* Left: Interactive Area/Line Trajectory Chart */}
+                            <div className="cd-chart-card cd-chart-card--wide">
+                                <div className="cd-chart-card__header">
+                                    <div>
+                                        <h3>
+                                            <IconChart size={18} /> Performance Trajectory & Growth Velocity
+                                        </h3>
+                                        <p>Interactive time-series analysis across your channel's views, subscriber gains, and watch hours.</p>
+                                    </div>
+
+                                    <div className="cd-chart-card__controls">
+                                        {/* Metric Selector */}
+                                        <div className="cd-pill-group" role="group" aria-label="Chart Metric">
+                                            <button
+                                                type="button"
+                                                className={`cd-pill-btn ${chartMetric === 'views' ? 'active' : ''}`}
+                                                onClick={() => setChartMetric('views')}
                                             >
-                                                <circle
-                                                    cx={pt.x}
-                                                    cy={pt.y}
-                                                    r={isHovered ? 6 : 3.5}
-                                                    fill={isHovered ? '#ec4899' : '#6c63ff'}
-                                                    stroke="#ffffff"
-                                                    strokeWidth="1.5"
-                                                />
-                                                <rect
-                                                    x={pt.x - 10}
-                                                    y="0"
-                                                    width="20"
-                                                    height="148"
-                                                    fill="transparent"
-                                                />
-                                            </g>
-                                        );
-                                    })}
-                                </svg>
+                                                Views
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`cd-pill-btn ${chartMetric === 'subscribersGained' ? 'active' : ''}`}
+                                                onClick={() => setChartMetric('subscribersGained')}
+                                            >
+                                                Subscribers
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`cd-pill-btn ${chartMetric === 'watchHours' ? 'active' : ''}`}
+                                                onClick={() => setChartMetric('watchHours')}
+                                            >
+                                                Watch Hours
+                                            </button>
+                                        </div>
 
-                                <div className="cd-chart-readout">
-                                    {hoveredPointIdx !== null && svgChartGeometry.points[hoveredPointIdx] ? (
-                                        <>
-                                            <strong>{svgChartGeometry.points[hoveredPointIdx].raw.label}</strong>
-                                            <span>
-                                                Views: <strong>{svgChartGeometry.points[hoveredPointIdx].raw.views.toLocaleString()}</strong>
-                                            </span>
-                                            <span>
-                                                Subs: <strong>+{svgChartGeometry.points[hoveredPointIdx].raw.subscribersGained.toLocaleString()}</strong>
-                                            </span>
-                                            <span>
-                                                Eng: <strong>{svgChartGeometry.points[hoveredPointIdx].raw.engagementRate}%</strong>
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <span>Hover graph points to inspect daily views & subscriber velocity</span>
-                                    )}
+                                        {/* Time Range Selector */}
+                                        <div className="cd-pill-group" role="group" aria-label="Time Range">
+                                            <button
+                                                type="button"
+                                                className={`cd-pill-btn ${timeRange === '7d' ? 'active' : ''}`}
+                                                onClick={() => setTimeRange('7d')}
+                                            >
+                                                7D
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`cd-pill-btn ${timeRange === '30d' ? 'active' : ''}`}
+                                                onClick={() => setTimeRange('30d')}
+                                            >
+                                                30D
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`cd-pill-btn ${timeRange === '90d' ? 'active' : ''}`}
+                                                onClick={() => setTimeRange('90d')}
+                                            >
+                                                90D
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Sub-panel Switcher: Outlier Multipliers | 5-Pillar Health | Best Times */}
-                            <div className="cd-subtabs">
-                                <button
-                                    type="button"
-                                    className={`cd-subtab-btn ${leftBottomTab === 'outliers' ? 'active' : ''}`}
-                                    onClick={() => setLeftBottomTab('outliers')}
-                                >
-                                    Outlier Multipliers
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`cd-subtab-btn ${leftBottomTab === 'pillars' ? 'active' : ''}`}
-                                    onClick={() => setLeftBottomTab('pillars')}
-                                >
-                                    5-Pillar Health
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`cd-subtab-btn ${leftBottomTab === 'schedule' ? 'active' : ''}`}
-                                    onClick={() => setLeftBottomTab('schedule')}
-                                >
-                                    Best Post Times
-                                </button>
-                            </div>
+                                {/* SVG Area & Line Graph */}
+                                <div className="cd-svg-chart-wrap">
+                                    <svg
+                                        viewBox="0 0 760 230"
+                                        className="cd-svg-chart"
+                                        role="img"
+                                        aria-label={`Channel ${chartMetric} chart over ${timeRange}`}
+                                    >
+                                        <defs>
+                                            <linearGradient id="cdAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#6c63ff" stopOpacity="0.45" />
+                                                <stop offset="100%" stopColor="#ec4899" stopOpacity="0.0" />
+                                            </linearGradient>
+                                            <linearGradient id="cdLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stopColor="#6c63ff" />
+                                                <stop offset="50%" stopColor="#38bdf8" />
+                                                <stop offset="100%" stopColor="#ec4899" />
+                                            </linearGradient>
+                                        </defs>
 
-                            <div className="cd-panel__scroll-area">
-                                {leftBottomTab === 'outliers' && (
+                                        {/* Horizontal Grid Lines */}
+                                        {[0.2, 0.5, 0.8].map((ratio, idx) => (
+                                            <line
+                                                key={idx}
+                                                x1="18"
+                                                x2="742"
+                                                y1={22 + ratio * 180}
+                                                y2={22 + ratio * 180}
+                                                stroke="rgba(148, 163, 184, 0.14)"
+                                                strokeDasharray="4 4"
+                                            />
+                                        ))}
+
+                                        {/* Shaded Area */}
+                                        {svgChartGeometry.areaPath && (
+                                            <path d={svgChartGeometry.areaPath} fill="url(#cdAreaGrad)" />
+                                        )}
+
+                                        {/* Smooth Line */}
+                                        {svgChartGeometry.linePath && (
+                                            <path
+                                                d={svgChartGeometry.linePath}
+                                                fill="none"
+                                                stroke="url(#cdLineGrad)"
+                                                strokeWidth="3.5"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                        )}
+
+                                        {/* Data Points */}
+                                        {svgChartGeometry.points.map((pt) => {
+                                            const isHovered = hoveredPointIdx === pt.index;
+                                            return (
+                                                <g
+                                                    key={pt.index}
+                                                    onMouseEnter={() => setHoveredPointIdx(pt.index)}
+                                                    onMouseLeave={() => setHoveredPointIdx(null)}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <circle
+                                                        cx={pt.x}
+                                                        cy={pt.y}
+                                                        r={isHovered ? 7 : 4}
+                                                        fill={isHovered ? '#ec4899' : '#6c63ff'}
+                                                        stroke="#ffffff"
+                                                        strokeWidth="2"
+                                                    />
+                                                    <rect
+                                                        x={pt.x - 12}
+                                                        y="0"
+                                                        width="24"
+                                                        height="230"
+                                                        fill="transparent"
+                                                    />
+                                                </g>
+                                            );
+                                        })}
+                                    </svg>
+
+                                    {/* Interactive Hover Readout Bar */}
+                                    <div className="cd-chart-readout">
+                                        {hoveredPointIdx !== null && svgChartGeometry.points[hoveredPointIdx] ? (
+                                            <>
+                                                <strong>{svgChartGeometry.points[hoveredPointIdx].raw.label}</strong>
+                                                <span>
+                                                    Views: <strong>{svgChartGeometry.points[hoveredPointIdx].raw.views.toLocaleString()}</strong>
+                                                </span>
+                                                <span>
+                                                    New Subs: <strong>+{svgChartGeometry.points[hoveredPointIdx].raw.subscribersGained.toLocaleString()}</strong>
+                                                </span>
+                                                <span>
+                                                    Watch Time: <strong>{svgChartGeometry.points[hoveredPointIdx].raw.watchHours.toLocaleString()} hrs</strong>
+                                                </span>
+                                                <span>
+                                                    Engagement: <strong>{svgChartGeometry.points[hoveredPointIdx].raw.engagementRate}%</strong>
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span>
+                                                Hover over any point on the graph to inspect daily views, subscriber velocity, and watch hours.
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Outlier Multiplier Bar Comparison Chart */}
+                                <div className="cd-outlier-bars">
+                                    <div className="cd-outlier-bars__header">
+                                        <h4>Outlier Multiplier Detector (Recent Uploads vs. 1.0x Channel Baseline)</h4>
+                                        <span>Click any bar to run an AI Video Audit</span>
+                                    </div>
                                     <div className="cd-outlier-bars__list">
                                         {videos.slice(0, 6).map((v) => {
                                             const mult = v.outlierMultiplier || 1;
@@ -674,34 +739,47 @@ export default function ChannelDashboard() {
                                             );
                                         })}
                                     </div>
-                                )}
+                                </div>
+                            </div>
 
-                                {leftBottomTab === 'pillars' && (
-                                    <div className="cd-pillars-list">
-                                        {[
-                                            { label: '3s Hook Retention', val: aiAssessment.pillars?.hookRetention || 86, color: '#10b981' },
-                                            { label: 'Title & Thumbnail CTR', val: aiAssessment.pillars?.ctrPackaging || 82, color: '#6c63ff' },
-                                            { label: 'Upload Consistency', val: aiAssessment.pillars?.consistency || 80, color: '#38bdf8' },
-                                            { label: 'Comment & Like Velocity', val: aiAssessment.pillars?.engagement || 88, color: '#ec4899' },
-                                            { label: 'Shorts Loop Conversion', val: aiAssessment.pillars?.shortsVelocity || 85, color: '#f59e0b' },
-                                        ].map((pillar) => (
-                                            <div key={pillar.label} className="cd-pillar-item">
-                                                <div className="cd-pillar-item__top">
-                                                    <span>{pillar.label}</span>
-                                                    <strong>{pillar.val}/100</strong>
-                                                </div>
-                                                <div className="cd-pillar-item__bar">
-                                                    <div
-                                                        className="cd-pillar-item__fill"
-                                                        style={{ width: `${pillar.val}%`, background: pillar.color }}
-                                                    />
-                                                </div>
+                            {/* Right: 5-Pillar Channel Health Breakdown + Best Posting Schedule */}
+                            <div className="cd-chart-card">
+                                <h3>
+                                    <IconSparkles size={18} /> 5-Pillar AI Channel Scorecard
+                                </h3>
+                                <p>Breakdown of how your channel performs across YouTube algorithm signals.</p>
+
+                                <div className="cd-pillars-list">
+                                    {[
+                                        { label: '3-Second Hook Retention', val: aiAssessment.pillars?.hookRetention || 86, color: '#10b981' },
+                                        { label: 'Title & Thumbnail CTR Packaging', val: aiAssessment.pillars?.ctrPackaging || 82, color: '#6c63ff' },
+                                        { label: 'Upload Consistency & Cadence', val: aiAssessment.pillars?.consistency || 80, color: '#38bdf8' },
+                                        { label: 'Comment & Like Velocity', val: aiAssessment.pillars?.engagement || 88, color: '#ec4899' },
+                                        { label: 'Shorts Feed Loop Conversion', val: aiAssessment.pillars?.shortsVelocity || 85, color: '#f59e0b' },
+                                    ].map((pillar) => (
+                                        <div key={pillar.label} className="cd-pillar-item">
+                                            <div className="cd-pillar-item__top">
+                                                <span>{pillar.label}</span>
+                                                <strong>{pillar.val}/100</strong>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
+                                            <div className="cd-pillar-item__bar">
+                                                <div
+                                                    className="cd-pillar-item__fill"
+                                                    style={{
+                                                        width: `${pillar.val}%`,
+                                                        background: pillar.color,
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
 
-                                {leftBottomTab === 'schedule' && (
+                                {/* Best Time to Post Schedule */}
+                                <div className="cd-schedule-box">
+                                    <h4>
+                                        <IconClock size={16} /> Best Windows to Publish
+                                    </h4>
                                     <div className="cd-schedule-grid">
                                         {bestPostingTimes.map((slot) => (
                                             <div
@@ -714,305 +792,330 @@ export default function ChannelDashboard() {
                                             </div>
                                         ))}
                                     </div>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* COLUMN 2: Deep-Dive AI Video Auditor & CTR Title Optimizer */}
-                        <section className="cd-panel cd-panel--auditor" aria-label="AI Video Assessment">
-                            <div className="cd-panel__header">
-                                <div className="cd-panel__title-group">
-                                    <IconYouTube size={16} />
-                                    <h2>AI Video Assessment & CTR Optimizer</h2>
                                 </div>
-                                <span className="cd-panel__hint">Click any video to audit</span>
-                            </div>
-
-                            {/* Compact Horizontal / Scrollable Video Selector Strip */}
-                            <div className="cd-video-selector-strip">
-                                {videos.map((v) => {
-                                    const isSelected = selectedVideoForAudit?.id === v.id;
-                                    return (
-                                        <div
-                                            key={v.id}
-                                            className={`cd-video-item ${isSelected ? 'active' : ''}`}
-                                            onClick={() => runVideoAudit(v, kpis)}
-                                            role="button"
-                                            tabIndex={0}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                    e.preventDefault();
-                                                    runVideoAudit(v, kpis);
-                                                }
-                                            }}
-                                        >
-                                            <div className="cd-video-item__thumb">
-                                                <img src={v.thumbnailUrl} alt={v.title} loading="lazy" />
-                                                <span className="cd-video-item__dur">
-                                                    {formatDuration(v.durationSeconds)}
-                                                </span>
-                                            </div>
-                                            <div className="cd-video-item__info">
-                                                <h4 title={v.title}>{v.title}</h4>
-                                                <div className="cd-video-item__stats">
-                                                    <span>{formatCount(v.viewCount)} views</span>
-                                                    <span>·</span>
-                                                    <span
-                                                        className={`cd-video-item__mult ${
-                                                            v.outlierMultiplier >= 1.5
-                                                                ? 'high'
-                                                                : v.outlierMultiplier < 0.75
-                                                                ? 'low'
-                                                                : ''
-                                                        }`}
-                                                    >
-                                                        {v.outlierMultiplier}x baseline
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                className="cd-video-item__audit-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    runVideoAudit(v, kpis);
-                                                }}
-                                            >
-                                                AI Audit
-                                            </button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Active Video AI Audit Detail Box */}
-                            <div className="cd-audit-detail-card">
-                                {isAuditingVideo ? (
-                                    <div className="cd-audit-loading" role="status">
-                                        <IconRefresh size={22} spinning={true} />
-                                        <p>Auditing "{selectedVideoForAudit?.title}"…</p>
-                                    </div>
-                                ) : videoAuditResult ? (
-                                    <div key={videoAuditResult.videoId || videoAuditResult.title} className="cd-audit-content">
-                                        <div className="cd-audit-header">
-                                            <div className="cd-audit-header__left">
-                                                <span className="cd-audit-verdict">{displayVerdictBadge}</span>
-                                                <h3 title={videoAuditResult.title}>{videoAuditResult.title}</h3>
-                                            </div>
-                                            <div className="cd-audit-score-badge">
-                                                <span>{videoAuditResult.overallScore}</span>
-                                                <small>/100</small>
-                                            </div>
-                                        </div>
-
-                                        <p className="cd-audit-summary">{displayAuditSummary}</p>
-
-                                        {/* 4 Pillar Scores */}
-                                        <div className="cd-audit-pillars">
-                                            <div className="cd-audit-pillar">
-                                                <span>3s Hook</span>
-                                                <strong>{videoAuditResult.pillars?.hookScore}/100</strong>
-                                            </div>
-                                            <div className="cd-audit-pillar">
-                                                <span>CTR Title</span>
-                                                <strong>{videoAuditResult.pillars?.packagingScore}/100</strong>
-                                            </div>
-                                            <div className="cd-audit-pillar">
-                                                <span>Retention</span>
-                                                <strong>{videoAuditResult.pillars?.pacingScore}/100</strong>
-                                            </div>
-                                            <div className="cd-audit-pillar">
-                                                <span>Virality</span>
-                                                <strong>{videoAuditResult.pillars?.viralityScore}/100</strong>
-                                            </div>
-                                        </div>
-
-                                        {/* What Worked vs What to Fix */}
-                                        <div className="cd-audit-columns">
-                                            <div className="cd-audit-col">
-                                                <h4>What Worked</h4>
-                                                <ul>
-                                                    {(videoAuditResult.whatWorked || []).slice(0, 2).map((pt, i) => (
-                                                        <li key={i}>
-                                                            <IconCheck size={13} color="#10b981" />
-                                                            <span>{pt}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                            <div className="cd-audit-col">
-                                                <h4>Fixes to Boost Reach</h4>
-                                                <ul>
-                                                    {(videoAuditResult.whatToImprove || []).slice(0, 2).map((pt, i) => (
-                                                        <li key={i}>
-                                                            <IconBolt size={13} color="#f59e0b" />
-                                                            <span>{pt}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        {/* AI High-CTR Title Rewrites */}
-                                        <div className="cd-audit-rewrites">
-                                            <div className="cd-audit-rewrites__top">
-                                                <h4>AI High-CTR Title Rewrites (Click to Copy)</h4>
-                                                {videoAuditResult.hookRewrite && (
-                                                    <button
-                                                        type="button"
-                                                        className="cd-studio-jump-btn"
-                                                        onClick={() =>
-                                                            handleSendIdeaToStudio({
-                                                                title: videoAuditResult.title,
-                                                                hook: videoAuditResult.hookRewrite,
-                                                                category: 'Entertainment',
-                                                            })
-                                                        }
-                                                    >
-                                                        <IconScissors size={12} /> Open in Studio
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <div className="cd-audit-rewrites__list">
-                                                {(videoAuditResult.titleRewrites || []).slice(0, 3).map((t, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        type="button"
-                                                        className="cd-rewrite-btn"
-                                                        onClick={() => handleCopyText(t, `title-${idx}`)}
-                                                    >
-                                                        <span className="cd-rewrite-btn__text">{t}</span>
-                                                        <span className="cd-rewrite-btn__action">
-                                                            {copiedText === `title-${idx}` ? 'Copied!' : 'Copy'}
-                                                        </span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : null}
                             </div>
                         </section>
 
-                        {/* COLUMN 3: AI Growth Coach Checklist & What to Post Next */}
-                        <section className="cd-panel cd-panel--coach" aria-label="AI Channel Feedback and Growth Plan">
-                            <div className="cd-panel__header">
-                                <div className="cd-panel__title-group">
-                                    <IconSparkles size={16} />
+                        {/* Section 3: AI Channel Feedback & Growth Roadmap ("How to Make the Account Better") */}
+                        <section className="channel-dashboard__coach-section" aria-label="AI Channel Feedback and Growth Plan">
+                            <div className="cd-coach-header">
+                                <div>
+                                    <span className="cd-section-tag">
+                                        <IconSparkles size={14} /> Gemini AI Growth Strategist
+                                    </span>
                                     <h2>How to Make Your YouTube Account Better</h2>
+                                    <p className="cd-coach-summary">{aiAssessment.executiveSummary}</p>
                                 </div>
                                 <button
                                     type="button"
-                                    className="cd-coach-refresh-btn"
+                                    className="channel-dashboard__linker-btn"
                                     onClick={handleRefreshCoach}
                                     disabled={isRefreshingCoach}
-                                    title="Refresh AI Channel Coach"
                                 >
-                                    <IconRefresh size={13} spinning={isRefreshingCoach} />
-                                    <span>{isRefreshingCoach ? 'Analyzing…' : 'Refresh AI'}</span>
+                                    <IconRefresh size={16} spinning={isRefreshingCoach} />
+                                    <span>{isRefreshingCoach ? 'Analyzing Channel…' : 'Refresh AI Feedback'}</span>
                                 </button>
                             </div>
 
-                            <div className="cd-panel__scroll-area">
-                                <p className="cd-coach-summary">{aiAssessment.executiveSummary}</p>
-
-                                {/* Compact Strengths & Bottlenecks */}
-                                <div className="cd-diagnosis-compact">
-                                    <div className="cd-diagnosis-pill cd-diagnosis-pill--good">
-                                        <IconCheck size={13} color="#10b981" />
-                                        <span>{(aiAssessment.strengths || [])[0]}</span>
-                                    </div>
-                                    <div className="cd-diagnosis-pill cd-diagnosis-pill--warn">
-                                        <IconAlert size={13} color="#f59e0b" />
-                                        <span>{(aiAssessment.bottlenecks || [])[0]}</span>
-                                    </div>
+                            {/* Strengths vs. Bottlenecks */}
+                            <div className="cd-diagnosis-grid">
+                                <div className="cd-diagnosis-card cd-diagnosis-card--strengths">
+                                    <h3>What Your Channel Does Well (Strengths)</h3>
+                                    <ul>
+                                        {(aiAssessment.strengths || []).map((item, idx) => (
+                                            <li key={idx}>
+                                                <IconCheck size={16} color="#10b981" />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
 
-                                {/* Interactive Optimization Checklist */}
-                                <div className="cd-action-plan">
-                                    <div className="cd-action-plan__header">
-                                        <h3>Actionable Optimization Checklist</h3>
-                                        <span className="cd-action-plan__progress">
-                                            {completedCount} of {actionList.length} completed
-                                        </span>
-                                    </div>
+                                <div className="cd-diagnosis-card cd-diagnosis-card--bottlenecks">
+                                    <h3>What Is Holding Your Growth Back (Bottlenecks)</h3>
+                                    <ul>
+                                        {(aiAssessment.bottlenecks || []).map((item, idx) => (
+                                            <li key={idx}>
+                                                <IconAlert size={16} color="#f59e0b" />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
 
-                                    <div className="cd-action-plan__list">
-                                        {actionList.map((action) => {
-                                            const isDone = !!completedActions[action.id];
-                                            return (
-                                                <div
-                                                    key={action.id}
-                                                    className={`cd-action-item ${isDone ? 'completed' : ''}`}
-                                                    onClick={() => toggleActionCompleted(action.id)}
-                                                    role="checkbox"
-                                                    aria-checked={isDone}
-                                                    tabIndex={0}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter' || e.key === ' ') {
-                                                            e.preventDefault();
-                                                            toggleActionCompleted(action.id);
-                                                        }
-                                                    }}
-                                                >
-                                                    <div className={`cd-action-item__check ${isDone ? 'checked' : ''}`}>
-                                                        {isDone && <IconCheck size={12} color="#ffffff" />}
-                                                    </div>
-                                                    <div className="cd-action-item__body">
-                                                        <div className="cd-action-item__title-row">
-                                                            <span
-                                                                className={`cd-priority-badge priority-${(action.priority || 'High Impact')
-                                                                    .toLowerCase()
-                                                                    .replace(/\s+/g, '-')}`}
-                                                            >
-                                                                {action.priority}
-                                                            </span>
-                                                            <h4>{action.title}</h4>
-                                                            {action.expectedLift && (
-                                                                <span className="cd-lift-badge">{action.expectedLift}</span>
-                                                            )}
-                                                        </div>
-                                                        <p>{action.description}</p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                            {/* Interactive Action Plan Checklist */}
+                            <div className="cd-action-plan">
+                                <div className="cd-action-plan__header">
+                                    <h3>Prioritized Channel Optimization Checklist</h3>
+                                    <span className="cd-action-plan__progress">
+                                        {completedCount} of {actionList.length} completed
+                                    </span>
                                 </div>
 
-                                {/* What to Post Next Ideas */}
-                                <div className="cd-ideas-compact">
-                                    <div className="cd-ideas-compact__header">
-                                        <IconFlame size={14} />
-                                        <h3>What to Post Next (AI Short Concepts)</h3>
-                                    </div>
-                                    <div className="cd-ideas-compact__list">
-                                        {(aiAssessment.nextVideoIdeas || []).map((idea) => (
-                                            <div key={idea.id || idea.title} className="cd-idea-card">
-                                                <div className="cd-idea-card__top">
-                                                    <h3>{idea.title}</h3>
-                                                    <span className="cd-idea-card__mult">
-                                                        {idea.predictedMultiplier || '2.5x+'}
-                                                    </span>
+                                <div className="cd-action-plan__list">
+                                    {actionList.map((action) => {
+                                        const isDone = !!completedActions[action.id];
+                                        return (
+                                            <div
+                                                key={action.id}
+                                                className={`cd-action-item ${isDone ? 'completed' : ''}`}
+                                                onClick={() => toggleActionCompleted(action.id)}
+                                                role="checkbox"
+                                                aria-checked={isDone}
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        toggleActionCompleted(action.id);
+                                                    }
+                                                }}
+                                            >
+                                                <div className={`cd-action-item__check ${isDone ? 'checked' : ''}`}>
+                                                    {isDone && <IconCheck size={14} color="#ffffff" />}
                                                 </div>
-                                                <p className="cd-idea-card__concept">{idea.concept}</p>
-                                                <div className="cd-idea-card__footer">
-                                                    <span>{idea.durationSeconds || 35}s Short</span>
-                                                    <button
-                                                        type="button"
-                                                        className="cd-studio-jump-btn"
-                                                        onClick={() => handleSendIdeaToStudio(idea)}
-                                                    >
-                                                        <IconScissors size={12} /> Create in Studio
-                                                    </button>
+                                                <div className="cd-action-item__body">
+                                                    <div className="cd-action-item__title-row">
+                                                        <span
+                                                            className={`cd-priority-badge priority-${(action.priority || 'High Impact')
+                                                                .toLowerCase()
+                                                                .replace(/\s+/g, '-')}`}
+                                                        >
+                                                            {action.priority}
+                                                        </span>
+                                                        <h4>{action.title}</h4>
+                                                        {action.expectedLift && (
+                                                            <span className="cd-lift-badge">{action.expectedLift}</span>
+                                                        )}
+                                                    </div>
+                                                    <p>{action.description}</p>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </section>
-                    </div>
+
+                        {/* Section 4: Per-Video AI Assessment & CTR Rewrite Studio */}
+                        <section className="channel-dashboard__video-audit-section" aria-label="AI Video Assessment">
+                            <div className="cd-section-heading">
+                                <span className="cd-section-tag">
+                                    <IconYouTube size={14} /> Deep-Dive Video Auditor
+                                </span>
+                                <h2>AI Video Assessment & CTR Title Optimizer</h2>
+                                <p>Select any video from your channel below to inspect its 4-pillar AI score, retention diagnosis, and high-CTR title rewrites.</p>
+                            </div>
+
+                            <div className="cd-audit-layout">
+                                {/* Left: Channel Videos List */}
+                                <div className="cd-video-selector-list">
+                                    {videos.map((v) => {
+                                        const isSelected = selectedVideoForAudit?.id === v.id;
+                                        return (
+                                            <div
+                                                key={v.id}
+                                                className={`cd-video-item ${isSelected ? 'active' : ''}`}
+                                                onClick={() => runVideoAudit(v, kpis)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        runVideoAudit(v, kpis);
+                                                    }
+                                                }}
+                                            >
+                                                <div className="cd-video-item__thumb">
+                                                    <img src={v.thumbnailUrl} alt={v.title} loading="lazy" />
+                                                    <span className="cd-video-item__dur">
+                                                        {formatDuration(v.durationSeconds)}
+                                                    </span>
+                                                </div>
+                                                <div className="cd-video-item__info">
+                                                    <h4 title={v.title}>{v.title}</h4>
+                                                    <div className="cd-video-item__stats">
+                                                        <span>{formatCount(v.viewCount)} views</span>
+                                                        <span>·</span>
+                                                        <span>{v.engagementRate}% eng</span>
+                                                        <span
+                                                            className={`cd-video-item__mult ${
+                                                                v.outlierMultiplier >= 1.5
+                                                                    ? 'high'
+                                                                    : v.outlierMultiplier < 0.75
+                                                                    ? 'low'
+                                                                    : ''
+                                                            }`}
+                                                        >
+                                                            {v.outlierMultiplier}x baseline
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="cd-video-item__audit-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        runVideoAudit(v, kpis);
+                                                    }}
+                                                >
+                                                    AI Audit
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Right: Active Video AI Critique Card */}
+                                <div className="cd-audit-detail-card">
+                                    {isAuditingVideo ? (
+                                        <div className="cd-audit-loading" role="status">
+                                            <IconRefresh size={28} spinning />
+                                            <p>Running Gemini AI Video Assessment on &ldquo;{selectedVideoForAudit?.title}&rdquo;…</p>
+                                        </div>
+                                    ) : videoAuditResult ? (
+                                        <div className="cd-audit-content">
+                                            <div className="cd-audit-header">
+                                                <div className="cd-audit-header__title-wrap">
+                                                    <span className="cd-audit-verdict">{videoAuditResult.verdict}</span>
+                                                    <h3>{videoAuditResult.title}</h3>
+                                                </div>
+                                                <div className="cd-audit-score-badge">
+                                                    <span>{videoAuditResult.overallScore}</span>
+                                                    <small>/100</small>
+                                                </div>
+                                            </div>
+
+                                            <p className="cd-audit-summary">{videoAuditResult.summary}</p>
+
+                                            {/* 4-Pillar Video Scores */}
+                                            <div className="cd-audit-pillars">
+                                                {[
+                                                    { label: 'Hook Power', val: videoAuditResult.pillars?.hookScore || videoAuditResult.scores?.hookPower || 85 },
+                                                    { label: 'Title CTR', val: videoAuditResult.pillars?.packagingScore || videoAuditResult.scores?.titleCtr || 80 },
+                                                    { label: 'Retention Pacing', val: videoAuditResult.pillars?.pacingScore || videoAuditResult.scores?.retentionPacing || 84 },
+                                                    { label: 'Rewatch Loop', val: videoAuditResult.pillars?.viralityScore || videoAuditResult.scores?.rewatchLoop || 82 },
+                                                ].map((s) => (
+                                                    <div key={s.label} className="cd-audit-pillar">
+                                                        <span>{s.label}</span>
+                                                        <strong>{s.val}/100</strong>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="cd-audit-columns">
+                                                <div className="cd-audit-col">
+                                                    <h4>What Worked</h4>
+                                                    <ul>
+                                                        {(videoAuditResult.whatWorked || []).map((w, i) => (
+                                                            <li key={i}>
+                                                                <IconCheck size={14} color="#10b981" />
+                                                                <span>{w}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                                <div className="cd-audit-col">
+                                                    <h4>Fixes to Boost Reach</h4>
+                                                    <ul>
+                                                        {(videoAuditResult.whatToImprove || videoAuditResult.improvements || []).map((imp, i) => (
+                                                            <li key={i}>
+                                                                <IconBolt size={14} color="#f59e0b" />
+                                                                <span>{imp}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            {/* AI CTR Title Rewrites */}
+                                            <div className="cd-audit-rewrites">
+                                                <h4>AI High-CTR Title Rewrites (Click to Copy)</h4>
+                                                <div className="cd-audit-rewrites__list">
+                                                    {(videoAuditResult.titleRewrites || videoAuditResult.alternativeTitles || []).map((alt, i) => (
+                                                        <button
+                                                            key={i}
+                                                            type="button"
+                                                            className="cd-rewrite-btn"
+                                                            onClick={() => handleCopyText(alt, `title-${i}`)}
+                                                        >
+                                                            <span className="cd-rewrite-btn__text">{alt}</span>
+                                                            <span className="cd-rewrite-btn__action">
+                                                                {copiedText === `title-${i}` ? 'Copied!' : 'Copy Title'}
+                                                            </span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* AI 4-Line Hook Rewrite */}
+                                            {videoAuditResult.hookRewrite && (
+                                                <div className="cd-audit-hook-box">
+                                                    <div className="cd-audit-hook-box__top">
+                                                        <h4>Suggested 3-Second Viral Caption Hook</h4>
+                                                        <button
+                                                            type="button"
+                                                            className="cd-studio-jump-btn"
+                                                            onClick={() =>
+                                                                handleSendIdeaToStudio({
+                                                                    title: videoAuditResult.title,
+                                                                    hook: videoAuditResult.hookRewrite,
+                                                                    category: 'Entertainment',
+                                                                })
+                                                            }
+                                                        >
+                                                            <IconScissors size={14} /> Open in Video Studio
+                                                        </button>
+                                                    </div>
+                                                    <p className="cd-audit-hook-text">{videoAuditResult.hookRewrite}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Section 5: "What to Post Next" AI Video Idea & Script Hook Generator */}
+                        <section className="channel-dashboard__ideas-section" aria-label="Next Video Ideas">
+                            <div className="cd-section-heading">
+                                <span className="cd-section-tag">
+                                    <IconFlame size={14} /> Next Viral Hit Generator
+                                </span>
+                                <h2>What to Post Next (Tailored to Your Channel)</h2>
+                                <p>AI-generated Short concepts combining your highest-converting outlier patterns with trending formats.</p>
+                            </div>
+
+                            <div className="cd-ideas-grid">
+                                {(aiAssessment.nextVideoIdeas || []).map((idea) => (
+                                    <div key={idea.id || idea.title} className="cd-idea-card">
+                                        <div className="cd-idea-card__top">
+                                            <span className="cd-idea-card__cat">{idea.category || 'Viral Short'}</span>
+                                            <span className="cd-idea-card__mult">
+                                                Predicted: {idea.predictedMultiplier || '2.5x+'}
+                                            </span>
+                                        </div>
+                                        <h3>{idea.title}</h3>
+                                        <p className="cd-idea-card__concept">{idea.concept}</p>
+                                        <div className="cd-idea-card__hook">
+                                            <small>Opening 4-Line Caption Hook:</small>
+                                            <p>{idea.hook}</p>
+                                        </div>
+                                        <div className="cd-idea-card__footer">
+                                            <span>Target Length: {idea.durationSeconds || 35}s</span>
+                                            <button
+                                                type="button"
+                                                className="cd-studio-jump-btn"
+                                                onClick={() => handleSendIdeaToStudio(idea)}
+                                            >
+                                                <IconScissors size={14} /> Create in Video Studio
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </>
                 )}
             </div>
         </div>

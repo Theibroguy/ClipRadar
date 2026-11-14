@@ -1,6 +1,9 @@
 /* Application Root Layout */
 .app-container {
     min-height: 100vh;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     background: var(--color-bg);
@@ -13,11 +16,16 @@
     flex: 1;
     position: relative;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
 }
 
 .app-main-content {
     flex: 1;
     min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     width: 100%;
