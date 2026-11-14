@@ -79,7 +79,7 @@ export default function Navbar() {
                         aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
                         title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
                     >
-                        <span className="navbar__theme-icon" aria-hidden="true">
+                        <span key={theme} className="navbar__theme-icon" aria-hidden="true">
                             {theme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
                         </span>
                         <span className="navbar__theme-text">

@@ -311,11 +311,19 @@ export default function VideoFeed({ pagePlatform }) {
     }
 
     const currentTotalCount = showSavedOnly ? filteredBookmarks.length : total;
+    const stageKey = `${activePlatform}-${filters.category}-${showSavedOnly ? 'saved' : 'feed'}-${settings?.feedDensity || 'grid'}`;
 
     return (
         <div className="video-feed">
+            {/* Top Laser Transition Sweep Bar */}
+            <div
+                key={`laser-${stageKey}`}
+                className={`video-feed__laser-bar video-feed__laser-bar--${activePlatform}`}
+                aria-hidden="true"
+            />
+
             {/* Header */}
-            <header className="video-feed__header">
+            <header className={`video-feed__header video-feed__header--${activePlatform}`}>
                 <div key={activePlatform} className="video-feed__hero-identity">
                     <div className="video-feed__logo">
                         <span className="video-feed__logo-icon">
@@ -478,6 +486,7 @@ export default function VideoFeed({ pagePlatform }) {
 
             {/* Main grid */}
             <main
+                key={stageKey}
                 className={`video-feed__grid ${settings?.feedDensity === 'cinematic' ? 'video-feed__grid--cinematic' : ''} ${isTransitioning ? 'video-feed__grid--transitioning' : ''}`}
                 id="video-grid"
                 aria-label="Video results"
@@ -557,7 +566,7 @@ export default function VideoFeed({ pagePlatform }) {
                 {status === 'success' &&
                     displayVideos.map((video, idx) => (
                         <VideoCard
-                            key={`${video.platform}-${video.platformVideoId}`}
+                            key={`${stageKey}-${video.platform}-${video.platformVideoId}`}
                             video={video}
                             index={idx}
                             onSelectVideo={setSelectedVideo}

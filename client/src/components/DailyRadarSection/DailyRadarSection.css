@@ -108,6 +108,7 @@
     color: var(--color-text);
     letter-spacing: -0.02em;
     margin: 2px 0 0;
+    animation: headerMorph 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .daily-radar__subtitle {
@@ -500,6 +501,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
     gap: var(--space-4);
+    animation: pageStageEnter 0.54s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Daily Card */
@@ -510,14 +512,14 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.36s var(--ease-smooth),
-                box-shadow 0.36s var(--ease-smooth),
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                 border-color 0.3s var(--ease-smooth),
                 background-color 0.35s var(--ease-smooth);
     box-shadow: var(--shadow-card);
-    animation: cardCascadeIn 0.44s var(--ease-smooth) both;
-    animation-delay: calc(var(--card-index, 0) * 50ms);
-    will-change: transform, box-shadow;
+    animation: cardCascadeIn 0.58s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--card-index, 0) * 75ms);
+    will-change: transform, box-shadow, opacity;
 }
 
 .daily-card:hover {

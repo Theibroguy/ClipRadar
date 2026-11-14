@@ -159,44 +159,95 @@ button:active:not(:disabled) {
 
 /* --- Global Animations --- */
 @keyframes fadeIn {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(14px) scale(0.985);
+    transform: translateY(20px) scale(0.97);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
-@keyframes cardCascadeIn {
-  from {
+@keyframes pageStageEnter {
+  0% {
     opacity: 0;
-    transform: translateY(18px) scale(0.98);
+    transform: translateY(26px) scale(0.975);
+    filter: blur(4px);
   }
-  to {
+  60% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes cardCascadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(32px) scale(0.93);
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
 @keyframes headerMorph {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(18px) scale(0.95);
+    filter: blur(3px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes iconPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.45) rotate(-18deg);
+  }
+  70% {
+    transform: scale(1.12) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes laserSweep {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  55% {
+    transform: scaleX(0.85);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
   }
 }
 
 @keyframes drawerReveal {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(-10px) scale(0.99);
+    transform: translateY(-16px) scale(0.97);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -204,9 +255,14 @@ button:active:not(:disabled) {
 
 @keyframes heartPop {
   0% { transform: scale(1); }
-  40% { transform: scale(1.32); }
-  75% { transform: scale(0.92); }
-  100% { transform: scale(1); }
+  35% { transform: scale(1.38) rotate(-8deg); }
+  70% { transform: scale(0.9) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes themeSpin {
+  0% { transform: rotate(-90deg) scale(0.6); opacity: 0.3; }
+  100% { transform: rotate(0deg) scale(1); opacity: 1; }
 }
 
 @keyframes shimmer {
@@ -224,16 +280,7 @@ button:active:not(:disabled) {
 }
 
 .fade-in {
-  animation: fadeIn 0.42s var(--ease-smooth) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+  animation: fadeIn 0.5s var(--ease-smooth) both;
 }
 
 /* --- Skeleton loader --- */

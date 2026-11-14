@@ -147,7 +147,10 @@
 
 .navbar__theme-icon {
     font-size: 0.95rem;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    animation: themeSpin 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 

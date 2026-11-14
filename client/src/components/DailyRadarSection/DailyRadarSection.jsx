@@ -240,7 +240,7 @@ export default function DailyRadarSection({ onPreview, platform = 'youtube', onS
                                 <IconClock size={14} /> Next Drop in {formatCountdown(countdownSec)}
                             </span>
                         </div>
-                        <h2 className="daily-radar__title">
+                        <h2 key={activePlatform} className="daily-radar__title">
                             {sectionTitle}
                         </h2>
                         {dailyData?.theme && (
@@ -476,7 +476,11 @@ export default function DailyRadarSection({ onPreview, platform = 'youtube', onS
                         </button>
                     </div>
                 ) : (
-                    <div className="daily-radar__grid" role="list">
+                    <div
+                        key={`${activePlatform}-${dailyData?.date || 'today'}`}
+                        className="daily-radar__grid"
+                        role="list"
+                    >
                         {visibleVideos.map((video, idx) => {
                             const isTwitter = video.platform === 'twitter';
                             return (
