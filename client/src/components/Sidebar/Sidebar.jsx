@@ -121,6 +121,12 @@ export default function Sidebar() {
                 />
             )}
 
+            {/* Desktop layout spacer to match fixed sidebar width */}
+            <div
+                className={`sidebar-spacer ${isSidebarOpen ? 'sidebar-spacer--open' : 'sidebar-spacer--collapsed'}`}
+                aria-hidden="true"
+            />
+
             <aside
                 className={`app-sidebar ${isSidebarOpen ? 'app-sidebar--open' : 'app-sidebar--collapsed'}`}
                 aria-label="Application sidebar navigation and filters"
