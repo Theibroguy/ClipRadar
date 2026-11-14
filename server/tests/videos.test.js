@@ -228,6 +228,24 @@ describe('YouTube Channel Analytics & AI Coach API', () => {
     });
 });
 
+describe('POST /api/videos/x-grab (Live X / Twitter Video Grabber)', () => {
+    it('grabs playable X videos for a creator @handle or #hashtag and adds them to the X feed', async () => {
+        const res = await request(app)
+            .post('/api/videos/x-grab')
+            .send({
+                input: '@elonmusk',
+                creators: ['@elonmusk', '@MrBeast'],
+                hashtags: ['#tech', '#viral'],
+            });
+        expect(res.status).toBe(201);
+        expect(res.body.success).toBe(true);
+        expect(Array.isArray(res.body.videos)).toBe(true);
+        expect(res.body.videos.length).toBeGreaterThan(0);
+        expect(res.body.videos[0].platform).toBe('twitter');
+        expect(Boolean(res.body.videos[0].embedUrl)).toBe(true);
+    });
+});
+
 describe('Unknown route', () => {
     it('returns 404', async () => {
         const res = await request(app).get('/api/does-not-exist');

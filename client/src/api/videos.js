@@ -54,20 +54,48 @@ export async function fetchDailyDrop(date = null, platform = 'all') {
 /**
  * Force generate a fresh batch of videos for today
  * @param {string} [platform='all'] - 'all' | 'youtube' | 'twitter'
+ * @param {{ creators?: string[], hashtags?: string[] }} [options]
  */
-export async function generateFreshDailyDrop(platform = 'all') {
+export async function generateFreshDailyDrop(platform = 'all', options = {}) {
     const params = new URLSearchParams();
     if (platform && platform !== 'all') params.set('platform', platform);
     const query = params.toString();
     const url = `${BASE}/api/daily-drops/generate${query ? `?${query}` : ''}`;
-    const res = await fetch(url, {
-        method: 'POST',
-    });
+    const hasOptions =
+        (Array.isArray(options?.creators) && options.creators.length > 0) ||
+        (Array.isArray(options?.hashtags) && options.hashtags.length > 0);
+    const res = await fetch(
+        url,
+        hasOptions
+            ? {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(options),
+              }
+            : { method: 'POST' }
+    );
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `HTTP ${res.status}`);
     }
     return res.json(); // { success, message, drop }
+}
+
+/**
+ * Grab live X (Twitter) videos from a pasted X status URL / ID, @creator handle, or #hashtag.
+ * @param {{ input?: string, creators?: string[], hashtags?: string[] }} params
+ */
+export async function grabXVideos(params = {}) {
+    const res = await fetch(`${BASE}/api/videos/x-grab`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return res.json(); // { success, mode, videos }
 }
 
 /**

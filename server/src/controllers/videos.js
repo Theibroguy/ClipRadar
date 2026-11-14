@@ -11,7 +11,7 @@ import path from 'path';
 import { demoVideos } from '../data/demoVideos.js';
 import { Video } from '../models/Video.js';
 import { fetchYouTubeVideos, fetchYouTubeChannelAnalytics } from '../services/youtube.js';
-import { fetchTwitterVideos } from '../services/twitter.js';
+import { fetchTwitterVideos, fetchXPostByUrl } from '../services/twitter.js';
 import { fetchInstagramVideos } from '../services/instagram.js';
 import { fetchTikTokVideos } from '../services/tiktok.js';
 import {
@@ -25,8 +25,9 @@ import { getDailyDrop, getTodayDropVideos } from '../services/dailyDrops.js';
 
 const isDemoMode = () => process.env.DEMO_MODE === 'true';
 
-// In-memory store for user-created Studio videos
+// In-memory store for user-created Studio videos and dynamically grabbed X videos
 export const studioVideosStore = [];
+export const xVideosStore = [];
 
 // Load live-cached YouTube clips + Daily Drops if available, else demoVideos
 async function getFallbackVideos() {
@@ -58,7 +59,7 @@ async function getFallbackVideos() {
     // Combine with deduplication
     const seen = new Set();
     const combined = [];
-    for (const v of [...studioVideosStore, ...dailyVideos, ...base]) {
+    for (const v of [...studioVideosStore, ...xVideosStore, ...dailyVideos, ...base]) {
         const id = v.platformVideoId || v.videoUrl || v.title;
         if (!seen.has(id)) {
             seen.add(id);
@@ -165,8 +166,13 @@ export async function getVideos(req, res, next) {
  */
 export async function getDailyDropsController(req, res, next) {
     try {
-        const { date, force, platform } = req.query;
-        const drop = await getDailyDrop(date || null, force === 'true', platform || 'all');
+        const { date, force, platform, creators, hashtags } = req.query;
+        const parsedCreators = creators ? String(creators).split(',').map((s) => s.trim()).filter(Boolean) : undefined;
+        const parsedHashtags = hashtags ? String(hashtags).split(',').map((s) => s.trim()).filter(Boolean) : undefined;
+        const drop = await getDailyDrop(date || null, force === 'true', platform || 'all', {
+            creators: parsedCreators,
+            hashtags: parsedHashtags,
+        });
         return res.json(drop);
     } catch (err) {
         next(err);
@@ -180,7 +186,11 @@ export async function getDailyDropsController(req, res, next) {
 export async function generateDailyDropController(req, res, next) {
     try {
         const { platform } = req.query;
-        const drop = await getDailyDrop(null, true, platform || 'all');
+        const { creators, hashtags } = req.body || {};
+        const drop = await getDailyDrop(null, true, platform || 'all', {
+            creators: Array.isArray(creators) ? creators : undefined,
+            hashtags: Array.isArray(hashtags) ? hashtags : undefined,
+        });
         return res.json({
             success: true,
             message: 'Fresh daily drop generated successfully',
@@ -424,4 +434,83 @@ export async function refreshChannelCoachController(req, res, next) {
         next(err);
     }
 }
+
+/**
+ * POST /api/videos/x-grab
+ * Grabs live X (Twitter) videos either from a pasted X status URL / ID,
+ * or by querying a specific @creator handle / #hashtag / topic.
+ */
+export async function grabXVideoController(req, res, next) {
+    try {
+        const { input = '', creators = [], hashtags = [] } = req.body || {};
+        const trimmed = String(input || '').trim();
+
+        // 1. Check if input is a direct X / Twitter post URL or numeric status ID
+        const isStatusUrlOrId =
+            /(?:x|twitter)\.com\/[a-zA-Z0-9_]+\/status\/\d{10,22}/i.test(trimmed) ||
+            /^\d{15,22}$/.test(trimmed);
+
+        if (isStatusUrlOrId) {
+            const postVideo = await fetchXPostByUrl(trimmed);
+            if (!postVideo) {
+                return res.status(404).json({
+                    error: 'Could not extract X post or video from that URL. Verify the post is public.',
+                });
+            }
+
+            if (!postVideo.aiDescription) {
+                const ai = await enrichVideoWithAI({
+                    platform: 'twitter',
+                    creator: postVideo.creator?.name || postVideo.creator?.handle || '',
+                    title: postVideo.title,
+                    description: postVideo.description,
+                });
+                postVideo.aiDescription = ai.aiDescription;
+                postVideo.category = ai.category || postVideo.category;
+            }
+
+            xVideosStore.unshift(postVideo);
+            return res.status(201).json({
+                success: true,
+                mode: 'post',
+                videos: [postVideo],
+            });
+        }
+
+        // 2. Creator @handle, #hashtag, or topic query
+        const queries = trimmed ? [trimmed] : [];
+        const grabbed = await fetchTwitterVideos(queries, 4, {
+            creators: trimmed.startsWith('@') ? [trimmed, ...creators] : creators,
+            hashtags: trimmed.startsWith('#') ? [trimmed, ...hashtags] : hashtags,
+            allowKeylessFallback: true,
+        });
+
+        for (const v of grabbed) {
+            if (!v.aiDescription) {
+                const ai = await enrichVideoWithAI({
+                    platform: 'twitter',
+                    creator: v.creator?.name || v.creator?.handle || '',
+                    title: v.title,
+                    description: v.description,
+                });
+                v.aiDescription = ai.aiDescription;
+                v.category = ai.category || v.category;
+            }
+            // Add to store if not already present
+            const exists = xVideosStore.some((item) => item.platformVideoId === v.platformVideoId);
+            if (!exists) {
+                xVideosStore.unshift(v);
+            }
+        }
+
+        return res.status(201).json({
+            success: true,
+            mode: 'feed',
+            videos: grabbed,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 

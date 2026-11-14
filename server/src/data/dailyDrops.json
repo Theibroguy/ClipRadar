@@ -750,5 +750,309 @@
       ]
     },
     "generatedAt": "2026-11-12T11:08:30.886Z"
+  },
+  "2026-11-14": {
+    "date": "2026-11-14",
+    "formattedDate": "Saturday, Nov 14, 2026",
+    "theme": "Unscripted Celebrity & Extreme Feats",
+    "nextDropCountdownSeconds": 35415,
+    "total": 6,
+    "videos": [
+      {
+        "platform": "youtube",
+        "platformVideoId": "DgM1YypmL_Q",
+        "creator": {
+          "name": "Snoop.newspaper",
+          "handle": "@snoopnews",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Snoop&background=f59e0b&color=fff",
+          "profileUrl": "https://www.youtube.com/@snoopnews"
+        },
+        "title": "Celebrities' hilarious reactions as they eat spicy wings on 'Hot Ones'",
+        "description": "Watch stars like BLACKPINK's Lisa and Jennie lose their cool over the world's hottest wings.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=DgM1YypmL_Q",
+        "embedUrl": "https://www.youtube.com/embed/DgM1YypmL_Q",
+        "durationSeconds": 61,
+        "viewCount": 16592354,
+        "likeCount": 484558,
+        "category": "Comedy",
+        "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-14",
+        "publishedAt": "2026-11-14T07:30:00.000Z",
+        "velocityViewsPerHour": 230449
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1807890123456789012",
+        "creator": {
+          "name": "MrBeast",
+          "handle": "@MrBeast",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Beast&background=06b6d4&color=fff",
+          "profileUrl": "https://x.com/MrBeast"
+        },
+        "title": "Surprising random subscribers on X with custom wrapped sports cars 🏎️",
+        "description": "Giving away real cars on X for the first time.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/0e3GPea1Tyg/hqdefault.jpg",
+        "videoUrl": "https://x.com/MrBeast/status/1807890123456789012",
+        "embedUrl": "https://www.youtube-nocookie.com/embed/0e3GPea1Tyg",
+        "durationSeconds": 59,
+        "viewCount": 65200000,
+        "likeCount": 3200000,
+        "category": "Entertainment",
+        "aiDescription": "MrBeast rolls out an exclusive X video giving away brand-new vehicles to shocked fans in a series of instant challenges.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-14",
+        "publishedAt": "2026-11-14T09:15:00.000Z",
+        "velocityViewsPerHour": 1358333
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "tX-6XdbAC7E",
+        "creator": {
+          "name": "America's Funniest Home Videos",
+          "handle": "@afv",
+          "avatarUrl": "https://ui-avatars.com/api/?name=AFV&background=ef4444&color=fff",
+          "profileUrl": "https://www.youtube.com/@afv"
+        },
+        "title": "Why did he do this? 😭 #funny #shorts",
+        "description": "The ultimate classic fail caught on tape.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=tX-6XdbAC7E",
+        "embedUrl": "https://www.youtube.com/embed/tX-6XdbAC7E",
+        "durationSeconds": 14,
+        "viewCount": 32252988,
+        "likeCount": 147259,
+        "category": "Comedy",
+        "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-14",
+        "publishedAt": "2026-11-14T07:30:00.000Z",
+        "velocityViewsPerHour": 447958
+      },
+      {
+        "platform": "twitter",
+        "platformVideoId": "1808901234567890123",
+        "creator": {
+          "name": "Overtime",
+          "handle": "@overtime",
+          "avatarUrl": "https://ui-avatars.com/api/?name=OT&background=8b5cf6&color=fff",
+          "profileUrl": "https://x.com/overtime"
+        },
+        "title": "Running back completely leaps over standing defender into the end zone 😱",
+        "description": "Play of the entire high school football season.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+        "videoUrl": "https://x.com/overtime/status/1808901234567890123",
+        "embedUrl": "https://www.youtube-nocookie.com/embed/8dQ3Kf5u2ys",
+        "durationSeconds": 19,
+        "viewCount": 21900000,
+        "likeCount": 840000,
+        "category": "Sports",
+        "aiDescription": "An astonishing athletic hurdle where a football player hurdles directly over a standing safety into touchdown glory.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-14",
+        "publishedAt": "2026-11-14T09:15:00.000Z",
+        "velocityViewsPerHour": 456250
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "8dQ3Kf5u2ys",
+        "creator": {
+          "name": "Strong Mind Set",
+          "handle": "@strongmindset",
+          "avatarUrl": "https://ui-avatars.com/api/?name=SMS&background=10b981&color=fff",
+          "profileUrl": "https://www.youtube.com/@strongmindset"
+        },
+        "title": "Sha'Carri Richardson American Athlete #shorts",
+        "description": "Sha'Carri Richardson explosive 100m performance.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=8dQ3Kf5u2ys",
+        "embedUrl": "https://www.youtube.com/embed/8dQ3Kf5u2ys",
+        "durationSeconds": 14,
+        "viewCount": 147376962,
+        "likeCount": 3381909,
+        "category": "Sports",
+        "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-14",
+        "publishedAt": "2026-11-14T07:30:00.000Z",
+        "velocityViewsPerHour": 2046902
+      },
+      {
+        "platform": "youtube",
+        "platformVideoId": "Q9-EEoGQyTE",
+        "creator": {
+          "name": "Nick DiGiovanni",
+          "handle": "@nickdigiovanni",
+          "avatarUrl": "https://ui-avatars.com/api/?name=Nick&background=6366f1&color=fff",
+          "profileUrl": "https://www.youtube.com/@nickdigiovanni"
+        },
+        "title": "Cheese Stacking Challenge with ChefRush",
+        "description": "Massive cheese stack showdown with Bayashi and ChefRush.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg",
+        "videoUrl": "https://www.youtube.com/watch?v=Q9-EEoGQyTE",
+        "embedUrl": "https://www.youtube.com/embed/Q9-EEoGQyTE",
+        "durationSeconds": 15,
+        "viewCount": 14648091,
+        "likeCount": 174677,
+        "category": "Challenge",
+        "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
+        "isDailyDrop": true,
+        "dropDate": "2026-11-14",
+        "publishedAt": "2026-11-14T07:30:00.000Z",
+        "velocityViewsPerHour": 203445
+      }
+    ],
+    "platforms": {
+      "youtube": [
+        {
+          "platform": "youtube",
+          "platformVideoId": "DgM1YypmL_Q",
+          "creator": {
+            "name": "Snoop.newspaper",
+            "handle": "@snoopnews",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Snoop&background=f59e0b&color=fff",
+            "profileUrl": "https://www.youtube.com/@snoopnews"
+          },
+          "title": "Celebrities' hilarious reactions as they eat spicy wings on 'Hot Ones'",
+          "description": "Watch stars like BLACKPINK's Lisa and Jennie lose their cool over the world's hottest wings.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=DgM1YypmL_Q",
+          "embedUrl": "https://www.youtube.com/embed/DgM1YypmL_Q",
+          "durationSeconds": 61,
+          "viewCount": 16592354,
+          "likeCount": 484558,
+          "category": "Comedy",
+          "aiDescription": "Watch top celebrities struggle hilariously as they try to keep their cool while eating increasingly spicy wings on Hot Ones.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-14",
+          "publishedAt": "2026-11-14T07:30:00.000Z",
+          "velocityViewsPerHour": 230449
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "tX-6XdbAC7E",
+          "creator": {
+            "name": "America's Funniest Home Videos",
+            "handle": "@afv",
+            "avatarUrl": "https://ui-avatars.com/api/?name=AFV&background=ef4444&color=fff",
+            "profileUrl": "https://www.youtube.com/@afv"
+          },
+          "title": "Why did he do this? 😭 #funny #shorts",
+          "description": "The ultimate classic fail caught on tape.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=tX-6XdbAC7E",
+          "embedUrl": "https://www.youtube.com/embed/tX-6XdbAC7E",
+          "durationSeconds": 14,
+          "viewCount": 32252988,
+          "likeCount": 147259,
+          "category": "Comedy",
+          "aiDescription": "Prepare to laugh out loud at this utterly baffling and hilarious everyday blunder captured on camera.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-14",
+          "publishedAt": "2026-11-14T07:30:00.000Z",
+          "velocityViewsPerHour": 447958
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "8dQ3Kf5u2ys",
+          "creator": {
+            "name": "Strong Mind Set",
+            "handle": "@strongmindset",
+            "avatarUrl": "https://ui-avatars.com/api/?name=SMS&background=10b981&color=fff",
+            "profileUrl": "https://www.youtube.com/@strongmindset"
+          },
+          "title": "Sha'Carri Richardson American Athlete #shorts",
+          "description": "Sha'Carri Richardson explosive 100m performance.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=8dQ3Kf5u2ys",
+          "embedUrl": "https://www.youtube.com/embed/8dQ3Kf5u2ys",
+          "durationSeconds": 14,
+          "viewCount": 147376962,
+          "likeCount": 3381909,
+          "category": "Sports",
+          "aiDescription": "Witness the incredible speed and powerhouse performance of American track star Sha'Carri Richardson in this dynamic short.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-14",
+          "publishedAt": "2026-11-14T07:30:00.000Z",
+          "velocityViewsPerHour": 2046902
+        },
+        {
+          "platform": "youtube",
+          "platformVideoId": "Q9-EEoGQyTE",
+          "creator": {
+            "name": "Nick DiGiovanni",
+            "handle": "@nickdigiovanni",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Nick&background=6366f1&color=fff",
+            "profileUrl": "https://www.youtube.com/@nickdigiovanni"
+          },
+          "title": "Cheese Stacking Challenge with ChefRush",
+          "description": "Massive cheese stack showdown with Bayashi and ChefRush.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg",
+          "videoUrl": "https://www.youtube.com/watch?v=Q9-EEoGQyTE",
+          "embedUrl": "https://www.youtube.com/embed/Q9-EEoGQyTE",
+          "durationSeconds": 15,
+          "viewCount": 14648091,
+          "likeCount": 174677,
+          "category": "Challenge",
+          "aiDescription": "Watch culinary star Nick DiGiovanni take on an epic cheese stacking challenge alongside ChefRush and Bayashi.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-14",
+          "publishedAt": "2026-11-14T07:30:00.000Z",
+          "velocityViewsPerHour": 203445
+        }
+      ],
+      "twitter": [
+        {
+          "platform": "twitter",
+          "platformVideoId": "1807890123456789012",
+          "creator": {
+            "name": "MrBeast",
+            "handle": "@MrBeast",
+            "avatarUrl": "https://ui-avatars.com/api/?name=Beast&background=06b6d4&color=fff",
+            "profileUrl": "https://x.com/MrBeast"
+          },
+          "title": "Surprising random subscribers on X with custom wrapped sports cars 🏎️",
+          "description": "Giving away real cars on X for the first time.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/0e3GPea1Tyg/hqdefault.jpg",
+          "videoUrl": "https://x.com/MrBeast/status/1807890123456789012",
+          "embedUrl": "https://www.youtube-nocookie.com/embed/0e3GPea1Tyg",
+          "durationSeconds": 59,
+          "viewCount": 65200000,
+          "likeCount": 3200000,
+          "category": "Entertainment",
+          "aiDescription": "MrBeast rolls out an exclusive X video giving away brand-new vehicles to shocked fans in a series of instant challenges.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-14",
+          "publishedAt": "2026-11-14T09:15:00.000Z",
+          "velocityViewsPerHour": 1358333
+        },
+        {
+          "platform": "twitter",
+          "platformVideoId": "1808901234567890123",
+          "creator": {
+            "name": "Overtime",
+            "handle": "@overtime",
+            "avatarUrl": "https://ui-avatars.com/api/?name=OT&background=8b5cf6&color=fff",
+            "profileUrl": "https://x.com/overtime"
+          },
+          "title": "Running back completely leaps over standing defender into the end zone 😱",
+          "description": "Play of the entire high school football season.",
+          "thumbnailUrl": "https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg",
+          "videoUrl": "https://x.com/overtime/status/1808901234567890123",
+          "embedUrl": "https://www.youtube-nocookie.com/embed/8dQ3Kf5u2ys",
+          "durationSeconds": 19,
+          "viewCount": 21900000,
+          "likeCount": 840000,
+          "category": "Sports",
+          "aiDescription": "An astonishing athletic hurdle where a football player hurdles directly over a standing safety into touchdown glory.",
+          "isDailyDrop": true,
+          "dropDate": "2026-11-14",
+          "publishedAt": "2026-11-14T09:15:00.000Z",
+          "velocityViewsPerHour": 456250
+        }
+      ]
+    },
+    "generatedAt": "2026-11-14T13:09:44.528Z"
   }
 }

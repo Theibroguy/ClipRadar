@@ -11,6 +11,16 @@ export function getEmbedInfo(video) {
 
     // 1. Direct explicit embedUrl
     if (embedUrl) {
+        // Direct HTML5 video stream (e.g., X/Twitter video.twimg.com .mp4 or local/blob video)
+        if (
+            /\.(mp4|webm|ogg)($|\?)/i.test(embedUrl) ||
+            embedUrl.includes('video.twimg.com') ||
+            embedUrl.startsWith('blob:') ||
+            embedUrl.startsWith('data:video')
+        ) {
+            return { type: 'video', url: embedUrl };
+        }
+
         // If it's a YouTube embed URL, ensure autoplay
         if (embedUrl.includes('youtube.com') || embedUrl.includes('youtube-nocookie.com')) {
             const separator = embedUrl.includes('?') ? '&' : '?';
@@ -34,9 +44,10 @@ export function getEmbedInfo(video) {
             };
         }
 
-        // Direct HTML5 video file (.mp4, .webm, .ogg) or blob / data URL
+        // Direct HTML5 video file (.mp4, .webm, .ogg), X/Twitter video CDN, or blob / data URL
         if (
             /\.(mp4|webm|ogg)($|\?)/i.test(videoUrl) ||
+            videoUrl.includes('video.twimg.com') ||
             (videoUrl && (videoUrl.startsWith('blob:') || videoUrl.startsWith('data:video')))
         ) {
             return { type: 'video', url: videoUrl };

@@ -256,7 +256,7 @@ const ROTATING_YT_BACKUPS = [
     ],
 ];
 
-// Curated high-impact backup pools for X (Twitter)
+// Curated high-impact backup pools for X (Twitter) — all with playable in-app embeds
 const ROTATING_TWITTER_BACKUPS = [
     [
         {
@@ -270,9 +270,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'SpaceX Starship orbital flight test hot-staging manoeuvre captured from drone',
             description: 'Dramatic drone tracking view of Starship hot-staging separation in mid-air over the Gulf of Mexico.',
-            thumbnailUrl: 'https://picsum.photos/seed/starship01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/e1r57oXmFqY/hqdefault.jpg',
             videoUrl: 'https://x.com/elonmusk/status/1798432198012345678',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/e1r57oXmFqY',
             durationSeconds: 42,
             viewCount: 42500000,
             likeCount: 1850000,
@@ -290,9 +290,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Guy attempts backward basketball shot from arena rooftop... you will not believe the ending 😂',
             description: 'The celebration alone is worth watching 10 times over.',
-            thumbnailUrl: 'https://picsum.photos/seed/barstool01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/tX-6XdbAC7E/hqdefault.jpg',
             videoUrl: 'https://x.com/barstoolsports/status/1799201928374650123',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/tX-6XdbAC7E',
             durationSeconds: 28,
             viewCount: 19800000,
             likeCount: 640000,
@@ -310,9 +310,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: "Pedro Pascal and Bella Ramsey unable to stop laughing during dramatic scene take on set",
             description: 'Pure blooper gold from backstage filming.',
-            thumbnailUrl: 'https://picsum.photos/seed/pedro01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg',
             videoUrl: 'https://x.com/CultureCrave/status/1796543210987654321',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/DgM1YypmL_Q',
             durationSeconds: 35,
             viewCount: 15400000,
             likeCount: 890000,
@@ -330,9 +330,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'IShowSpeed meets Brazilian soccer legend Ronaldo in wildest unscripted fan moment',
             description: 'Speed Barking at Ronaldo was not on the 2024 bingo card.',
-            thumbnailUrl: 'https://picsum.photos/seed/speed01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/0f-P7imlcC4/hqdefault.jpg',
             videoUrl: 'https://x.com/Dexerto/status/1795123456789012345',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/0f-P7imlcC4',
             durationSeconds: 45,
             viewCount: 28900000,
             likeCount: 1120000,
@@ -352,9 +352,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Tesla Optimus humanoid robot sorting battery cells autonomously in factory floor test',
             description: 'End-to-end neural networks running on robot hardware in real-time factory conditions.',
-            thumbnailUrl: 'https://picsum.photos/seed/optimus01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/1rQ_s_XgEPo/hqdefault.jpg',
             videoUrl: 'https://x.com/Tesla/status/1801234567890123456',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/1rQ_s_XgEPo',
             durationSeconds: 52,
             viewCount: 38200000,
             likeCount: 1450000,
@@ -372,9 +372,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'High school quarterback throws impossible 70-yard no-look hail mary to win state championship',
             description: 'As time expired! Unbelievable sports moment.',
-            thumbnailUrl: 'https://picsum.photos/seed/sports02/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg',
             videoUrl: 'https://x.com/SportsCenter/status/1802345678901234567',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/8dQ3Kf5u2ys',
             durationSeconds: 31,
             viewCount: 24100000,
             likeCount: 780000,
@@ -392,9 +392,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Dad builds elaborate 50-step Rube Goldberg machine just to pour morning cereal',
             description: 'The mechanical genius and absurdity is unmatched.',
-            thumbnailUrl: 'https://picsum.photos/seed/rube01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/Q9-EEoGQyTE/hqdefault.jpg',
             videoUrl: 'https://x.com/NoContextHumans/status/1803456789012345678',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/Q9-EEoGQyTE',
             durationSeconds: 58,
             viewCount: 18700000,
             likeCount: 920000,
@@ -414,9 +414,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Testing the first transparent holographic display glass... mind blown 🤯',
             description: 'Full studio hands-on with next-gen spatial projection hardware.',
-            thumbnailUrl: 'https://picsum.photos/seed/mkbhd01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/1rQ_s_XgEPo/hqdefault.jpg',
             videoUrl: 'https://x.com/MKBHD/status/1804567890123456789',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/1rQ_s_XgEPo',
             durationSeconds: 49,
             viewCount: 29400000,
             likeCount: 1100000,
@@ -434,9 +434,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: '360 windmill through-the-legs dunk in transition during streetball tournament 🔥',
             description: 'The crowd invaded the asphalt immediately.',
-            thumbnailUrl: 'https://picsum.photos/seed/hoh01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg',
             videoUrl: 'https://x.com/HouseOfHighlights/status/1805678901234567890',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/8dQ3Kf5u2ys',
             durationSeconds: 22,
             viewCount: 31200000,
             likeCount: 1350000,
@@ -454,9 +454,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Kai Cenat unexpected guest entrance triggers absolute pandemonium in streaming mansion',
             description: 'Nobody was ready for this cameo.',
-            thumbnailUrl: 'https://picsum.photos/seed/kai01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/0f-P7imlcC4/hqdefault.jpg',
             videoUrl: 'https://x.com/KaiCenat/status/1806789012345678901',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/0f-P7imlcC4',
             durationSeconds: 38,
             viewCount: 27500000,
             likeCount: 980000,
@@ -476,9 +476,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Surprising random subscribers on X with custom wrapped sports cars 🏎️',
             description: 'Giving away real cars on X for the first time.',
-            thumbnailUrl: 'https://picsum.photos/seed/beast01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/0e3GPea1Tyg/hqdefault.jpg',
             videoUrl: 'https://x.com/MrBeast/status/1807890123456789012',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/0e3GPea1Tyg',
             durationSeconds: 59,
             viewCount: 65200000,
             likeCount: 3200000,
@@ -496,9 +496,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Running back completely leaps over standing defender into the end zone 😱',
             description: 'Play of the entire high school football season.',
-            thumbnailUrl: 'https://picsum.photos/seed/overtime01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg',
             videoUrl: 'https://x.com/overtime/status/1808901234567890123',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/8dQ3Kf5u2ys',
             durationSeconds: 19,
             viewCount: 21900000,
             likeCount: 840000,
@@ -518,9 +518,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Billie Eilish and Olivia Rodrigo sharing wholesome laughs on the red carpet',
             description: 'The sweetest interaction of the Grammy awards evening.',
-            thumbnailUrl: 'https://picsum.photos/seed/popbase01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/8ZtJzT7x_C0/hqdefault.jpg',
             videoUrl: 'https://x.com/PopBase/status/1809012345678901234',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/8ZtJzT7x_C0',
             durationSeconds: 26,
             viewCount: 16800000,
             likeCount: 910000,
@@ -538,9 +538,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Wingsuit flight 5 feet above mountain ridge captured in 8K 360 camera',
             description: 'Do not try this at home. Extreme proximity wingsuit speed.',
-            thumbnailUrl: 'https://picsum.photos/seed/redbull01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/0e3GPea1Tyg/hqdefault.jpg',
             videoUrl: 'https://x.com/redbull/status/1810123456789012345',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/0e3GPea1Tyg',
             durationSeconds: 44,
             viewCount: 34100000,
             likeCount: 1620000,
@@ -560,9 +560,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'HERE WE GO! 🚨 Wild midnight airport arrival scene for record transfer signing',
             description: 'Thousands of fans singing in the terminal at 2 AM.',
-            thumbnailUrl: 'https://picsum.photos/seed/fabrizio01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/8dQ3Kf5u2ys/hqdefault.jpg',
             videoUrl: 'https://x.com/FabrizioRomano/status/1811234567890123456',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/8dQ3Kf5u2ys',
             durationSeconds: 34,
             viewCount: 22600000,
             likeCount: 890000,
@@ -580,9 +580,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Unreal Engine 5 hyper-realistic physics demo in real time... looks like real life',
             description: 'Next gen real-time lighting and destruction physics.',
-            thumbnailUrl: 'https://picsum.photos/seed/ign01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/1rQ_s_XgEPo/hqdefault.jpg',
             videoUrl: 'https://x.com/IGN/status/1812345678901234567',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/1rQ_s_XgEPo',
             durationSeconds: 47,
             viewCount: 25800000,
             likeCount: 1040000,
@@ -602,9 +602,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Optimus hand with 22 degrees of freedom catching a tennis ball thrown at speed 🎾',
             description: 'Sub-millisecond tactile response and optical tracking in action.',
-            thumbnailUrl: 'https://picsum.photos/seed/optimus02/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/e1r57oXmFqY/hqdefault.jpg',
             videoUrl: 'https://x.com/elonmusk/status/1813456789012345678',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/e1r57oXmFqY',
             durationSeconds: 24,
             viewCount: 46100000,
             likeCount: 1980000,
@@ -622,9 +622,9 @@ const ROTATING_TWITTER_BACKUPS = [
             },
             title: 'Ryan Reynolds and Hugh Jackman hilarious blooper reel moment backstage',
             description: 'The comedic chemistry between these two is effortless.',
-            thumbnailUrl: 'https://picsum.photos/seed/deadpool01/640/360',
+            thumbnailUrl: 'https://i.ytimg.com/vi/DgM1YypmL_Q/hqdefault.jpg',
             videoUrl: 'https://x.com/CultureCrave/status/1814567890123456789',
-            embedUrl: '',
+            embedUrl: 'https://www.youtube-nocookie.com/embed/DgM1YypmL_Q',
             durationSeconds: 32,
             viewCount: 28400000,
             likeCount: 1250000,
@@ -688,13 +688,22 @@ export function getSecondsUntilNextDrop() {
  * @param {string} [targetDateKey] - YYYY-MM-DD (defaults to today)
  * @param {boolean} [forceRefresh=false] - Re-fetch fresh videos
  * @param {string} [requestedPlatform='all'] - 'all' | 'youtube' | 'twitter'
+ * @param {object} [options={}] - { creators: string[], hashtags: string[] }
  */
-export async function getDailyDrop(targetDateKey = null, forceRefresh = false, requestedPlatform = 'all') {
+export async function getDailyDrop(
+    targetDateKey = null,
+    forceRefresh = false,
+    requestedPlatform = 'all',
+    options = {}
+) {
     const todayKey = targetDateKey || getDateKey();
     const drops = loadDrops();
 
     const existing = drops[todayKey];
-    const hasTwitter = existing && Array.isArray(existing.videos) && existing.videos.some((v) => v.platform === 'twitter');
+    const hasTwitter =
+        existing &&
+        Array.isArray(existing.videos) &&
+        existing.videos.some((v) => v.platform === 'twitter' && Boolean(v.embedUrl));
     if (!forceRefresh && existing && Array.isArray(existing.videos) && existing.videos.length > 0 && hasTwitter) {
         let returnVideos = existing.videos;
         if (requestedPlatform && requestedPlatform !== 'all') {
@@ -742,11 +751,14 @@ export async function getDailyDrop(targetDateKey = null, forceRefresh = false, r
         }
     }
 
-    // 2. X / Twitter Live Fetch
-    if (process.env.TWITTER_BEARER_TOKEN) {
+    // 2. X / Twitter Live Fetch (supports TWITTER_BEARER_TOKEN or keyless X creator + stream discovery)
+    if (process.env.TWITTER_BEARER_TOKEN || process.env.NODE_ENV !== 'test') {
         try {
             console.log(`[DailyDrops] Fetching fresh X/Twitter clips for date: ${todayKey}`);
-            const rawTw = await fetchTwitterVideos(currentThemeConfig.twQueries, 4);
+            const rawTw = await fetchTwitterVideos(currentThemeConfig.twQueries, 4, {
+                creators: options.creators,
+                hashtags: options.hashtags,
+            });
             if (rawTw && rawTw.length > 0) {
                 fetchedTwitter = rawTw.map((v, idx) => {
                     const views = v.viewCount || 80000;
@@ -755,9 +767,11 @@ export async function getDailyDrop(targetDateKey = null, forceRefresh = false, r
                         ...v,
                         isDailyDrop: true,
                         dropDate: todayKey,
-                        category: idx % 2 === 0 ? 'Entertainment' : 'Science & Tech',
+                        category: v.category || (idx % 2 === 0 ? 'Entertainment' : 'Science & Tech'),
                         velocityViewsPerHour: Math.round(views / hoursSince),
-                        aiDescription: `Trending X/Twitter clip curated in today's Daily Radar Drop. Spreading rapidly with massive quote-tweet engagement.`,
+                        aiDescription:
+                            v.aiDescription ||
+                            `Trending X/Twitter clip curated in today's Daily Radar Drop. Spreading rapidly with massive quote-tweet engagement.`,
                     };
                 });
             }

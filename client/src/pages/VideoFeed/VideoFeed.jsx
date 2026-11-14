@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useInRouterContext, useNavigate } from 'react-router-dom';
-import { fetchVideos } from '../../api/videos.js';
+import { fetchVideos, grabXVideos } from '../../api/videos.js';
 import VideoCard from '../../components/VideoCard/VideoCard.jsx';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import Spinner from '../../components/Spinner/Spinner.jsx';
@@ -23,6 +23,7 @@ import {
     IconInstagram,
     IconTikTok,
     IconScissors,
+    IconBolt,
 } from '../../components/common/Icons.jsx';
 import './VideoFeed.css';
 
@@ -140,6 +141,11 @@ export default function VideoFeed({ pagePlatform }) {
     const [retryCount, setRetryCount] = useState(0);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [showBackToTop, setShowBackToTop] = useState(false);
+
+    // Live X / Twitter Video Grabber State
+    const [xGrabInput, setXGrabInput] = useState('');
+    const [isGrabbingX, setIsGrabbingX] = useState(false);
+    const [xGrabMessage, setXGrabMessage] = useState('');
 
     const sentinelRef = useRef(null);
     const hasLoadedOnceRef = useRef(false);
@@ -310,6 +316,41 @@ export default function VideoFeed({ pagePlatform }) {
         setSearchQuery('');
     }
 
+    async function handleGrabFromX(e, overrideInput = null) {
+        if (e) e.preventDefault();
+        if (isGrabbingX) return;
+        const queryVal = overrideInput !== null ? overrideInput : xGrabInput.trim();
+        setIsGrabbingX(true);
+        setXGrabMessage('');
+        try {
+            const res = await grabXVideos({
+                input: queryVal,
+                creators: settings?.trackedTwitterCreators || [],
+                hashtags: settings?.trackedTwitterHashtags || [],
+            });
+            const grabbedList = res?.videos || [];
+            if (grabbedList.length > 0) {
+                setVideos((prev) => {
+                    const existingIds = new Set(prev.map((v) => v.platformVideoId));
+                    const fresh = grabbedList.filter((v) => !existingIds.has(v.platformVideoId));
+                    return [...fresh, ...prev];
+                });
+                setTotal((prev) => prev + grabbedList.length);
+                if (res.mode === 'post' && grabbedList[0]) {
+                    setSelectedVideo(grabbedList[0]);
+                }
+                setXGrabInput('');
+                setXGrabMessage(`✨ Grabbed ${grabbedList.length} live X video clip${grabbedList.length > 1 ? 's' : ''} into your feed!`);
+                setTimeout(() => setXGrabMessage(''), 4000);
+            }
+        } catch (err) {
+            setXGrabMessage(`⚠️ ${err.message || 'Could not grab X video.'}`);
+            setTimeout(() => setXGrabMessage(''), 4000);
+        } finally {
+            setIsGrabbingX(false);
+        }
+    }
+
     const currentTotalCount = showSavedOnly ? filteredBookmarks.length : total;
     const stageKey = `${activePlatform}-${filters.category}-${showSavedOnly ? 'saved' : 'feed'}-${settings?.feedDensity || 'grid'}`;
 
@@ -373,6 +414,39 @@ export default function VideoFeed({ pagePlatform }) {
                         placeholder={`Search ${pageMeta.title.toLowerCase()}, creators, AI summaries, or tags…`}
                     />
                 </div>
+
+                {/* Live X / Twitter Video & Creator Grabber Bar */}
+                {activePlatform === 'twitter' && (
+                    <div className="video-feed__x-grabber" aria-label="Grab X Videos by Post URL, Creator, or Hashtag">
+                        <form onSubmit={(e) => handleGrabFromX(e)} className="video-feed__x-grabber-pill">
+                            <span className="video-feed__x-grabber-badge">
+                                <IconX size={14} />
+                                <span>Live X Video Grabber</span>
+                            </span>
+                            <input
+                                type="text"
+                                value={xGrabInput}
+                                onChange={(e) => setXGrabInput(e.target.value)}
+                                placeholder="Paste X post URL (https://x.com/.../status/...), @creator handle, or #hashtag…"
+                                className="video-feed__x-grabber-input"
+                                aria-label="X post URL, creator handle, or hashtag"
+                            />
+                            <button
+                                type="submit"
+                                className="video-feed__x-grabber-btn"
+                                disabled={isGrabbingX}
+                            >
+                                <IconBolt size={14} />
+                                <span>{isGrabbingX ? 'Grabbing from X…' : 'Grab X Videos'}</span>
+                            </button>
+                        </form>
+                        {xGrabMessage && (
+                            <div className="video-feed__x-grabber-toast" role="status">
+                                {xGrabMessage}
+                            </div>
+                        )}
+                    </div>
+                )}
             </header>
 
             {/* Daily Radar Drops Section (on YouTube and X/Twitter pages) */}

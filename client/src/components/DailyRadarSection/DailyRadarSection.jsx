@@ -128,7 +128,10 @@ export default function DailyRadarSection({ onPreview, platform = 'youtube', onS
     async function handleForceRefresh() {
         setIsRefreshing(true);
         try {
-            const res = await generateFreshDailyDrop('all');
+            const res = await generateFreshDailyDrop('all', {
+                creators: trackedTwitterCreators,
+                hashtags: trackedTwitterHashtags,
+            });
             if (res.drop) {
                 setDailyData(res.drop);
                 setSelectedDate(res.drop.date);

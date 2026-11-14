@@ -11,6 +11,7 @@ import {
     getChannelAnalyticsController,
     assessChannelVideoController,
     refreshChannelCoachController,
+    grabXVideoController,
 } from '../controllers/videos.js';
 
 const router = Router();
@@ -19,6 +20,7 @@ router.get('/health', healthCheck);
 router.get('/videos', getVideos);
 router.post('/videos', createStudioVideo);
 router.post('/videos/refresh', refreshVideos);
+router.post('/videos/x-grab', grabXVideoController);
 router.post('/studio/moments', extractMoments);
 router.post('/studio/hook', generateHook);
 router.post('/studio/save', createStudioVideo);
