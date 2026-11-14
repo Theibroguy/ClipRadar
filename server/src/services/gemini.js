@@ -634,14 +634,14 @@ Channel Avg Views: ${channelBaseline.avgViewsPerVideo || 'N/A'}
 Respond strictly with valid JSON in this exact format (no markdown fences):
 {
   "overallScore": 85,
-  "verdict": "...",
+  "verdict": "Short 3-6 word badge title only (e.g. Viral Outlier - Double Down)",
   "pillars": {
     "hookScore": 88,
     "packagingScore": 84,
     "pacingScore": 86,
     "viralityScore": 82
   },
-  "summary": "...",
+  "summary": "1-2 sentence diagnostic summary...",
   "whatWorked": ["...", "...", "..."],
   "whatToImprove": ["...", "...", "..."],
   "titleRewrites": ["...", "...", "..."],
@@ -661,9 +661,19 @@ Respond strictly with valid JSON in this exact format (no markdown fences):
             cleanText = cleanText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
         }
         const parsed = JSON.parse(cleanText);
+        const rawVerdict = typeof parsed.verdict === 'string' ? parsed.verdict.trim() : fallback.verdict;
+        const safeVerdict =
+            rawVerdict.length > 52
+                ? `${rawVerdict.slice(0, 49).trim()}…`
+                : rawVerdict;
         return {
             ...fallback,
             ...parsed,
+            verdict: safeVerdict,
+            summary:
+                rawVerdict.length > 52 && !parsed.summary
+                    ? rawVerdict
+                    : parsed.summary || fallback.summary,
             pillars: { ...fallback.pillars, ...(parsed.pillars || {}) },
             whatWorked: Array.isArray(parsed.whatWorked) && parsed.whatWorked.length > 0 ? parsed.whatWorked : fallback.whatWorked,
             whatToImprove: Array.isArray(parsed.whatToImprove) && parsed.whatToImprove.length > 0 ? parsed.whatToImprove : fallback.whatToImprove,
